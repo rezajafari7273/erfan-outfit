@@ -7,6 +7,7 @@ import ProductCard from "@/features/products/components/ProductCard";
 import InstantOffers from "@/features/home/components/InstantOffers";
 import AmazingProducts from "@/features/home/components/AmazingProducts"
 
+
 export default function Home() {
   return (
       <div className="min-h-screen space-y-12 md:space-y-14">
@@ -47,11 +48,14 @@ export default function Home() {
             
           </div>
         </section>
-        
+
 
         <section className="container">
           <AmazingProducts />
         </section>
+        
+
+
 
         {/* Categories Section (حفظ شده به صورت ثابت) */}
         <section className="py-16 bg-white mt-10 rounded-t-[3rem]">
@@ -77,7 +81,7 @@ export default function Home() {
         </section>
 
         {/* Featured Products (حفظ شده به صورت ثابت) */}
-        <section className="py-16 bg-gray-50">
+        {/* <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-6">
             <div className="flex justify-between items-center mb-12">
               <h2 className="text-3xl font-bold">محصولات ویژه</h2>
@@ -103,19 +107,19 @@ export default function Home() {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* 6. استفاده از Small Banners در میانه صفحه */}
-        <section className="py-12 bg-white">
+        {/* <section className="py-12 bg-white">
           <div className="container mx-auto px-6">
             <h2 className="text-2xl font-bold mb-8 text-gray-800">پیشنهادهای ویژه سرچ</h2>
-            {/* رندر اسمال بنرهای مربوط به slotKey="searchModal" با گرید ۲ تایی در دسکتاپ */}
+            
             <PromotionRenderer type="smallBanner" slotKey="searchModal" className="md:grid-cols-2" />
           </div>
-        </section>
+        </section> */}
 
         {/* Brands Section (حفظ شده به صورت ثابت) */}
-        <section className="py-16 bg-white">
+        {/* <section className="py-16 bg-white">
           <div className="container mx-auto px-6">
             <h2 className="text-3xl font-bold text-center mb-12">برندهای معروف</h2>
             <div className="grid grid-cols-2 md:grid-cols-6 gap-8">
@@ -129,10 +133,10 @@ export default function Home() {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Features (حفظ شده به صورت ثابت) */}
-        <section className="py-16 bg-gray-50 rounded-b-[3rem]">
+        {/* <section className="py-16 bg-gray-50 rounded-b-[3rem]">
           <div className="container mx-auto px-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               {[
@@ -149,10 +153,10 @@ export default function Home() {
               ))}
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Newsletter (حفظ شده به صورت ثابت) */}
-        <section className="py-16 bg-white">
+        {/* <section className="py-16 bg-white">
           <div className="container mx-auto px-6 max-w-2xl">
             <h2 className="text-3xl font-bold text-center mb-4">عضویت در خبرنامه</h2>
             <p className="text-gray-600 text-center mb-8">
@@ -169,7 +173,7 @@ export default function Home() {
               </button>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* نمونه استفاده از اسمال بنر در منوی موبایل (به صورت کامنت) */}
         {/* <aside className="md:hidden">

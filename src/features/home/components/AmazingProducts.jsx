@@ -1,64 +1,67 @@
-import React, { useRef } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { 
-  ChevronRightIcon, 
-  ChevronLeftIcon, 
-  SparklesIcon, 
-  ClockIcon 
-} from '@heroicons/react/24/outline';
-import { FireIcon } from '@heroicons/react/24/solid';
+"use client";
+
+import React, { useRef } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  ChevronRightIcon,
+  ChevronLeftIcon,
+  SparklesIcon,
+  ClockIcon,
+} from "@heroicons/react/24/outline";
+import { FireIcon } from "@heroicons/react/24/solid";
+import SectionHeader from "@/components/common/SectionHeader";
 
 // نمونه داده‌های محصولات شگفت‌انگیز
 const AMAZING_PRODUCTS = [
   {
-    id: '1',
-    title: 'ساعت هوشمند مدل Ultra 2 پرو',
+    id: "1",
+    title: "ساعت هوشمند مدل Ultra 2 پرو",
     price: 3850000,
     originalPrice: 4500000,
     discountPercent: 14,
-    image: '/images/products/watch.png',
-    href: '/products/watch-ultra-2',
+    image: "/images/products/watch.png",
+    href: "/products/watch-ultra-2",
     stock: 4,
   },
   {
-    id: '2',
-    title: 'هدفون بی‌سیم نویز کنسلینگ',
+    id: "2",
+    title: "هدفون بی‌سیم نویز کنسلینگ",
     price: 2100000,
     originalPrice: 2800000,
     discountPercent: 25,
-    image: '/images/products/headphone.png',
-    href: '/products/wireless-headphone',
+    image: "/images/products/headphone.png",
+    href: "/products/wireless-headphone",
     stock: 2,
   },
   {
-    id: '3',
-    title: 'اسپیکر بلوتوثی قابل حمل ضدآب',
+    id: "3",
+    title: "اسپیکر بلوتوثی قابل حمل ضدآب",
     price: 1450000,
     originalPrice: 1900000,
     discountPercent: 23,
-    image: '/images/products/speaker.png',
-    href: '/products/bluetooth-speaker',
+    image: "/images/products/speaker.png",
+    href: "/products/bluetooth-speaker",
     stock: 7,
   },
   {
-    id: '4',
-    title: 'مچ‌بند سلامتی هوشمند نسخه گلوبال',
+    id: "4",
+    title: "مچ‌بند سلامتی هوشمند نسخه گلوبال",
     price: 890000,
     originalPrice: 1200000,
     discountPercent: 26,
-    image: '/images/products/band.png',
-    href: '/products/smart-band',
+    image: "/images/products/band.png",
+    href: "/products/smart-band",
     stock: 3,
   },
   {
-    id: '5',
-    title: 'پاوربانک ۲۰۰۰۰ میلی‌آمپر فست شارژ',
+    id: "5",
+    title: "پاوربانک ۲۰۰۰۰ میلی‌آمپر فست شارژ",
     price: 1250000,
     originalPrice: 1600000,
     discountPercent: 21,
-    image: '/images/products/powerbank.png',
-    href: '/products/powerbank-20k',
+    image: "/images/products/powerbank.png",
+    href: "/products/powerbank-20k",
     stock: 5,
   },
 ];
@@ -68,56 +71,64 @@ export default function AmazingOffersSlider() {
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
-      const scrollAmount = direction === 'left' ? -300 : 300;
+      const scrollAmount = direction === "left" ? -300 : 300;
       scrollContainerRef.current.scrollBy({
         left: scrollAmount,
-        behavior: 'smooth',
+        behavior: "smooth",
       });
     }
   };
 
   const formatPrice = (price) => {
-    return new Intl.NumberFormat('fa-IR').format(price);
+    return new Intl.NumberFormat("fa-IR").format(price);
   };
 
   return (
-    <div className="w-full py-6">
-      {/* کانتینر اصلی هماهنگ با پس‌زمینه #F6F5EF */}
-      <div className="relative group bg-white/90 backdrop-blur-md rounded-3xl p-6 border border-white/80 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all duration-500 overflow-hidden">
+    <section className="w-full py-6 space-y-4">
+      {/* فراخوانی کامپوننت اختصاصی SectionHeader */}
+      <SectionHeader
+        icon={FireIcon}
+        titlePrimary="پیشنهاد‌های"
+        titleSecondary="شگفت‌انگیز"
+        watermarkText="AMAZING OFFERS"
+        watermarkTextMobile="OFFERS"
+        subtitleMain="تخفیف‌های ویژه و استثنایی"
+        subtitleHighlight="تخفیف‌های ویژه"
+        subtitleSub="فرصت محدود جهت خریدهای شگفت‌انگیز هفته"
+        buttonText="مشاهده همه پیشنهاد‌ها"
+        buttonTextMobile="همه"
+        buttonHref="/offers"
+        showSubtitle={true}
+        showButton={true}
+      />
+
+      {/* کانتینر اصلی اسلایدر هماهنگ با تم F6F5EF */}
+      <div className="relative group  border border-white/80 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.05)] transition-all duration-500 overflow-hidden">
         
-        {/* هدر بخش شگفت‌انگیز */}
-        <div className="flex items-center justify-between mb-6 pb-4 border-b border-[#EAE7DC]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#e5c158] to-[#f3d986] flex items-center justify-center text-amber-950 shadow-md shadow-amber-500/20">
-              <FireIcon className="w-6 h-6 animate-pulse" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold text-[#2A2A2A]">پیشنهادات شگفت‌انگیز</h2>
-                <span className="flex items-center gap-1 text-xs bg-rose-50 text-rose-600 font-medium px-2.5 py-1 rounded-full border border-rose-100">
-                  <ClockIcon className="w-3.5 h-3.5" />
-                  مدت محدود
-                </span>
-              </div>
-              <p className="text-xs text-gray-500 mt-0.5">تخفیف‌های ویژه با زمان و تعداد محدود</p>
-            </div>
+        {/* نوار بالای اسلایدر: دکمه‌های فلش اسکرول و برچسب زمان */}
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-[#EAE7DC]">
+          <div className="flex items-center gap-2">
+            <span className="flex items-center gap-1 text-xs bg-rose-50 text-rose-600 font-medium px-3 py-1 rounded-full border border-rose-100">
+              <ClockIcon className="w-3.5 h-3.5" />
+              زمان باقی‌مانده محدود
+            </span>
           </div>
 
-          {/* دکمه‌های کنترل اسلایدر */}
+          {/* دکمه‌های کنترل افقی اسلایدر */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => scroll('right')}
-              className="w-9 h-9 rounded-xl bg-[#F0EEE6] border border-[#E4E0D4] flex items-center justify-center text-gray-700 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-95"
+              onClick={() => scroll("right")}
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#F0EEE6] border border-[#E4E0D4] flex items-center justify-center text-gray-700 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-95"
               aria-label="قبلی"
             >
-              <ChevronRightIcon className="w-5 h-5" />
+              <ChevronRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <button
-              onClick={() => scroll('left')}
-              className="w-9 h-9 rounded-xl bg-[#F0EEE6] border border-[#E4E0D4] flex items-center justify-center text-gray-700 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-95"
+              onClick={() => scroll("left")}
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#F0EEE6] border border-[#E4E0D4] flex items-center justify-center text-gray-700 hover:bg-white hover:shadow-sm transition-all duration-200 active:scale-95"
               aria-label="بعدی"
             >
-              <ChevronLeftIcon className="w-5 h-5" />
+              <ChevronLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
@@ -126,12 +137,12 @@ export default function AmazingOffersSlider() {
         <div
           ref={scrollContainerRef}
           className="flex items-center gap-4 overflow-x-auto scrollbar-none snap-x snap-mandatory py-2"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {AMAZING_PRODUCTS.map((product) => (
             <div
               key={product.id}
-              className="flex-shrink-0 w-[260px] sm:w-[280px] snap-start"
+              className="flex-shrink-0 w-[250px] sm:w-[270px] snap-start"
             >
               <Link
                 href={product.href}
@@ -158,9 +169,8 @@ export default function AmazingOffersSlider() {
                     {product.title}
                   </h3>
 
-                  {/* بخش قیمت و موجودی */}
+                  {/* قیمت و موجودی */}
                   <div className="space-y-2 pt-2 border-t border-black/5">
-                    {/* قیمت قبلی و تعداد */}
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-rose-600 font-medium">
                         تنها {product.stock} عدد باقی‌مانده
@@ -170,7 +180,6 @@ export default function AmazingOffersSlider() {
                       </span>
                     </div>
 
-                    {/* قیمت اصلی با تخفیف */}
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-gray-500">قیمت شگفت‌انگیز:</span>
                       <div className="flex items-center gap-1">
@@ -186,7 +195,7 @@ export default function AmazingOffersSlider() {
             </div>
           ))}
 
-          {/* کارت "مشاهده همه" */}
+          {/* کارت "مشاهده همه" در انتهای اسلایدر */}
           <div className="flex-shrink-0 w-[180px] snap-start h-full">
             <Link
               href="/offers"
@@ -202,6 +211,6 @@ export default function AmazingOffersSlider() {
         </div>
 
       </div>
-    </div>
+    </section>
   );
 }
