@@ -17,6 +17,10 @@
   --color-primary-soft: #F5E8EC;
 
   /* Text */
+  --color-product-title: #3B3535;
+  --color-product-desctipion: #6E6868;
+
+
   --color-text-primary: #1C191A;
   --color-text-secondary: #625B5D;
   --color-text-muted: #9A9294;
@@ -71,7 +75,11 @@
   --color-text-primary: var(--color-text-primary);
   --color-text-secondary: var(--color-text-secondary);
   --color-text-muted: var(--color-text-muted);
+
+
   --color-button-text: var(--color-button-text);
+  --color-product-title: var(--color-product-title);
+  --color-product-desctipion: var(--color-product-desctipion);
 
 
   --color-border: var(--color-border);

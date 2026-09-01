@@ -79,7 +79,7 @@ function ProductSlide({ item }) {
           </div>
 
           {/* عنوان بدون truncate مخرب، استفاده از line-clamp-2 برای استفاده کامل از عرض */}
-          <h3 className="text-xs sm:text-sm md:text-base font-bold text-[#3B3535] transition-colors group-hover/card:text-primary leading-snug line-clamp-2 break-words">
+          <h3 className="text-xs sm:text-sm md:text-base font-bold text-product-title transition-colors group-hover/card:text-primary leading-snug line-clamp-2 break-words">
             {item.title}
           </h3>
 

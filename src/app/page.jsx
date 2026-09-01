@@ -6,6 +6,7 @@ import PopularCategories from "@/features/home/components/PopularCategories";
 import ProductCard from "@/features/products/components/ProductCard";
 import InstantOffers from "@/features/home/components/InstantOffers";
 import AmazingProducts from "@/features/home/components/AmazingProducts"
+import LatestProducts from "@/features/home/components/LatestProducts";
 
 
 export default function Home() {
@@ -31,7 +32,7 @@ export default function Home() {
 
 
         {/* Instans Offers and banners */}
-        <section className="container mx-auto ">
+        <section className="container mx-auto">
           <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 items-stretch">
 
             <div className="w-full lg:w-[40%] min-w-0">
@@ -52,6 +53,16 @@ export default function Home() {
 
         <section className="container">
           <AmazingProducts />
+        </section>
+
+
+        <div className="container mx-auto">
+            <PromotionRenderer type="smallBanner" slotKey="searchModal" className="w-full" />
+        </div>
+
+
+        <section className="container">
+          <LatestProducts />
         </section>
         
 
@@ -110,14 +121,7 @@ export default function Home() {
         </section> */}
 
         {/* 6. استفاده از Small Banners در میانه صفحه */}
-        {/* <section className="py-12 bg-white">
-          <div className="container mx-auto px-6">
-            <h2 className="text-2xl font-bold mb-8 text-gray-800">پیشنهادهای ویژه سرچ</h2>
-            
-            <PromotionRenderer type="smallBanner" slotKey="searchModal" className="md:grid-cols-2" />
-          </div>
-        </section> */}
-
+        
         {/* Brands Section (حفظ شده به صورت ثابت) */}
         {/* <section className="py-16 bg-white">
           <div className="container mx-auto px-6">

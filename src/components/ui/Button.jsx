@@ -79,7 +79,7 @@ export default function Button({
       {/* آیکون سمت راست (پیش‌فرض) */}
       {!loading && Icon && iconPosition === 'right' && (
         isGradient ? (
-          <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300">
+          <div className="w-5 h-5 rounded-full  flex items-center justify-center shrink-0 transition-transform duration-300">
             <Icon className="w-3.5 h-3.5 stroke-[2.5]" />
           </div>
         ) : (
@@ -93,7 +93,7 @@ export default function Button({
       {/* آیکون سمت چپ */}
       {!loading && Icon && iconPosition === 'left' && (
         isGradient ? (
-          <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0 group-hover:-translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300">
+          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-transform duration-300">
             <Icon className="w-3.5 h-3.5 stroke-[2.5]" />
           </div>
         ) : (
