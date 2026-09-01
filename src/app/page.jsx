@@ -91,6 +91,9 @@ export default function Home() {
           </div>
         </section>
 
+
+        
+
         {/* Featured Products (حفظ شده به صورت ثابت) */}
         {/* <section className="py-16 bg-gray-50">
           <div className="container mx-auto px-6">

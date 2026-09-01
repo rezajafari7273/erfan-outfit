@@ -6,6 +6,7 @@ import MobileBottomNav from "@/components/common/MobileBottomNav";
 
 import { PromotionProvider } from "@/components/promotions/PromotionContext";
 import PromotionRenderer from "@/components/promotions/PromotionRenderer";
+import Footer from "@/components/common/Footer";
 
 export const metadata = {
   title: {
@@ -62,7 +63,8 @@ export default function RootLayout({ children }) {
           </div>
 
           {children}
-
+          
+          <Footer />
           <MobileBottomNav />
         </PromotionProvider>
       </body>
