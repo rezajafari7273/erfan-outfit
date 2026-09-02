@@ -6,12 +6,14 @@ import PopularCategories from "@/features/home/components/PopularCategories";
 import ProductCard from "@/features/products/components/ProductCard";
 import InstantOffers from "@/features/home/components/InstantOffers";
 import AmazingProducts from "@/features/home/components/AmazingProducts"
-import LatestProducts from "@/features/home/components/LatestProducts";
+import LatestProducts from "@/features/home/components/LatestProducts/LatestProducts";
 
 
 export default function Home() {
   return (
       <div className="min-h-screen space-y-12 md:space-y-14">
+
+
 
         {/* stories */}
         <section className="container">
@@ -49,6 +51,9 @@ export default function Home() {
             
           </div>
         </section>
+
+        
+      
 
 
         <section className="container">
