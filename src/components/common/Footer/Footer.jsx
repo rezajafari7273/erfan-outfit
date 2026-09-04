@@ -8,6 +8,7 @@ import {
   EnvelopeIcon,
   ChevronUpIcon,
 } from "@heroicons/react/24/solid";
+import SocialLinks from "../SocialLinks";
 
 export default function Footer() {
   const scrollToTop = () => {
@@ -136,21 +137,13 @@ export default function Footer() {
             </div>
 
             {/* شبکه‌های اجتماعی */}
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col items-center gap-3">
               <span className="text-xs font-bold text-[#6E6868]">
                 ما را در <strong className="text-primary font-black">شبکه‌های اجتماعی</strong> دنبال کنید!
               </span>
-              <div className="flex items-center gap-2">
-                {["whatsapp", "telegram", "instagram"].map((social, i) => (
-                  <Link
-                    key={i}
-                    href="#"
-                    className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center shadow-md hover:scale-110 transition-transform duration-300"
-                  >
-                    <span className="text-xs font-black uppercase">{social[0]}</span>
-                  </Link>
-                ))}
-              </div>
+       
+
+              <SocialLinks />
             </div>
           </div>
 

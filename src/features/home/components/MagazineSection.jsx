@@ -201,16 +201,16 @@ export default function MagazineSection() {
             <button
               onClick={() => swiperRef?.slidePrev()}
               aria-label="قبلی"
-              className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 border border-cart-boarder text-primary hover:bg-primary hover:text-white transition-all duration-300 shadow-sm active:scale-95 cursor-pointer"
+              className="flex items-center gap-2 p-3 rounded-full border border-secondary/10 bg-gray-200/60 backdrop-blur-md hover:border-secondary/20 hover:bg-gray-200 transition-all duration-300 group shadow-md"
             >
-              <ChevronRightIcon className="w-6 h-6" />
+              <ChevronRightIcon className="w-5 h-5 text-secondary hover:text-lime-950 transition-colors" />
             </button>
             <button
               onClick={() => swiperRef?.slideNext()}
               aria-label="بعدی"
-              className="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 border border-cart-boarder text-primary hover:bg-primary hover:text-white transition-all duration-300 shadow-sm active:scale-95 cursor-pointer"
+              className="flex items-center gap-2 p-3 rounded-full border border-secondary/10 bg-gray-200/60 backdrop-blur-md hover:border-secondary/20 hover:bg-gray-200 transition-all duration-300 group shadow-md"
             >
-              <ChevronLeftIcon className="w-6 h-6" />
+              <ChevronLeftIcon className="w-5 h-5 text-secondary hover:text-lime-950 transition-colors" />
             </button>
           </div>
         </div>

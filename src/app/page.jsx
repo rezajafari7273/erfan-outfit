@@ -58,7 +58,7 @@ export default function Home() {
         </section>
 
 
-          {/* Promotion */}
+        {/* Promotion */}
         <div className="container mx-auto">
           <PromotionRenderer type="smallBanner" slotKey="searchModal" className="w-full" />
         </div>
@@ -81,6 +81,8 @@ export default function Home() {
          <BestSellingProducts />
         </section>
  
+
+        {/* Magazine */}
         <section className="container">
           <MagazineSection />
         </section>

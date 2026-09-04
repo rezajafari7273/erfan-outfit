@@ -19,7 +19,7 @@ export default function Logo({
     >
       <Image
         src={logoImg}
-        alt="لوگوی عرفان - ERFAN"
+        alt="لوگوی آنلاین مد -Online mod"
         width={width}
         height={height}
         priority={priority}

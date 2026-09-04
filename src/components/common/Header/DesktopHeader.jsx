@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import MegaMenu from './components/MegaMenu';
 import GlobalSearch from './components/GlobalSearch';
 import Logo from '@/components/ui/Logo';
@@ -16,12 +17,27 @@ import {
   QuestionMarkCircleIcon,
   MapPinIcon,
   Bars3Icon,
+  FireIcon,
+  SparklesIcon,
+  BookOpenIcon,
+  InformationCircleIcon,
+  PhoneIcon,
+  BriefcaseIcon,
 } from '@heroicons/react/24/outline';
+
+const NAV_ITEMS = [
+  { href: '/deals', label: 'شگفت‌انگیزها', icon: FireIcon },
+  { href: '/best-sellers', label: 'پرفروش‌ترین‌ها', icon: SparklesIcon },
+  { href: '/blog', label: 'وبلاگ', icon: BookOpenIcon },
+  { href: '/about', label: 'درباره ما', icon: InformationCircleIcon },
+  { href: '/contact', label: 'تماس باما', icon: PhoneIcon },
+];
 
 export default function DesktopHeader() {
   const [hideNav, setHideNav] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [topHeaderHeight, setTopHeaderHeight] = useState(0);
+  const [hoveredIndex, setHoveredIndex] = useState(null);
   const topHeaderRef = useRef(null);
 
   // اندازه‌گیری ارتفاع بخش بالایی
@@ -105,43 +121,75 @@ export default function DesktopHeader() {
 
       {/* Bottom Navigation */}
       <nav
-        className={`bg-white border-b border-secondary/20 shadow-sm transition-transform duration-500 ease-in-out`}
+        className="bg-white border-b border-secondary/20 shadow-sm transition-transform duration-500 ease-in-out relative"
         style={{
           transform: hideNav ? `translateY(-${topHeaderHeight}px)` : 'translateY(0)',
           willChange: 'transform',
         }}
       >
         <div className="mx-auto px-8">
-          <ul className="flex items-center gap-8 py-1">
+          <ul 
+            className="flex items-center gap-x-6 py-3"
+            onMouseLeave={() => setHoveredIndex(null)}
+          >
             {/* Mega Menu Integration */}
-            <MegaMenu />
+            <MegaMenu 
+              isHovered={hoveredIndex === 'mega'} 
+              onMouseEnter={() => setHoveredIndex('mega')} 
+            />
 
-            <li>
-              <Link
-                href="/deals"
-                className="text-sm font-medium text-gray-600 hover:text-primary-600 flex items-center gap-1 transition-colors group"
-              >
-                <span className="w-1.5 h-1.5 bg-red-500 rounded-full animate-pulse group-hover:scale-125 transition-transform"></span>
-                شگفت‌انگیزها
-              </Link>
-            </li>
+            <div className="h-4 w-[1px] bg-gray-200 shrink-0"></div>
 
-            <li>
-              <Link
-                href="/best-sellers"
-                className="text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors"
-              >
-                پرفروش‌ترین‌ها
-              </Link>
-            </li>
+            {/* Navigation Items */}
+            {NAV_ITEMS.map((item, index) => {
+              const IconComponent = item.icon;
+              return (
+                <li 
+                  key={item.href + index}
+                  className="relative py-2 cursor-pointer group"
+                  onMouseEnter={() => setHoveredIndex(index)}
+                >
+                  <Link
+                    href={item.href}
+                    className="text-sm font-medium text-gray-600 flex items-center gap-1.5 transition-colors"
+                  >
+                    <IconComponent className="w-4 h-4 text-gray-400 stroke-[1.8]" />
+                    <span>{item.label}</span>
+                  </Link>
 
-            <li>
+                  {/* Dynamic Framer Motion Underline */}
+                  {hoveredIndex === index && (
+                    <motion.div
+                      layoutId="activeHeaderUnderline"
+                      className="absolute -bottom-[12px] right-0 left-0 h-[2px] bg-primary rounded-full z-20"
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                </li>
+              );
+            })}
+
+            <div className="h-4 w-[1px] bg-gray-200 shrink-0"></div>
+
+            {/* Collaboration Link */}
+            <li 
+              className="relative py-2 cursor-pointer group"
+              onMouseEnter={() => setHoveredIndex(99)}
+            >
               <Link
-                href="/blog"
-                className="text-sm font-medium text-gray-600 hover:text-primary-600 transition-colors"
+                href="/partnership"
+                className="text-sm font-medium text-gray-600 flex items-center gap-1.5 transition-colors"
               >
-                وبلاگ
+                <BriefcaseIcon className="w-4 h-4 text-gray-400 stroke-[1.8]" />
+                <span>همکاری</span>
               </Link>
+              {hoveredIndex === 99 && (
+                <motion.div
+                  layoutId="activeHeaderUnderline"
+                  className="absolute -bottom-[12px] right-0 left-0 h-[2px] bg-primary rounded-full z-20"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
             </li>
 
             <li className="mr-auto flex items-center gap-4">
