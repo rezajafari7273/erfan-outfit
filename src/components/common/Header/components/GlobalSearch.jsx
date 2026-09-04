@@ -110,7 +110,7 @@ export default function GlobalSearch() {
       {/* ----------------- حالت دسکتاپ ----------------- */}
       <div
         id="search-wrapper"
-        className="hidden md:flex flex-1 max-w-2xl relative group/search mx-auto"
+        className="hidden lg:flex flex-1 max-w-2xl relative group/search mx-auto"
       >
         {/* استفاده از بک‌دراپ در دسکتاپ هنگام فوکوس روی سرچ */}
           <Backdrop 
@@ -238,7 +238,7 @@ export default function GlobalSearch() {
       </div>
 
       {/* ----------------- حالت موبایل ----------------- */}
-      <div className="flex md:hidden w-full items-center gap-2">
+      <div className="flex lg:hidden w-full items-center gap-2">
         {/* دکمه محرک باز کردن مودال سرچ موبایل */}
         <button
           type="button"

@@ -1,4 +1,3 @@
-// components/common/SectionHeader.jsx
 "use client";
 
 import React from "react";
@@ -21,7 +20,7 @@ export default function SectionHeader({
   showButton = true,
   timer = null,
   showTimer = false,
-  timerPosition = "right",
+  timerPosition = "center",
 }) {
   return (
     <div className="relative w-full">
@@ -89,9 +88,18 @@ export default function SectionHeader({
           </div>
         </div>
 
+        {/* تایمر دقیقاً متناسب با فرو رفتگی پله‌ای هدر */}
+        {showTimer && timer && (
+          <div className="absolute left-1/2 lg:left-[58%] -translate-x-1/2 -top-3 md:top-[22px] lg:top-[10px] -translate-y-1/2 z-20 pointer-events-auto flex items-center justify-center scale-90 sm:scale-95 md:scale-100 transition-transform">
+            <div className="bg-background/80 backdrop-blur-md px-1.5 py-0.5 rounded-2xl">
+              {timer}
+            </div>
+          </div>
+        )}
+
         {/* بخش راست: subtitle و دکمه */}
         <div className="flex items-center gap-3 sm:gap-5 z-10 shrink-0 justify-end">
-          {/* نمایش subtitle - همیشه نمایش داده میشه */}
+          {/* نمایش subtitle */}
           {showSubtitle && subtitleMain && (
             <div className="hidden lg:flex flex-col items-end text-left">
               <p className="text-xs font-medium text-neutral-600">
@@ -142,13 +150,6 @@ export default function SectionHeader({
             </>
           )}
         </div>
-
-        {/* تایمر در بخش فرو رفتگی هدر - دقیقاً روی خط */}
-        {showTimer && timer && (
-          <div className="absolute left-1/2 -translate-x-1/2 top-1 -translate-y-1/2 z-20 pointer-events-auto">
-            {timer}
-          </div>
-        )}
       </div>
     </div>
   );

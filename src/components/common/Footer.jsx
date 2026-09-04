@@ -1,182 +1,214 @@
-// src/components/common/Footer.jsx
 "use client";
 
+import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
-  ChevronUpIcon,
-  MapPinIcon,
   PhoneIcon,
   EnvelopeIcon,
-} from "@heroicons/react/24/outline";
+  ChevronUpIcon,
+} from "@heroicons/react/24/solid";
 
 export default function Footer() {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <footer className="w-full bg-white border-t border-gray-100">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        {/* بخش اصلی فوتر */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
-          {/* ستون ۱: آدرس فروشگاه‌ها */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-black text-gray-800 border-r-4 border-pink-500 pr-3">
-              آدرس فروشگاه‌ها
-            </h3>
-            <div className="space-y-3 text-sm text-gray-600">
-              <div className="flex items-start gap-3">
-                <MapPinIcon className="w-5 h-5 text-pink-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-gray-800">تهران</p>
-                  <p>خیابان سعادت آباد - کوچه ۱۴ - پلاک ۴۳</p>
-                </div>
+    <footer dir="rtl" className="w-full pt-12 pb-6 text-secondary select-none">
+      <div className="mx-auto w-full max-w-7xl px-4">
+        {/* کادر اصلی فوتر با استایل پالت طلایی/شیشه‌ای شما */}
+        <div className="relative rounded-[2.5rem] bg-primary/5 border border-cart-boarder p-6 sm:p-10 shadow-lg backdrop-blur-md">
+          
+          {/* ۱. ستون‌های راهنما، دسترسی، خدمات و آدرس‌ها */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 pb-10 border-b border-primary/15">
+            
+            {/* ستون ۱: راهنمای خرید */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="w-1 h-5 bg-primary rounded-full" />
+                <h3 className="text-base font-black text-product-title">
+                  راهنمای خرید
+                </h3>
               </div>
-              <div className="flex items-start gap-3">
-                <MapPinIcon className="w-5 h-5 text-pink-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-medium text-gray-800">شیراز</p>
-                  <p>خیابان مطهری - کوچه ۵ - پلاک ۱۰</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <span className="w-5 h-5 flex items-center justify-center text-pink-500 shrink-0 mt-0.5">
-                  🏢
-                </span>
-                <p>طبقه سوم</p>
-              </div>
-            </div>
-          </div>
-
-          {/* ستون ۲: دسترسی سریع */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-black text-gray-800 border-r-4 border-pink-500 pr-3">
-              دســترسی سریع
-            </h3>
-            <ul className="space-y-2.5 text-sm">
-              <li>
-                <Link href="/faq" className="text-gray-600 hover:text-pink-500 transition-colors">
-                  سوالات متداول
-                </Link>
-              </li>
-              <li>
-                <Link href="/privacy" className="text-gray-600 hover:text-pink-500 transition-colors">
-                  حریم خصوصی
-                </Link>
-              </li>
-              <li>
-                <Link href="/returns" className="text-gray-600 hover:text-pink-500 transition-colors">
-                  نحوه بازگشت وجه
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* ستون ۳: راهنمای خرید */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-black text-gray-800 border-r-4 border-pink-500 pr-3">
-              راهنمای خرید
-            </h3>
-            <ul className="space-y-2.5 text-sm">
-              <li>
-                <Link href="/order" className="text-gray-600 hover:text-pink-500 transition-colors">
+              <ul className="space-y-2.5 text-xs font-bold text-[#6E6868]">
+                <li className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                   ثبت سفارش
-                </Link>
-              </li>
-              <li>
-                <Link href="/shipping" className="text-gray-600 hover:text-pink-500 transition-colors">
+                </li>
+                <li className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                   نحوه ارسال سفارش
-                </Link>
-              </li>
-              <li>
-                <Link href="/payment" className="text-gray-600 hover:text-pink-500 transition-colors">
+                </li>
+                <li className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                   شیوه‌های پرداخت
-                </Link>
-              </li>
-            </ul>
+                </li>
+              </ul>
+            </div>
+
+            {/* ستون ۲: دسترسی سریع */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="w-1 h-5 bg-primary rounded-full" />
+                <h3 className="text-base font-black text-product-title">
+                  دسترسی سریع
+                </h3>
+              </div>
+              <ul className="space-y-2.5 text-xs font-bold text-[#6E6868]">
+                <li className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  تماس با ما
+                </li>
+                <li className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  فروشگاه
+                </li>
+                <li className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  وبلاگ
+                </li>
+              </ul>
+            </div>
+
+            {/* ستون ۳: خدمات مشتریان */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="w-1 h-5 bg-primary rounded-full" />
+                <h3 className="text-base font-black text-product-title">
+                  خدمات مشتریان
+                </h3>
+              </div>
+              <ul className="space-y-2.5 text-xs font-bold text-[#6E6868]">
+                <li className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  سوالات متداول
+                </li>
+                <li className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  حریم خصوصی
+                </li>
+                <li className="flex items-center gap-2 hover:text-primary transition-colors cursor-pointer">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  نحوه بازگشت وجه
+                </li>
+              </ul>
+            </div>
+
+            {/* ستون ۴: آدرس فروشگاه‌ها */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <span className="w-1 h-5 bg-primary rounded-full" />
+                <h3 className="text-base font-black text-product-title">
+                  آدرس فروشگاه‌ها
+                </h3>
+              </div>
+              <div className="space-y-3 text-xs font-medium text-[#6E6868] leading-relaxed">
+                <div className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                  <p>تهران - خیابان سعادت آباد - کوچه ۱۴ - پلاک ۴۳ - طبقه دوم</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                  <p>شیراز - خیابان مطهری - کوچه ۵ - پلاک ۱۰ - طبقه سوم</p>
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          {/* ستون ۴: ارتباط با ما */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-black text-gray-800 border-r-4 border-pink-500 pr-3">
-              ارتباط با ما
-            </h3>
-            <div className="space-y-3 text-sm">
-              <div className="flex items-center gap-3">
-                <PhoneIcon className="w-5 h-5 text-pink-500 shrink-0" />
-                <span className="text-gray-700 font-medium">۰۲۱ - ۴۵۶۷۸۹</span>
+          {/* ۲. نوار ارتباطی و شبکه‌های اجتماعی */}
+          <div className="py-6 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-primary/15">
+            {/* ایمیل و تلفن */}
+            <div className="flex items-center gap-6 text-xs font-bold text-[#263238]">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                  <PhoneIcon className="w-4 h-4" />
+                </div>
+                <span className="tabular-nums">۰۲۱ - ۴۵۶۷۸۹۰</span>
               </div>
-              <div className="flex items-center gap-3">
-                <EnvelopeIcon className="w-5 h-5 text-pink-500 shrink-0" />
-                <span className="text-gray-700">support@website.com</span>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                  <EnvelopeIcon className="w-4 h-4" />
+                </div>
+                <span className="tabular-nums">support@website.com</span>
               </div>
             </div>
 
-            {/* شبکه‌های اجتماعی - با ایموجی */}
-            <div className="pt-2">
-              <p className="text-sm font-medium text-gray-700 mb-3">ما را در شبکه‌های اجتماعی دنبال کنید!</p>
-              <div className="flex items-center gap-3">
-                <Link href="#" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-pink-500 hover:text-white transition-all duration-300 text-xl">
-                  📸
-                </Link>
-                <Link href="#" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-pink-500 hover:text-white transition-all duration-300 text-xl">
-                  ✈️
-                </Link>
-                <Link href="#" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-pink-500 hover:text-white transition-all duration-300 text-xl">
-                  💬
-                </Link>
-                <Link href="#" className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-pink-500 hover:text-white transition-all duration-300 text-xl">
-                  🐦
-                </Link>
+            {/* شبکه‌های اجتماعی */}
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold text-[#6E6868]">
+                ما را در <strong className="text-primary font-black">شبکه‌های اجتماعی</strong> دنبال کنید!
+              </span>
+              <div className="flex items-center gap-2">
+                {["whatsapp", "telegram", "instagram"].map((social, i) => (
+                  <Link
+                    key={i}
+                    href="#"
+                    className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center shadow-md hover:scale-110 transition-transform duration-300"
+                  >
+                    <span className="text-xs font-black uppercase">{social[0]}</span>
+                  </Link>
+                ))}
               </div>
             </div>
           </div>
-        </div>
 
-        {/* بخش توضیحات فروشگاه */}
-        <div className="mt-12 pt-8 border-t border-gray-100">
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="text-sm text-gray-600 leading-relaxed">
-              ما اینجاییم تا تجربه‌ای متفاوت از خرید پوشاک زنانه رو برات بسازیم؛ جایی که مد، کیفیت و راحتی در کنار هم قرار می‌گیریم. هدف ما فقط فروش لباس نیست، بلکه کمک می‌کنیم استایلی داشته باشی که بازتاب شخصیت و زیبایی خاص خودته.
-            </p>
-            <Link href="/about" className="inline-block mt-3 text-pink-500 font-bold text-sm hover:text-pink-600 transition-colors">
-              مشاهده بیشتر ...
-            </Link>
-          </div>
-        </div>
-
-        {/* بخش پایین فوتر */}
-        <div className="mt-8 pt-6 border-t border-gray-100">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            {/* لوگو */}
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-gradient-to-tr from-pink-500 to-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-pink-500/25">
-                <span className="text-white font-bold text-lg">ش</span>
+          {/* ۳. درباره ما، لوگو و نمادهای اعتماد */}
+          <div className="pt-8 flex flex-col lg:flex-row items-center justify-between gap-6">
+            
+            {/* لوگو و متن معرفی */}
+            <div className="flex flex-col sm:flex-row items-center gap-4 bg-primary/10 border border-primary/20 rounded-[2rem] p-4 flex-1">
+              <div className="w-24 h-20 bg-primary text-white rounded-[1.5rem] flex items-center justify-center font-black text-lg shadow-md flex-shrink-0">
+                لوگو
               </div>
-              <span className="text-lg font-black text-gray-800">شیک‌پوش</span>
+              <p className="text-xs font-medium text-[#6E6868] leading-relaxed text-center sm:text-right">
+                ما اینجا هستیم تا تجربه‌ای متفاوت از خرید آنلاین را برای شما بسازیم. کیفیت، اصالت و رضایت شما هدف اصلی ماست.{" "}
+                <Link href="#" className="text-primary font-bold hover:underline">
+                  مشاهده بیشتر ...
+                </Link>
+              </p>
             </div>
 
-            {/* لینک‌های پایین */}
-            <div className="flex items-center gap-4 text-xs text-gray-500">
-              <Link href="/terms" className="hover:text-pink-500 transition-colors">
-                شرایط و ضوابط
-              </Link>
-              <span className="w-px h-4 bg-gray-300"></span>
-              <Link href="/track-order" className="hover:text-pink-500 transition-colors">
-                پیگیری سفارش
-              </Link>
+            {/* نمادهای اعتماد */}
+            <div className="flex items-center gap-3">
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="w-20 h-20 rounded-[1.5rem] bg-white border border-cart-boarder p-2 flex items-center justify-center shadow-sm hover:shadow-md transition-shadow"
+                >
+                  <span className="text-[10px] font-bold text-gray-400">نماد {item}</span>
+                </div>
+              ))}
             </div>
 
-            {/* دکمه بازگشت به بالا */}
+          </div>
+
+          {/* ۴. دکمه بازگشت به بالا */}
+          <div className="absolute -bottom-5 left-1/2 -translate-x-1/2">
             <button
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-pink-500 hover:text-white rounded-full text-sm font-medium text-gray-700 transition-all duration-300 group"
+              onClick={scrollToTop}
+              className="flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-primary text-white text-xs font-bold shadow-lg hover:bg-primary/90 transition-all duration-300 hover:scale-105"
             >
               <span>بازگشت به بالا</span>
-              <ChevronUpIcon className="w-4 h-4 group-hover:-translate-y-0.5 transition-transform" />
+              <ChevronUpIcon className="w-4 h-4 stroke-[3]" />
             </button>
           </div>
 
-          {/* کپی‌رایت و طراح */}
-          <div className="mt-4 text-center text-xs text-gray-400">
-            <p>طراحی شده توسط <span className="text-gray-600 font-medium">امیرحسین محمدی</span></p>
+        </div>
+
+        {/* ۵. کپی‌رایت و لینک‌های انتهایی */}
+        <div className="mt-8 pt-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-bold text-[#6E6868]">
+          <div className="flex items-center gap-4">
+            <Link href="#" className="hover:text-primary transition-colors">
+              پیگیری سفارش
+            </Link>
+            <span>|</span>
+            <Link href="#" className="hover:text-primary transition-colors">
+              شرایط و ضوابط
+            </Link>
           </div>
+          <p>© کلیه حقوق مادی و معنوی برای این سایت محفوظ می‌افتد.</p>
         </div>
       </div>
     </footer>

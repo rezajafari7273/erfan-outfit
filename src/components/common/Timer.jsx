@@ -1,19 +1,24 @@
-// components/common/Timer.jsx
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ClockIcon } from "@heroicons/react/24/outline";
 
-export default function Timer({ 
+export default function Timer({
   targetDate,
   className = "",
-  showIcon = true,
-  iconClassName = "w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 text-primary shrink-0",
-  containerClassName = "bg-primary/5 border border-primary/20 px-1.5 py-1 sm:px-2 sm:py-1.5 md:px-3 md:py-2 rounded-lg sm:rounded-2xl shrink-0 min-w-[70px] sm:min-w-[90px] md:min-w-[105px] lg:min-w-[120px]",
-  textClassName = "text-[10px] xs:text-xs sm:text-sm md:text-base font-black text-primary tabular-nums dir-ltr tracking-wider text-center",
-  format = "persian",
+  format = "persian", // 'persian' | 'latin'
+  showDays = true,
+  showHours = true,
+  showMinutes = true,
+  showSeconds = true,
+  labels = {
+    days: "روز",
+    hours: "ساعت",
+    minutes: "دقیقه",
+    seconds: "ثانیه",
+  },
 }) {
   const [timeLeft, setTimeLeft] = useState({
+    days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0,
@@ -22,16 +27,18 @@ export default function Timer({
   useEffect(() => {
     const calculateTimeLeft = () => {
       const now = new Date().getTime();
-      const difference = targetDate - now;
+      const target = new Date(targetDate).getTime();
+      const difference = target - now;
 
       if (difference > 0) {
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
         const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((difference / (1000 * 60)) % 60);
         const seconds = Math.floor((difference / 1000) % 60);
 
-        setTimeLeft({ hours, minutes, seconds });
+        setTimeLeft({ days, hours, minutes, seconds });
       } else {
-        setTimeLeft({ hours: 0, minutes: 0, seconds: 0 });
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     };
 
@@ -42,21 +49,40 @@ export default function Timer({
   }, [targetDate]);
 
   const formatNumber = (num) => {
-    if (format === 'persian') {
-      const persianDigits = '۰۱۲۳۴۵۶۷۸۹';
-      return String(num).padStart(2, '0').replace(/\d/g, (d) => persianDigits[parseInt(d)]);
+    const padded = String(num).padStart(2, "0");
+    if (format === "persian") {
+      const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+      return padded.replace(/\d/g, (d) => persianDigits[parseInt(d)]);
     }
-    return String(num).padStart(2, '0');
+    return padded;
   };
 
-  const timeString = `${formatNumber(timeLeft.hours)}:${formatNumber(timeLeft.minutes)}:${formatNumber(timeLeft.seconds)}`;
+  const renderUnit = (value, label, showSeparator = true) => (
+    <div className="flex items-center gap-1">
+      <div className="flex flex-col items-center justify-center w-7 sm:w-8 text-center shrink-0">
+        <span className="font-black text-sm sm:text-base md:text-lg text-primary tracking-tight leading-none drop-shadow-[0_2px_8px_rgba(225,29,72,0.3)] tabular-nums block w-full text-center">
+          {formatNumber(value)}
+        </span>
+        <span className="text-[9px] sm:text-[10px] font-bold text-neutral-500 mt-1 leading-none whitespace-nowrap">
+          {label}
+        </span>
+      </div>
+
+      {showSeparator && (
+        <span className="text-primary/60 font-bold text-xs sm:text-sm -mt-2.5 animate-pulse select-none px-0.5">
+          :
+        </span>
+      )}
+    </div>
+  );
 
   return (
-    <div className={`flex items-center justify-center gap-1 sm:gap-1.5 md:gap-2 ${containerClassName} ${className}`}>
-      {showIcon && <ClockIcon className={iconClassName} />}
-      <span className={textClassName}>
-        {timeString}
-      </span>
+    <div className={`inline-flex items-center justify-center dir-rtl select-none ${className}`}>
+      {/* راست به چپ: ثانیه -> دقیقه -> ساعت -> روز (در نتیجه روز سمت چپ‌ترین خواهد بود) */}
+      {showSeconds && renderUnit(timeLeft.seconds, labels.seconds, showMinutes || showHours || showDays)}
+      {showMinutes && renderUnit(timeLeft.minutes, labels.minutes, showHours || showDays)}
+      {showHours && renderUnit(timeLeft.hours, labels.hours, showDays)}
+      {showDays && renderUnit(timeLeft.days, labels.days, false)}
     </div>
   );
 }
