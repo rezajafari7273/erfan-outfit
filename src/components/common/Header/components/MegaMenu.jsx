@@ -289,10 +289,10 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
               {/* دکمه مشاهده همه محصولات */}
               <Link
                 href="#"
-                className="group/all text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1.5"
+                className="group/all text-sm font-bold font-rokh hover:text-primary transition-colors flex items-center gap-1.5"
               >
                 <span>مشاهده همه محصولات پوشاک</span>
-                <ArrowRightIcon className="w-4 h-4 text-primary-600 group-hover/all:text-primary-700 rotate-180 transition-transform duration-200 group-hover/all:translate-x-1" />
+                <ArrowRightIcon className="w-4 h-4 group-hover/all:text-primary rotate-180 transition-transform duration-200 group-hover/all:translate-x-1" />
               </Link>
             </div>
           </div>

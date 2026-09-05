@@ -199,6 +199,8 @@ export default function LatestProducts() {
             showButton={true}
             buttonText="مشاهده همه محصولات"
             buttonTextMobile="مشاهده همه"
+            iconColor="text-fuchsia-300"
+            highlightColor="text-fuchsia-600"
             buttonHref="/products"
           />
         </div>

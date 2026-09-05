@@ -102,7 +102,7 @@ const ProductCard = ({ product }) => {
   return (
     <Link
       href={product.href}
-      className="group relative flex flex-col sm:flex-row items-center gap-4 rounded-[2rem] bg-primary/5 p-3.5 border border-cart-boarder shadow-sm transition-all duration-500 hover:-translate-y-1 hover:bg-primary/10 hover:border-[#e5c158] hover:shadow-[0_15px_30px_-10px_rgba(229,193,88,0.22)] cursor-pointer overflow-hidden h-full"
+      className="group relative flex flex-col sm:flex-row items-center gap-4 rounded-[2rem] bg-primary/5 p-3.5 border border-neutral-200 shadow-sm transition-all duration-500 hover:-translate-y-1 hover:bg-primary/10 hover:border-[#e5c158] hover:shadow-[0_15px_30px_-10px_rgba(229,193,88,0.22)] cursor-pointer overflow-hidden h-full"
     >
       {/* واترمارک رتبه */}
       <span className="pointer-events-none absolute -left-2 -bottom-4 z-0 text-7xl font-black text-primary/5 group-hover:text-primary/15 transition-all duration-500 scale-125">
@@ -118,7 +118,8 @@ const ProductCard = ({ product }) => {
           src={product.image}
           alt={product.title}
           fill
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+          sizes="(max-width: 640px) 100vw, 176px"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
 
         <div className="absolute top-2.5 right-2.5 z-20 flex items-center justify-center px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white font-black text-xs shadow-md">
@@ -146,7 +147,7 @@ const ProductCard = ({ product }) => {
             </div>
           </div>
 
-          <h3 className="text-sm sm:text-base font-bold text-product-title transition-colors group-hover:text-primary leading-snug line-clamp-1">
+          <h3 className="text-sm sm:text-base font-bold text-neutral-800 transition-colors group-hover:text-primary leading-snug line-clamp-1">
             {product.title}
           </h3>
         </div>
@@ -194,7 +195,7 @@ export default function BestSellingProducts() {
   return (
     <section dir="rtl" className="w-full py-8 sm:py-12 select-none">
       <div className="mx-auto w-full">
-        {/* ۱. هدر بخش */}
+        {/* ۱. هدر بخش با رنگ اختصاصی آیکون و هایلایت */}
         <div className="mb-8">
           <SectionHeader
             icon={TrophyIcon}
@@ -210,6 +211,8 @@ export default function BestSellingProducts() {
             buttonText="مشاهده همه پرفروش‌ها"
             buttonTextMobile="مشاهده همه"
             buttonHref="/bestsellers"
+            iconColor="text-amber-400"
+            highlightColor="text-amber-500"
           />
         </div>
 

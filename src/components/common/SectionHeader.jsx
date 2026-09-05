@@ -21,6 +21,8 @@ export default function SectionHeader({
   timer = null,
   showTimer = false,
   timerPosition = "center",
+  iconColor = "text-secondary", // رنگ SVG آیکون
+  highlightColor = "text-primary", // رنگ متن هایلایت
 }) {
   return (
     <div className="relative w-full">
@@ -62,8 +64,8 @@ export default function SectionHeader({
 
         {/* بخش چپ: آیکون و عنوان */}
         <div className="relative flex items-center gap-2.5 sm:gap-3.5 z-10 shrink-0">
-          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-md sm:rounded-2xl bg-gradient-to-tr from-primary to-rose-900 text-secondary flex items-center justify-center shadow-md shadow-primary/20 shrink-0">
-            {Icon && <Icon className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2]" />}
+          <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-md sm:rounded-2xl bg-gradient-to-tr from-primary to-rose-900 flex items-center justify-center shadow-md shadow-primary/20 shrink-0">
+            {Icon && <Icon className={`w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2] ${iconColor}`} />}
           </div>
 
           <div className="flex flex-col justify-center relative">
@@ -88,7 +90,7 @@ export default function SectionHeader({
           </div>
         </div>
 
-        {/* تایمر دقیقاً متناسب با فرو رفتگی پله‌ای هدر */}
+        {/* تایمر */}
         {showTimer && timer && (
           <div className="absolute left-1/2 lg:left-[58%] -translate-x-1/2 -top-3 md:top-[22px] lg:top-[10px] -translate-y-1/2 z-20 pointer-events-auto flex items-center justify-center scale-90 sm:scale-95 md:scale-100 transition-transform">
             <div className="bg-background/80 backdrop-blur-md px-1.5 py-0.5 rounded-2xl">
@@ -99,14 +101,15 @@ export default function SectionHeader({
 
         {/* بخش راست: subtitle و دکمه */}
         <div className="flex items-center gap-3 sm:gap-5 z-10 shrink-0 justify-end">
-          {/* نمایش subtitle */}
           {showSubtitle && subtitleMain && (
             <div className="hidden lg:flex flex-col items-end text-left">
               <p className="text-xs font-medium text-neutral-600">
                 {subtitleHighlight ? (
                   <>
                     {subtitleMain.split(subtitleHighlight)[0]}
-                    <span className="text-primary font-rokh font-bold">{subtitleHighlight}</span>
+                    <span className={`font-rokh font-bold ${highlightColor}`}>
+                      {subtitleHighlight}
+                    </span>
                     {subtitleMain.split(subtitleHighlight)[1]}
                   </>
                 ) : (

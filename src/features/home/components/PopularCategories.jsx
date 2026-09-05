@@ -1,4 +1,3 @@
-// components/home/PopularCategories.jsx
 "use client";
 
 import React from "react";
@@ -38,8 +37,8 @@ export default function PopularCategories({ categories = MOCK_QUICK_CATEGORIES }
   if (!categories || categories.length === 0) return null;
 
   return (
-    <section className="w-full  select-none">
-      {/* ۱. هدر بخش */}
+    <section className="w-full select-none">
+      {/* ۱. هدر بخش با رنگ آیکون و هایلایت سفارشی */}
       <SectionHeader
         icon={FolderIcon}
         titlePrimary="محبوب ترین"
@@ -52,9 +51,11 @@ export default function PopularCategories({ categories = MOCK_QUICK_CATEGORIES }
         buttonTextMobile="مشاهده همه "
         buttonText="همه دسته بندی ها"
         buttonHref="/categories"
+        iconColor="text-amber-300"
+        highlightColor="text-amber-500"
       />
 
-      {/* ۲. لیست کارت‌های مربعی (همیشه وسط‌چین) */}
+      {/* ۲. لیست کارت‌های مربعی */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -69,7 +70,7 @@ export default function PopularCategories({ categories = MOCK_QUICK_CATEGORIES }
               className="group flex flex-col items-center cursor-pointer"
             >
               {/* فریم مربعی تصویر */}
-              <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-primary/5 border border-cart-boarder p-1.5 shadow-sm transition-all duration-500 ease-out group-hover:-translate-y-3 group-hover:bg-primary/10 group-hover:border-[#e5c158] group-hover:shadow-lg group-hover:shadow-prborder-primary/10">
+              <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-primary/5 border border-neutral-200 p-1.5 shadow-sm transition-all duration-500 ease-out group-hover:-translate-y-3 group-hover:bg-primary/10 group-hover:border-[#e5c158] group-hover:shadow-lg group-hover:shadow-primary/10">
                 
                 {/* ظرف داخلی تصویر */}
                 <div className="relative w-full h-full rounded-xl overflow-hidden bg-neutral-100">
@@ -87,7 +88,7 @@ export default function PopularCategories({ categories = MOCK_QUICK_CATEGORIES }
 
               {/* عنوان زیر کارت */}
               <div className="mt-3 opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out text-center">
-                <span className="text-xs sm:text-sm font-bold text-neutral-800 group-hover:text-prborder-primary transition-colors duration-300">
+                <span className="text-xs sm:text-sm font-bold text-neutral-800 group-hover:text-primary transition-colors duration-300">
                   {item.title}
                 </span>
               </div>

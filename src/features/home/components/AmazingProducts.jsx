@@ -318,6 +318,8 @@ export default function AmazingOffersSlider() {
         showButton={true}
         buttonText="مشاهده همه پیشنهاد‌ها"
         buttonTextMobile="مشاهده همه"
+        iconColor="text-lime-300"
+        highlightColor="text-lime-600"
         buttonHref="/offers"
         showTimer={true}
         timer={

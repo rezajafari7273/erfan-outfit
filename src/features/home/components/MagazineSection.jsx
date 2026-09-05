@@ -81,7 +81,7 @@ const ARTICLES = [
 const ArticleCard = ({ article }) => (
   <Link
     href={article.href}
-    className="group relative flex flex-col justify-between rounded-[2rem] bg-primary/5 p-3.5 border border-cart-boarder shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:bg-primary/10 hover:border-[#e5c158] hover:shadow-[0_15px_30px_-10px_rgba(229,193,88,0.22)] cursor-pointer overflow-hidden h-full w-full"
+    className="group relative flex flex-col justify-between rounded-[2rem] bg-primary/5 p-3.5 border border-neutral-200 shadow-sm transition-all duration-500 hover:-translate-y-1.5 hover:bg-primary/10 hover:border-[#e5c158] hover:shadow-[0_15px_30px_-10px_rgba(229,193,88,0.22)] cursor-pointer overflow-hidden h-full w-full"
   >
     {/* افکت گذر نور */}
     <div className="pointer-events-none absolute -inset-full top-0 block h-full w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-all duration-1000 group-hover:animate-shine group-hover:opacity-100 z-10" />
@@ -93,7 +93,8 @@ const ArticleCard = ({ article }) => (
           src={article.image}
           alt={article.title}
           fill
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
 
         {/* دسته مقاله */}
@@ -123,7 +124,7 @@ const ArticleCard = ({ article }) => (
             </span>
           </div>
 
-          <h3 className="text-base font-bold text-product-title transition-colors group-hover:text-primary leading-snug line-clamp-2">
+          <h3 className="text-base font-bold text-neutral-800 transition-colors group-hover:text-primary leading-snug line-clamp-2">
             {article.title}
           </h3>
         </div>
@@ -137,7 +138,7 @@ const ArticleCard = ({ article }) => (
     {/* دکمه ادامه مطلب */}
     <div className="flex items-center justify-between pt-4 mt-3 border-t border-primary/10 flex-shrink-0">
       <span className="text-[11px] font-bold text-gray-400">{article.date}</span>
-      <div className="flex items-center gap-1.5 text-primary font-bold text-xs group-hover:translate-x-[-4px] transition-transform duration-300">
+      <div className="flex items-center gap-1.5 text-primary font-bold text-xs group-hover:-translate-x-1 transition-transform duration-300">
         <span>ادامه مطلب</span>
         <ArrowLeftIcon className="w-3.5 h-3.5 stroke-[2.5]" />
       </div>
@@ -151,7 +152,7 @@ export default function MagazineSection() {
   return (
     <section dir="rtl" className="w-full py-8 sm:py-12 select-none">
       <div className="mx-auto w-full">
-        {/* ۱. هدر بخش */}
+        {/* ۱. هدر بخش با رنگ اختصاصی آیکون و هایلایت */}
         <div className="mb-8">
           <SectionHeader
             icon={BookOpenIcon}
@@ -167,10 +168,12 @@ export default function MagazineSection() {
             buttonText="مشاهده همه مقالات"
             buttonTextMobile="مشاهده همه"
             buttonHref="/blog"
+            iconColor="text-indigo-300"
+            highlightColor="text-indigo-600"
           />
         </div>
 
-        {/* ۲. اسلایدر Swiper مقالات (بدون Autoplay) */}
+        {/* ۲. اسلایدر Swiper مقالات */}
         <div className="relative">
           <Swiper
             onSwiper={setSwiperRef}
@@ -196,7 +199,7 @@ export default function MagazineSection() {
             ))}
           </Swiper>
 
-          {/* ۳. دکمه‌های ناوبری متصل به متدهای Swiper */}
+          {/* ۳. دکمه‌های ناوبری Swiper */}
           <div className="flex items-center justify-center gap-4 mt-8">
             <button
               onClick={() => swiperRef?.slidePrev()}
