@@ -13,7 +13,6 @@ import {
   ClockIcon,
   ChartBarIcon,
   ArrowRightIcon,
-  TagIcon,
 } from '@heroicons/react/24/outline';
 import PromotionRenderer from '@/components/promotions/PromotionRenderer';
 
@@ -32,24 +31,24 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
 
       {/* خط زیرین هاور */}
       <div
-        className={`absolute -bottom-[12px] right-0 left-0 h-[2px] bg-primary-500 rounded-full z-20 transition-opacity duration-200 ${
+        className={`absolute -bottom-[12px] right-0 left-0 h-[2px] bg-primary rounded-full z-20 transition-opacity duration-200 ${
           isHovered ? 'opacity-100' : 'opacity-0'
         }`}
       />
 
-      {/* منوی بازشونده مگامنو با CSS خالص */}
+      {/* منوی بازشونده مگامنو */}
       <div className="fixed top-[60px] right-0 left-0 w-full bg-white border-b border-gray-200 shadow-2xl z-40 overflow-x-auto overflow-y-auto max-h-[80vh] opacity-0 invisible -translate-y-3 group-hover/megalist:opacity-100 group-hover/megalist:visible group-hover/megalist:translate-y-0 transition-all duration-300 ease-out">
         <div className="container mx-auto px-8 py-10 min-w-[720px]">
           <div className="grid grid-cols-5 gap-8">
             
-            {/* Column 1: Main Clothing Categories */}
-            <div className="col-span-3 grid grid-cols-3 gap-6">
+            {/* Column 1: Main Categories Grid (3 Top, 2 Bottom) با پدینگ راست pr-3 برای هدایت به چپ */}
+            <div className="col-span-3 grid grid-cols-3 gap-x-6 gap-y-8 pr-3">
               
-              {/* پوشاک مردانه */}
+              {/* گزینه ۱: پوشاک مردانه */}
               <div className="space-y-4">
                 <h4 className="font-rokh font-black text-sm mb-4 flex items-center gap-2 text-gray-900">
-                  <UserIcon className="w-4 h-4 text-blue-500" />
-                  پوشاک مردانه
+                  <UserIcon className="w-4 h-4 text-blue-500 shrink-0" />
+                  <span>پوشاک مردانه</span>
                 </h4>
                 <ul className="space-y-3">
                   {[
@@ -66,19 +65,19 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
                         href="#"
                         className="group/item text-xs text-gray-500 hover:text-blue-600 transition-colors flex items-center gap-2"
                       >
-                        <span className={`w-2 h-2 ${cat.bg} rounded-full transition-transform group-hover/item:scale-125`}></span>
-                        <span className="transition-colors group-hover/item:text-blue-600">{cat.name}</span>
+                        <span className={`w-2 h-2 ${cat.bg} rounded-full transition-transform group-hover/item:scale-125 shrink-0`}></span>
+                        <span className="transition-all duration-200 group-hover/item:text-blue-600 group-hover/item:-translate-x-1">{cat.name}</span>
                       </Link>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* پوشاک زنانه */}
+              {/* گزینه ۲: پوشاک زنانه */}
               <div className="space-y-4">
                 <h4 className="font-rokh font-black text-sm mb-4 flex items-center gap-2 text-gray-900">
-                  <SparklesIcon className="w-4 h-4 text-pink-500" />
-                  پوشاک زنانه
+                  <SparklesIcon className="w-4 h-4 text-pink-500 shrink-0" />
+                  <span>پوشاک زنانه</span>
                 </h4>
                 <ul className="space-y-3">
                   {[
@@ -95,19 +94,19 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
                         href="#"
                         className="group/item text-xs text-gray-500 hover:text-pink-600 transition-colors flex items-center gap-2"
                       >
-                        <span className={`w-2 h-2 ${cat.bg} rounded-full transition-transform group-hover/item:scale-125`}></span>
-                        <span className="transition-colors group-hover/item:text-pink-600">{cat.name}</span>
+                        <span className={`w-2 h-2 ${cat.bg} rounded-full transition-transform group-hover/item:scale-125 shrink-0`}></span>
+                        <span className="transition-all duration-200 group-hover/item:text-pink-600 group-hover/item:-translate-x-1">{cat.name}</span>
                       </Link>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* کیف، کفش و اکسسوری */}
+              {/* گزینه ۳: کیف، کفش و اکسسوری */}
               <div className="space-y-4">
                 <h4 className="font-rokh font-black text-sm mb-4 flex items-center gap-2 text-gray-900">
-                  <ShoppingBagIcon className="w-4 h-4 text-emerald-500" />
-                  کیف، کفش و اکسسوری
+                  <ShoppingBagIcon className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>کیف، کفش و اکسسوری</span>
                 </h4>
                 <ul className="space-y-3">
                   {[
@@ -124,19 +123,19 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
                         href="#"
                         className="group/item text-xs text-gray-500 hover:text-emerald-600 transition-colors flex items-center gap-2"
                       >
-                        <span className={`w-2 h-2 ${cat.bg} rounded-full transition-transform group-hover/item:scale-125`}></span>
-                        <span className="transition-colors group-hover/item:text-emerald-600">{cat.name}</span>
+                        <span className={`w-2 h-2 ${cat.bg} rounded-full transition-transform group-hover/item:scale-125 shrink-0`}></span>
+                        <span className="transition-all duration-200 group-hover/item:text-emerald-600 group-hover/item:-translate-x-1">{cat.name}</span>
                       </Link>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* پوشاک بچه گانه */}
+              {/* گزینه ۴: پوشاک بچگانه */}
               <div className="space-y-4">
                 <h4 className="font-rokh font-black text-sm mb-4 flex items-center gap-2 text-gray-900">
-                  <HeartIcon className="w-4 h-4 text-rose-500" />
-                  پوشاک بچگانه
+                  <HeartIcon className="w-4 h-4 text-rose-500 shrink-0" />
+                  <span>پوشاک بچگانه</span>
                 </h4>
                 <ul className="space-y-3">
                   {[
@@ -151,19 +150,19 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
                         href="#"
                         className="group/item text-xs text-gray-500 hover:text-rose-600 transition-colors flex items-center gap-2"
                       >
-                        <span className={`w-2 h-2 ${cat.bg} rounded-full transition-transform group-hover/item:scale-125`}></span>
-                        <span className="transition-colors group-hover/item:text-rose-600">{cat.name}</span>
+                        <span className={`w-2 h-2 ${cat.bg} rounded-full transition-transform group-hover/item:scale-125 shrink-0`}></span>
+                        <span className="transition-all duration-200 group-hover/item:text-rose-600 group-hover/item:-translate-x-1">{cat.name}</span>
                       </Link>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* برندهای معروف پوشاک */}
+              {/* گزینه ۵: برندهای بین‌المللی */}
               <div className="space-y-4">
                 <h4 className="font-rokh font-black text-sm mb-4 flex items-center gap-2 text-gray-900">
-                  <TrophyIcon className="w-4 h-4 text-amber-500" />
-                  برندهای بین‌المللی
+                  <TrophyIcon className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span>برندهای بین‌المللی</span>
                 </h4>
                 <ul className="space-y-3">
                   {[
@@ -179,35 +178,8 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
                         href="#"
                         className="group/item text-xs text-gray-500 hover:text-amber-600 transition-colors flex items-center gap-2"
                       >
-                        <span className={`w-2 h-2 ${brand.bg} rounded-full transition-transform group-hover/item:scale-125`}></span>
-                        <span className="transition-colors group-hover/item:text-amber-600">{brand.name}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* استایل و فصل */}
-              <div className="space-y-4">
-                <h4 className="font-rokh font-black text-sm mb-4 flex items-center gap-2 text-gray-900">
-                  <TagIcon className="w-4 h-4 text-violet-500" />
-                  مجموعه‌های خاص
-                </h4>
-                <ul className="space-y-3">
-                  {[
-                    { name: 'کالکشن زمستانه', bg: 'bg-violet-500' },
-                    { name: 'استایل کژوال و روزمره', bg: 'bg-violet-400' },
-                    { name: 'استایل رسمی و اداری', bg: 'bg-violet-600' },
-                    { name: 'پوشاک سایز بزرگ', bg: 'bg-violet-500' },
-                    { name: 'لباس‌های بارداری', bg: 'bg-violet-400' },
-                  ].map((item, index) => (
-                    <li key={index}>
-                      <Link
-                        href="#"
-                        className="group/item text-xs text-gray-500 hover:text-violet-600 transition-colors flex items-center gap-2"
-                      >
-                        <span className={`w-2 h-2 ${item.bg} rounded-full transition-transform group-hover/item:scale-125`}></span>
-                        <span className="transition-colors group-hover/item:text-violet-600">{item.name}</span>
+                        <span className={`w-2 h-2 ${brand.bg} rounded-full transition-transform group-hover/item:scale-125 shrink-0`}></span>
+                        <span className="transition-all duration-200 group-hover/item:text-amber-600 group-hover/item:-translate-x-1">{brand.name}</span>
                       </Link>
                     </li>
                   ))}
@@ -216,7 +188,7 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
 
             </div>
 
-            {/* Column 2: Brand promotions & Top Categories */}
+            {/* Column 2: Promotions & Special Collections */}
             <div className="col-span-2">
               <div className="mb-6">
                 <PromotionRenderer
@@ -226,33 +198,33 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
                 />
               </div>
 
-              {/* Special Brands */}
+              {/* Special Collections */}
               <div className="space-y-4">
                 <h4 className="font-rokh font-black text-sm mb-4 text-gray-900">
-                  برندهای ویژه مد و پوشاک
+                  کالکشن‌های ما
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
                   {[
-                    { code: 'ZA', title: 'زارا (Zara)', desc: 'تا ۴۰٪ تخفیف' },
-                    { code: 'NI', title: 'نایک (Nike)', desc: 'کالکشن جدید' },
-                    { code: 'HM', title: 'اچ‌اند‌ام', desc: 'حراج فصل' },
-                    { code: 'AD', title: 'آدیداس', desc: 'ارسال رایگان' },
+                    { code: 'WIN', title: 'کالکشن زمستانه', desc: 'جدیدترین مدل‌های فصل' },
+                    { code: 'CAS', title: 'استایل کژوال و روزمره', desc: 'راحت و کاربردی' },
+                    { code: 'OFF', title: 'استایل رسمی و اداری', desc: 'شیک و منحصر‌به‌فرد' },
+                    { code: 'BIG', title: 'پوشاک سایز بزرگ', desc: 'تنوع بالا و سایزبندی کامل' },
                   ].map((item, index) => (
                     <Link
                       key={index}
                       href="#"
-                      className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-primary-500 hover:bg-primary-50/30 transition-all group/item"
+                      className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-amber-400/80 hover:bg-gradient-to-r hover:from-amber-50/60 hover:to-orange-50/40 transition-all duration-300 group/item hover:shadow-sm"
                     >
-                      <div className="w-10 h-10 rounded-lg bg-primary-100 group-hover/item:bg-primary-500 flex items-center justify-center shrink-0 transition-colors">
-                        <span className="text-primary-600 group-hover/item:text-white font-bold text-sm transition-colors">
+                      <div className="w-10 h-10 rounded-lg bg-amber-100/60 group-hover/item:bg-gradient-to-tr group-hover/item:from-amber-500 group-hover/item:to-orange-400 flex items-center justify-center shrink-0 transition-all duration-300">
+                        <span className="text-amber-700 group-hover/item:text-white font-bold text-xs transition-colors duration-300">
                           {item.code}
                         </span>
                       </div>
-                      <div>
-                        <span className="text-xs font-semibold text-gray-800 group-hover/item:text-primary-500 transition-colors">
+                      <div className="overflow-hidden">
+                        <span className="text-xs font-semibold text-gray-800 group-hover/item:text-amber-600 transition-colors duration-300 block truncate">
                           {item.title}
                         </span>
-                        <p className="text-xs text-gray-500">{item.desc}</p>
+                        <p className="text-[11px] text-gray-500 truncate">{item.desc}</p>
                       </div>
                     </Link>
                   ))}
@@ -276,7 +248,7 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
                     <Link
                       key={index}
                       href="#"
-                      className="px-3 py-1.5 text-xs rounded-full border border-gray-300 text-gray-700 hover:border-primary-500 hover:text-primary-500 hover:bg-primary-50/50 transition-all"
+                      className="px-3 py-1.5 text-xs rounded-full border border-gray-200 text-gray-700 hover:border-amber-300 hover:text-amber-700 hover:bg-amber-50/60 transition-all duration-200"
                     >
                       {cat}
                     </Link>
@@ -313,12 +285,14 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
                   <span className="transition-colors group-hover/quick:text-indigo-500">پرفروش‌ترین‌های فصل</span>
                 </Link>
               </div>
+
+              {/* دکمه مشاهده همه محصولات */}
               <Link
                 href="#"
-                className="group/all text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1"
+                className="group/all text-sm font-semibold text-primary-600 hover:text-primary-700 transition-colors flex items-center gap-1.5"
               >
-                مشاهده همه محصولات پوشاک
-                <ArrowRightIcon className="w-4 h-4 transition-transform group-hover/all:-translate-x-1" />
+                <span>مشاهده همه محصولات پوشاک</span>
+                <ArrowRightIcon className="w-4 h-4 text-primary-600 group-hover/all:text-primary-700 rotate-180 transition-transform duration-200 group-hover/all:translate-x-1" />
               </Link>
             </div>
           </div>

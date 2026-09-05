@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import PromotionRenderer from "@/components/promotions/PromotionRenderer";
 import Input from '@/components/ui/Input';
-import Backdrop from '@/components/ui/Backdrop'; // ایمپورت کامپوننت بک‌دراپ
+import Backdrop from '@/components/ui/Backdrop';
 import {
   MagnifyingGlassIcon,
   ChevronLeftIcon,
@@ -16,7 +16,7 @@ import {
   ArrowRightIcon,
 } from '@heroicons/react/24/outline';
 
-export default function GlobalSearch() {
+export default function ClothingSearch() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -25,13 +25,17 @@ export default function GlobalSearch() {
   const recognitionRef = useRef(null);
   const mobileInputRef = useRef(null);
 
+  // جستجوهای ترند مرتبط با پوشاک
   const trendingSearches = [
-    'گوشی iphone 17',
-    'گوشی iphone 16',
-    'گوشی S25',
+    'کت شلوار مجلسی',
+    'تیشرکت مردانه',
+    'پیراهن زنانه',
+    'کیف چرمی',
+    'کفش اسپرت',
   ];
 
-  const recentSearches = ['مک بوک', 'گوشی شیائومی', 'گوشی سامسونگ'];
+  // جستجوهای اخیر مرتبط با پوشاک
+  const recentSearches = ['شلوار جین', 'مانتو', 'پالتو', 'کیف دستی'];
 
   // جلوگیری از اسکرول صفحه در زمان باز بودن مودال موبایل
   useEffect(() => {
@@ -99,7 +103,7 @@ export default function GlobalSearch() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchTerm.trim()) {
-      console.log('Searching for:', searchTerm);
+      console.log('Searching for clothing:', searchTerm);
       setIsMobileOpen(false);
       setIsDesktopFocused(false);
     }
@@ -112,12 +116,11 @@ export default function GlobalSearch() {
         id="search-wrapper"
         className="hidden lg:flex flex-1 max-w-2xl relative group/search mx-auto"
       >
-        {/* استفاده از بک‌دراپ در دسکتاپ هنگام فوکوس روی سرچ */}
-          <Backdrop 
-            isOpen={isDesktopFocused} 
-            onClick={() => setIsDesktopFocused(false)} 
-            className="top-31.25" 
-          />
+        <Backdrop 
+          isOpen={isDesktopFocused} 
+          onClick={() => setIsDesktopFocused(false)} 
+          className="top-31.25" 
+        />
 
         <div className="relative w-full z-[10000]">
           <form onSubmit={handleSearchSubmit} className="relative w-full z-[10000]">
@@ -131,13 +134,12 @@ export default function GlobalSearch() {
               onChange={(e) => setSearchTerm(e.target.value)}
               onFocus={() => setIsDesktopFocused(true)}
               onBlur={(e) => {
-                // چک کردن اینکه آیا کلیک روی فرزندان پنل مگاسرچ انجام شده یا خیر
                 if (!e.currentTarget.contains(e.relatedTarget)) {
                   setIsDesktopFocused(false);
                 }
               }}
               autoComplete="off"
-              placeholder="جستجو ..."
+              placeholder="جستجوی پوشاک ..."
               className="py-3 bg-gray-200/60 backdrop-blur-md border-secondary/10 rounded-full pr-12 pl-44 text-sm font-bold ring-primary/40 shadow-md"
             />
 
@@ -173,7 +175,7 @@ export default function GlobalSearch() {
                   <EyeIcon className="w-4 h-4 stroke-[2]" />
                 </div>
                 <span className="text-[13px] font-black text-gray-800 uppercase tracking-tighter">
-                  محصولات پربازدید هفته
+                  محصولات پوشاک پربازدید هفته
                 </span>
               </div>
 
@@ -185,20 +187,20 @@ export default function GlobalSearch() {
                   >
                     <div className="relative w-20 h-20 bg-gray-100 rounded-[1.5rem] p-2 flex-shrink-0">
                       <Image
-                        src={`/assets/images/product/mobile-${id + 2}.png`}
-                        alt="ساعت هوشمند"
+                        src={`/assets/images/clothing/clothing-${id}.jpg`}
+                        alt="پوشاک"
                         width={80}
                         height={80}
-                        className="w-full h-full object-contain group-hover/card:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover rounded-xl group-hover/card:scale-110 transition-transform duration-500"
                       />
                     </div>
                     <div className="flex-1 pr-4">
                       <h4 className="text-[12px] font-bold text-gray-800 mb-2 group-hover/card:text-primary transition-colors line-clamp-1">
-                        ساعت هوشمند مدل Watch Ultra 2 بند تیتانیوم
+                        {id === 1 ? 'کت و شلوار مجلسی مردانه' : 'مانتو زنانه بهاره'}
                       </h4>
                       <div className="flex items-center justify-between">
                         <div className="px-3 py-1 bg-gray-100 rounded-xl text-[14px] font-black text-gray-900">
-                          ۳,۳۲۰,۰۰۰{' '}
+                          {id === 1 ? '۴,۵۰۰,۰۰۰' : '۳,۲۰۰,۰۰۰'}{' '}
                           <span className="text-[9px] text-gray-400 mr-1 font-bold">
                             تومان
                           </span>
@@ -213,7 +215,7 @@ export default function GlobalSearch() {
               <div className="border-t border-dashed border-gray-200 pt-8 grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-4">
                   <span className="text-[13px] font-black text-gray-800 uppercase tracking-tighter">
-                    جستجوهای ترند
+                    جستجوهای ترند پوشاک
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {trendingSearches.map((item, index) => (
@@ -228,7 +230,7 @@ export default function GlobalSearch() {
                   </div>
                 </div>
 
-                <div className=" border-r border-gray-100 ">                     
+                <div className="border-r border-gray-100">
                   <PromotionRenderer type="smallBanner" slotKey="searchModal" />
                 </div>
               </div>
@@ -239,17 +241,15 @@ export default function GlobalSearch() {
 
       {/* ----------------- حالت موبایل ----------------- */}
       <div className="flex lg:hidden w-full items-center gap-2">
-        {/* دکمه محرک باز کردن مودال سرچ موبایل */}
         <button
           type="button"
           onClick={() => setIsMobileOpen(true)}
           className="flex items-center gap-2 flex-1 py-2.5 px-4 bg-gray-200/60 backdrop-blur-md rounded-full text-gray-400 text-sm font-bold shadow-sm"
         >
           <MagnifyingGlassIcon className="w-5 h-5 stroke-[2.5]" />
-          <span>جستجو ...</span>
+          <span>جستجوی پوشاک ...</span>
         </button>
 
-        {/* دکمه میکروفون مجزا در خارج از باکس سرچ */}
         <button
           type="button"
           onClick={handleVoiceSearch}
@@ -263,10 +263,8 @@ export default function GlobalSearch() {
           <MicrophoneIcon className="w-5 h-5 stroke-[2]" />
         </button>
 
-        {/* مودال فول‌اسکرین موبایل */}
         {isMobileOpen && (
           <div className="fixed inset-0 z-[99999] bg-white flex flex-col h-full w-full overflow-y-auto animate-in fade-in slide-in-from-bottom duration-300">
-            {/* هدر مودال و باکس سرچ */}
             <div className="sticky top-0 bg-white border-b border-gray-100 p-4 shadow-sm z-10">
               <form onSubmit={handleSearchSubmit} className="flex items-center gap-3">
                 <button
@@ -284,7 +282,7 @@ export default function GlobalSearch() {
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     autoComplete="off"
-                    placeholder="جستجو ..."
+                    placeholder="جستجوی پوشاک ..."
                     className="py-2.5 bg-gray-100 border-none rounded-full pr-4 pl-12 text-sm font-bold w-full focus:ring-2 focus:ring-primary/40"
                   />
                   {searchTerm && (
@@ -312,14 +310,12 @@ export default function GlobalSearch() {
               </form>
             </div>
 
-            {/* محتوای درون مودال موبایل */}
             <div className="flex-1 p-5 space-y-8">
-              {/* نتایج پربازدید */}
               <div>
                 <div className="flex items-center gap-2 mb-4 text-gray-800">
                   <EyeIcon className="w-4 h-4 text-primary stroke-[2]" />
                   <span className="text-xs font-black uppercase">
-                    محصولات پربازدید هفته
+                    پوشاک پربازدید هفته
                   </span>
                 </div>
                 <div className="space-y-3">
@@ -330,19 +326,20 @@ export default function GlobalSearch() {
                     >
                       <div className="relative w-16 h-16 bg-white rounded-xl p-1 flex-shrink-0">
                         <Image
-                          src={`/assets/images/product/mobile-${id + 2}.png`}
-                          alt="محصول"
+                          src={`/assets/images/clothing/clothing-${id}.jpg`}
+                          alt="پوشاک"
                           width={64}
                           height={64}
-                          className="w-full h-full object-contain"
+                          className="w-full h-full object-cover rounded-lg"
                         />
                       </div>
                       <div className="flex-1 pr-3">
                         <h4 className="text-xs font-bold text-gray-800 mb-1 line-clamp-1">
-                          ساعت هوشمند مدل Watch Ultra 2 بند تیتانیوم
+                          {id === 1 ? 'کت و شلوار مجلسی مردانه' : 'مانتو زنانه بهاره'}
                         </h4>
                         <div className="text-xs font-black text-gray-900">
-                          ۳,۳۲۰,۰۰۰ <span className="text-[10px] text-gray-400">تومان</span>
+                          {id === 1 ? '۴,۵۰۰,۰۰۰' : '۳,۲۰۰,۰۰۰'}{' '}
+                          <span className="text-[10px] text-gray-400">تومان</span>
                         </div>
                       </div>
                       <ChevronLeftIcon className="w-4 h-4 text-gray-400 stroke-[2.5]" />
@@ -351,10 +348,9 @@ export default function GlobalSearch() {
                 </div>
               </div>
 
-              {/* جستجوهای ترند */}
               <div>
                 <span className="block text-xs font-black text-gray-800 uppercase mb-3">
-                  جستجوهای ترند
+                  جستجوهای ترند پوشاک
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {trendingSearches.map((item, index) => (
@@ -370,7 +366,6 @@ export default function GlobalSearch() {
                 </div>
               </div>
 
-              {/* تبلیغات */}
               <div>
                 <div onClick={() => setIsMobileOpen(false)}>
                   <PromotionRenderer type="smallBanner" slotKey="searchModal" />

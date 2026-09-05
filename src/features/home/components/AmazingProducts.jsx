@@ -12,6 +12,7 @@ import { FireIcon } from "@heroicons/react/24/solid";
 import SectionHeader from "@/components/common/SectionHeader";
 import Button from "@/components/ui/Button";
 import Timer from "@/components/common/Timer";
+import Skeleton from "@/components/ui/Skeleton";
 import Swiper from "swiper";
 import "swiper/css";
 
@@ -107,6 +108,45 @@ const AMAZING_PRODUCTS = [
   },
 ];
 
+// کامپوننت اسکلتون اختصاصی کارت محصول
+function ProductCardSkeleton() {
+  return (
+    <div className="w-[170px] xs:w-[185px] sm:w-[200px] md:w-[215px] lg:w-[230px] flex flex-col items-center gap-0 rounded-[1.5rem] bg-primary/5 p-2 border border-cart-boarder shadow-md">
+      {/* بخش تصویر */}
+      <Skeleton className="h-36 w-36 xs:h-40 xs:w-40 sm:h-36 sm:w-36 lg:h-52 lg:w-full rounded-[1.2rem]" />
+
+      {/* بخش اطلاعات */}
+      <div className="flex-1 w-full min-w-0 flex flex-col justify-between gap-2 px-0.5 py-1.5 lg:px-3 lg:py-2.5">
+        <div className="space-y-2">
+          {/* تایتل دو خطی */}
+          <Skeleton variant="text" className="w-full h-4" />
+          <Skeleton variant="text" className="w-3/4 h-4" />
+
+          {/* سایزها */}
+          <div className="flex items-center gap-1 pt-1">
+            <Skeleton className="w-8 h-3 rounded" />
+            <Skeleton className="h-4 w-5 lg:h-[22px] lg:w-[26px] rounded-md lg:rounded-lg" />
+            <Skeleton className="h-4 w-5 lg:h-[22px] lg:w-[26px] rounded-md lg:rounded-lg" />
+            <Skeleton className="h-4 w-5 lg:h-[22px] lg:w-[26px] rounded-md lg:rounded-lg" />
+          </div>
+        </div>
+
+        {/* خط جداکننده */}
+        <div className="h-px w-full bg-gradient-to-r from-transparent via-cart-boarder to-transparent my-1" />
+
+        {/* قیمت و دکمه */}
+        <div className="flex items-end justify-between w-full">
+          <div className="space-y-1">
+            <Skeleton variant="text" className="w-12 h-3" />
+            <Skeleton variant="text" className="w-20 h-5" />
+          </div>
+          <Skeleton className="w-8 h-8 sm:w-10 sm:h-10 rounded-md sm:rounded-lg" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // کامپوننت کارت محصول
 function ProductCard({ product }) {
   const availableSizes = product.sizes || ["S", "M", "L", "XL"];
@@ -198,12 +238,22 @@ function ProductCard({ product }) {
 export default function AmazingOffersSlider() {
   const swiperRef = useRef(null);
   const [swiperInstance, setSwiperInstance] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   // تاریخ هدف: ۲۴ ساعت بعد
   const targetDate = new Date().getTime() + 24 * 60 * 60 * 1000;
 
+  // شبیه‌سازی لودینگ داده‌ها (می‌توانید به متغیر لودینگ واقعی API تغییر دهید)
   useEffect(() => {
-    if (swiperRef.current && !swiperInstance) {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (swiperRef.current && !swiperInstance && !isLoading) {
       const swiper = new Swiper(swiperRef.current, {
         slidesPerView: 'auto',
         spaceBetween: 20,
@@ -239,7 +289,7 @@ export default function AmazingOffersSlider() {
         swiperInstance.destroy();
       }
     };
-  }, [swiperInstance]);
+  }, [swiperInstance, isLoading]);
 
   const handlePrev = () => {
     if (swiperInstance) {
@@ -288,13 +338,19 @@ export default function AmazingOffersSlider() {
           className="overflow-hidden pb-3 pt-1"
         >
           <div className="swiper-wrapper">
-            {AMAZING_PRODUCTS.map((product) => (
-              <div key={product.id} className="swiper-slide !w-auto">
-                <Link href={product.href}>
-                  <ProductCard product={product} />
-                </Link>
-              </div>
-            ))}
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, index) => (
+                  <div key={index} className="swiper-slide !w-auto">
+                    <ProductCardSkeleton />
+                  </div>
+                ))
+              : AMAZING_PRODUCTS.map((product) => (
+                  <div key={product.id} className="swiper-slide !w-auto">
+                    <Link href={product.href}>
+                      <ProductCard product={product} />
+                    </Link>
+                  </div>
+                ))}
           </div>
         </div>
 
@@ -302,7 +358,8 @@ export default function AmazingOffersSlider() {
         <div className="flex items-center justify-center gap-4 mt-6">
           <button
             onClick={handlePrev}
-            className="flex items-center gap-2 p-3 rounded-full border border-secondary/10 bg-gray-200/60 backdrop-blur-md hover:border-secondary/20 hover:bg-gray-200 transition-all duration-300 group shadow-md"
+            disabled={isLoading}
+            className="flex items-center gap-2 p-3 rounded-full border border-secondary/10 bg-gray-200/60 backdrop-blur-md hover:border-secondary/20 hover:bg-gray-200 transition-all duration-300 group shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="اسکرول به چپ"
           >
             <ChevronRightIcon className="w-5 h-5 text-secondary hover:text-lime-950 transition-colors" />
@@ -310,7 +367,8 @@ export default function AmazingOffersSlider() {
 
           <button
             onClick={handleNext}
-            className="flex items-center gap-2 p-3 rounded-full border border-secondary/10 bg-gray-200/60 backdrop-blur-md hover:border-secondary/20 hover:bg-gray-200 transition-all duration-300 group shadow-md"
+            disabled={isLoading}
+            className="flex items-center gap-2 p-3 rounded-full border border-secondary/10 bg-gray-200/60 backdrop-blur-md hover:border-secondary/20 hover:bg-gray-200 transition-all duration-300 group shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
             aria-label="اسکرول به راست"
           >
             <ChevronLeftIcon className="w-5 h-5 text-secondary hover:text-lime-950 transition-colors" />
