@@ -1,45 +1,66 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { PlayIcon } from "@heroicons/react/24/solid";
 
-export default function InteractiveProductCard() {
+export default function InteractiveProductCard({ onPlayVideo }) {
   const variants = [
     {
       id: "green",
       name: "سبز",
       colorCode: "#2a9d8f",
       image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=500&q=80",
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // لینک نمونه embed ویدیو
     },
     {
       id: "blue",
       name: "آبی",
       colorCode: "#0077b6",
       image: "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?w=500&q=80",
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     },
     {
       id: "orange",
       name: "نارنجی",
       colorCode: "#f4a261",
       image: "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?w=500&q=80",
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     },
     {
       id: "purple",
       name: "بنفش",
       colorCode: "#7209b7",
       image: "https://images.unsplash.com/photo-1548883354-7622d03aca27?w=500&q=80",
+      videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
     },
   ];
 
   const [selectedVariant, setSelectedVariant] = useState(variants[0]);
   const availableSizes = ["S", "M", "L", "XL"];
 
-  return (
-    <div
+  const handlePlayVideoClick = (e) => {
+    e.stopPropagation();
+    if (onPlayVideo) {
+      onPlayVideo({
+        id: `${selectedVariant.id}-${Date.now()}`, // اضافه کردن آی‌دی یکتا برای اجبار به رندر مجدد
+        title: `معرفی هودی دورس اسپرت (${selectedVariant.name})`,
+        videoUrl: selectedVariant.videoUrl,
+      });
+    }
+  };
 
-      className="group/card relative w-full lg:w-[296px] flex flex-row lg:flex-col items-center gap-3 lg:gap-0 rounded-[2rem] bg-primary/5 p-2.5 lg:p-2 text-secondary border border-cart-boarder shadow-xl transition-all duration-500 ease-out hover:-translate-y-1 lg:hover:-translate-y-2 hover:bg-primary/10 hover:border-[#e5c158] hover:shadow-[0_20px_35px_-15px_rgba(229,193,88,0.25)] hover:shadow-primary/20 cursor-pointer"
-    >
+  return (
+    <div className="group/card relative w-full lg:w-[275px] flex flex-row lg:flex-col items-center gap-3 lg:gap-0 rounded-[2rem] bg-primary/5 p-2.5 lg:p-2 text-secondary border border-cart-boarder shadow-xl transition-all duration-500 ease-out hover:-translate-y-1 lg:hover:-translate-y-2 hover:bg-primary/10 hover:border-[#e5c158] hover:shadow-[0_20px_35px_-15px_rgba(229,193,88,0.25)] hover:shadow-primary/20 cursor-pointer">
       {/* ۱. بخش تصویر محصول */}
-      <div className="relative h-32 w-32 sm:h-36 sm:w-36 lg:h-80 lg:w-full flex-shrink-0 overflow-hidden rounded-[1.5rem] bg-black/20 shadow-[0_12px_28px_-8px_rgba(0,0,0,0.4),0_8px_16px_-6px_rgba(229,193,88,0.15)]">
-        
+      <div className="relative h-32 w-32 sm:h-36 sm:w-36 lg:h-70 lg:w-full flex-shrink-0 overflow-hidden rounded-[1.5rem] bg-black/20 shadow-[0_12px_28px_-8px_rgba(0,0,0,0.4),0_8px_16px_-6px_rgba(229,193,88,0.15)]">
+        {/* دکمه پخش ویدیو */}
+        <button
+          onClick={handlePlayVideoClick}
+          title="پخش ویدیوی محصول"
+          className="absolute top-2 left-2 z-30 w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg hover:scale-110 hover:bg-rose-900 transition-all duration-300"
+        >
+          <PlayIcon className="w-4 h-4 translate-x-0.5" />
+        </button>
+
         {/* انیمیشن تعویض عکس */}
         <AnimatePresence mode="wait">
           <motion.img
@@ -82,9 +103,8 @@ export default function InteractiveProductCard() {
         </div>
       </div>
 
-      {/* ۲. بخش اطلاعات (پدینگ دسکتاپ با px-4 py-3 اصلاح شد) */}
+      {/* ۲. بخش اطلاعات */}
       <div className="flex-1 w-full min-w-0 text-right flex flex-col justify-between lg:justify-start gap-2.5 lg:gap-3 px-1 py-1 lg:px-4 lg:py-3.5">
-        {/* عنوان، لیبل رنگ و توضیحات */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-sm lg:text-base font-bold text-[#131925] truncate">
@@ -99,12 +119,9 @@ export default function InteractiveProductCard() {
           </p>
         </div>
 
-        {/* خط جداکننده (فقط در دسکتاپ) */}
         <div className="hidden lg:block h-px w-full bg-gradient-to-r from-transparent via-cart-boarder to-transparent" />
 
-        {/* سایزها و قیمت */}
         <div className="flex items-end justify-between gap-1 mt-1 lg:mt-0">
-          {/* سایزها */}
           <div className="flex flex-col gap-1">
             <span className="text-[8px] lg:text-[9px] font-bold text-slate-400">سایزها:</span>
             <div className="flex items-center gap-1">
@@ -119,7 +136,6 @@ export default function InteractiveProductCard() {
             </div>
           </div>
 
-          {/* قیمت */}
           <div className="flex flex-col items-end leading-none shrink-0">
             <span className="text-[10px] lg:text-xs font-bold text-slate-400 line-through decoration-slate-600 mb-0.5 lg:mb-1">
               ۸۵۰,۰۰۰

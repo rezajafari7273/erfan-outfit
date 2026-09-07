@@ -1,5 +1,4 @@
 import "./globals.css";
-// خط زیر را اضافه کنید
 import { mainFont, faNumFont, rokhFont } from "@/assets/fonts/fonts";
 
 import Header from "@/components/common/Header/Header";
@@ -29,9 +28,15 @@ export default function RootLayout({ children }) {
           shadow="0 0 10px #6f0000, 0 0 5px #6f0000"
         />
         <PromotionProvider>
-          <div className="header-wrapper sticky top-0 z-50">
-            <PromotionRenderer type="topBanner" />
-            <Header />
+          {/* Header */}
+          <div className="contents lg:block lg:header-wrapper lg:sticky lg:top-0 lg:z-50">        
+            <div className="relative z-50">
+              <PromotionRenderer type="topBanner" />
+            </div>
+
+            <div className="sticky top-0 z-40 lg:static lg:z-auto">
+              <Header />
+            </div>
           </div>
 
           <main>{children}</main>
