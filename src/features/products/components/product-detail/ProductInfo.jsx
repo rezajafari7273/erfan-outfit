@@ -3,17 +3,14 @@ import {
   ChevronLeftIcon,
   SparklesIcon,
 } from "@heroicons/react/24/outline";
+import ProductBreadcrumb from "./ProductBreadcrumb";
 
 export default function ProductInfo() {
   return (
     <div className="space-y-4">
       <div>
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-cyan-600 text-xs font-bold">
-            <span>هیسکا</span>
-            <span>/</span>
-            <a href="#">ماوس (موشواره) هیسکا</a>
-          </div>
+          <ProductBreadcrumb />
           <span className="text-xs font-bold bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-200">
             HISKA
           </span>

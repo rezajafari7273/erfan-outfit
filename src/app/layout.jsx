@@ -30,11 +30,11 @@ export default function RootLayout({ children }) {
         <PromotionProvider>
           {/* Header */}
           <div className="contents lg:block lg:header-wrapper lg:sticky lg:top-0 lg:z-50">        
-            <div className="relative z-50">
+            <div className="relative z-30">
               <PromotionRenderer type="topBanner" />
             </div>
 
-            <div className="sticky top-0 z-40 lg:static lg:z-auto">
+            <div className="sticky top-0 z-30 lg:static lg:z-auto">
               <Header />
             </div>
           </div>

@@ -1,82 +1,85 @@
 "use client";
 
 import { useState } from "react";
-import {
-  HeartIcon,
-  ShareIcon,
-  BellIcon,
-  ChartBarIcon,
-  QueueListIcon,
-  ClipboardDocumentCheckIcon,
-  InformationCircleIcon,
-  ClockIcon,
-} from "@heroicons/react/24/outline";
+import { HeartIcon, ShareIcon, XMarkIcon } from "@heroicons/react/24/outline";
 
-export default function ProductGallery() {
+export default function ProductGallery({ isMobile = false }) {
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const images = [
-    "https://via.placeholder.com/600x600/f3f4f6/000000?text=Mouse+1",
-    "https://via.placeholder.com/600x600/f3f4f6/000000?text=Mouse+2",
-    "https://via.placeholder.com/600x600/f3f4f6/000000?text=Mouse+3",
+    "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1000&q=80",
+    "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?auto=format&fit=crop&w=1000&q=80",
   ];
+
+  if (isMobile) {
+    return (
+      <>
+        {/* تصویر پس‌زمینه بدون هیچ پدینگ یا کادر سفید */}
+        <div className="absolute inset-0 w-full h-full">
+          <img
+            src={images[selectedImage]}
+            alt="تصویر اصلی محصول"
+            className="w-full h-full object-cover"
+            onClick={() => setIsModalOpen(true)}
+          />
+
+          {/* آیکون‌های شناور سمت راست (لایک و اشتراک) */}
+          <div className="absolute right-4 top-24 flex flex-col gap-3 z-10">
+            <button className="w-10 h-10 rounded-full bg-white/40 backdrop-blur-md border border-white/30 shadow-md flex items-center justify-center text-gray-900 active:scale-95 transition-transform">
+              <ShareIcon className="w-5 h-5" />
+            </button>
+            <button className="w-10 h-10 rounded-full bg-white/40 backdrop-blur-md border border-white/30 shadow-md flex items-center justify-center text-gray-900 active:scale-95 transition-transform hover:text-rose-600">
+              <HeartIcon className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* تصاویر تامبنیل شیشه‌ای شناور روی عکس */}
+          <div className="absolute bottom-6 left-0 right-0 z-10 flex items-center justify-center gap-2 px-4">
+            {images.map((img, idx) => (
+              <button
+                key={idx}
+                onClick={() => setSelectedImage(idx)}
+                className={`w-12 h-12 rounded-2xl overflow-hidden border backdrop-blur-md p-0.5 transition-all ${
+                  selectedImage === idx
+                    ? "border-white bg-white/60 scale-105 shadow-md ring-2 ring-white/40"
+                    : "border-white/30 bg-white/20 opacity-80"
+                }`}
+              >
+                <img src={img} alt="thumb" className="w-full h-full object-cover rounded-xl" />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* مودال بزرگنمایی */}
+        {isModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/95 flex flex-col justify-between p-4 backdrop-blur-lg">
+            <div className="flex items-center justify-between text-white">
+              <button onClick={() => setIsModalOpen(false)} className="p-2 rounded-full bg-white/10">
+                <XMarkIcon className="w-6 h-6" />
+              </button>
+              <span className="text-xs text-gray-400">{selectedImage + 1} از {images.length}</span>
+            </div>
+            <div className="w-full h-[70vh] flex items-center justify-center">
+              <img src={images[selectedImage]} alt="تصویر" className="max-w-full max-h-full object-contain" />
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center border border-gray-100 rounded-2xl p-4 relative">
-      <div className="w-full flex items-center justify-between text-rose-600 font-bold mb-2">
-        <span className="text-sm">پیشنهاد شگفت‌انگیز</span>
-        <div className="flex items-center gap-1 text-xs bg-rose-50 px-2 py-1 rounded-md">
-          <ClockIcon className="w-3.5 h-3.5" />
-          <span dir="ltr">۲۶ : ۵۴ : ۴۲</span>
-          <span className="bg-rose-600 text-white px-1.5 py-0.5 rounded text-[10px] mr-1">
-            ۴۷٪ فروش رفته
-          </span>
-        </div>
-      </div>
-
-      <div className="relative w-full flex justify-center py-4">
-        <div className="absolute right-0 top-0 flex flex-col gap-4 text-gray-400">
-          <button className="hover:text-rose-500 transition-colors"><HeartIcon className="w-5 h-5" /></button>
-          <button className="hover:text-gray-700 transition-colors"><ShareIcon className="w-5 h-5" /></button>
-          <button className="hover:text-gray-700 transition-colors"><BellIcon className="w-5 h-5" /></button>
-          <button className="hover:text-gray-700 transition-colors"><ChartBarIcon className="w-5 h-5" /></button>
-          <button className="hover:text-gray-700 transition-colors"><QueueListIcon className="w-5 h-5" /></button>
-          <button className="hover:text-gray-700 transition-colors"><ClipboardDocumentCheckIcon className="w-5 h-5" /></button>
-        </div>
-
-        <img
-          src={images[selectedImage]}
-          alt="تصویر محصول"
-          className="w-72 h-72 object-contain"
-        />
-      </div>
-
-      <div className="flex items-center gap-2 mt-4 overflow-x-auto w-full justify-center">
+      <img src={images[selectedImage]} alt="تصویر محصول" className="w-72 h-72 object-contain" />
+      <div className="flex items-center gap-2 mt-4">
         {images.map((img, idx) => (
-          <button
-            key={idx}
-            onClick={() => setSelectedImage(idx)}
-            className={`w-16 h-16 border rounded-xl overflow-hidden p-1 transition-all ${
-              selectedImage === idx
-                ? "border-rose-500 ring-1 ring-rose-500"
-                : "border-gray-200"
-            }`}
-          >
-            <img
-              src={img}
-              alt="thumbnail"
-              className="w-full h-full object-contain"
-            />
+          <button key={idx} onClick={() => setSelectedImage(idx)} className="w-16 h-16 border rounded-xl overflow-hidden p-1">
+            <img src={img} alt="thumb" className="w-full h-full object-contain" />
           </button>
         ))}
-      </div>
-
-      <div className="w-full flex items-center justify-between text-xs text-gray-400 mt-4 pt-3 border-t border-gray-100">
-        <span className="flex items-center gap-1 cursor-pointer hover:text-gray-600">
-          <InformationCircleIcon className="w-3.5 h-3.5" />
-          گزارش مشخصات کالا
-        </span>
-        <span>DKP-19255465</span>
       </div>
     </div>
   );
