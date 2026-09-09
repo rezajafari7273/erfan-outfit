@@ -7,6 +7,10 @@ import { motion } from 'framer-motion';
 import MegaMenu from './components/MegaMenu';
 import GlobalSearch from './components/GlobalSearch';
 import Logo from '@/components/ui/Logo';
+
+// ۱. ایمپورت کامپوننت مودال احراز هویت
+import AuthModal from '@/features/auth/components/AuthModal';
+
 import {
   MagnifyingGlassIcon,
   ChevronLeftIcon,
@@ -38,6 +42,10 @@ export default function DesktopHeader() {
   const [lastScrollY, setLastScrollY] = useState(0);
   const [topHeaderHeight, setTopHeaderHeight] = useState(0);
   const [hoveredIndex, setHoveredIndex] = useState(null);
+  
+  // ۲. استیت مدیریت وضعیت نمایش مودال ورود / ثبت‌نام
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
   const topHeaderRef = useRef(null);
 
   // اندازه‌گیری ارتفاع بخش بالایی
@@ -102,17 +110,18 @@ export default function DesktopHeader() {
                 </span>
               </Link>
 
-              {/* User Auth Link */}
-              <Link
-                href="/login"
+              {/* ۳. دکمه باز کردن مودال ورود / ثبت‌نام */}
+              <button
+                type="button"
                 id="login-btn"
-                className="flex items-center gap-2 px-4 py-3 rounded-full border border-secondary/10 bg-gray-200/60 backdrop-blur-md hover:border-secondary/20 hover:bg-gray-200 transition-all duration-300 group shadow-md"
+                onClick={() => setIsAuthModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-3 rounded-full border border-secondary/10 bg-gray-200/60 backdrop-blur-md hover:border-secondary/20 hover:bg-gray-200 transition-all duration-300 group shadow-md cursor-pointer"
               >
                 <UserIcon className="w-5 h-5 text-secondary group-hover:text-primary-600 transition-colors stroke-[1.8]" />
                 <span className="text-xs font-black text-primary hidden lg:block uppercase tracking-tighter">
                   ورود یا ثبت‌نام
                 </span>
-              </Link>
+              </button>
             </div>
 
           </div>
@@ -209,6 +218,12 @@ export default function DesktopHeader() {
           </ul>
         </div>
       </nav>
+
+      {/* ۴. کامپوننت مودال ثبت‌نام/ورود */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
     </div>
   );
 }

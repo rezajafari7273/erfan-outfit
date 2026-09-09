@@ -56,7 +56,7 @@ export default function InteractiveProductCard({ onPlayVideo }) {
         <button
           onClick={handlePlayVideoClick}
           title="پخش ویدیوی محصول"
-          className="absolute top-2 left-2 z-30 w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg hover:scale-110 hover:bg-rose-900 transition-all duration-300"
+          className="absolute top-2 left-2 z-10 w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-black/40 backdrop-blur-md border border-white/30 text-white flex items-center justify-center shadow-lg hover:scale-110 hover:bg-rose-900 transition-all duration-300"
         >
           <PlayIcon className="w-4 h-4 translate-x-0.5" />
         </button>

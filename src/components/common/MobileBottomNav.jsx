@@ -28,7 +28,7 @@ export default function MobileBottomNav() {
   const activeTab = activeIndex !== -1 ? activeIndex : null;
 
   return (
-    <div className="fixed bottom-5 left-0 right-0 z-20 flex justify-center px-4 md:hidden" dir="rtl">
+    <div className="fixed bottom-5 left-0 right-0 z-20 flex justify-center px-4 lg:hidden" dir="rtl">
       <div className="relative flex items-center justify-around bg-[#fff3e1] rounded-full py-3 shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-gray-100 w-full max-w-md">
         <LayoutGroup id="mobile-nav">
           {navItems.map((item, index) => {
