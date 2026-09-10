@@ -7,8 +7,6 @@ import { motion } from 'framer-motion';
 import MegaMenu from './components/MegaMenu';
 import GlobalSearch from './components/GlobalSearch';
 import Logo from '@/components/ui/Logo';
-
-// ۱. ایمپورت کامپوننت مودال احراز هویت
 import AuthModal from '@/features/auth/components/AuthModal';
 
 import {

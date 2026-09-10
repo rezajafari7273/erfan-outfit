@@ -8,6 +8,9 @@ import Logo from '@/components/ui/Logo';
 import GlobalSearch from '@/components/common/Header/components/GlobalSearch';
 import Backdrop from '@/components/ui/Backdrop';
 import PromotionRenderer from '@/components/promotions/PromotionRenderer';
+import AuthModal from '@/features/auth/components/AuthModal';
+
+
 import {
   UserIcon,
   Bars3Icon,
@@ -265,7 +268,10 @@ function SocialLinks({ size = "md", className = "" }) {
 export default function MobileHeader() {
   const [isOpen, setIsOpen] = useState(false);
   
-  // استیت آکاردئون‌ها (هر دو دیفالت بسته هستند)
+  // ۲. استیت باز/بسته بودن مودال ورود
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // استیت آکاردئون‌ها
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [isCustomerServicesOpen, setIsCustomerServicesOpen] = useState(false);
 
@@ -325,377 +331,389 @@ export default function MobileHeader() {
   ];
 
   return (
-    <header className="lg:hidden sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
-      {/* Main Bar */}
-      <div className="px-4 pt-3 pb-3 flex items-center justify-between relative">
-        <button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          aria-label="باز کردن منو"
-          className="p-2.5 rounded-2xl bg-gray-50 border border-gray-200/60 text-gray-800 hover:bg-gray-100 active:scale-95 transition-all cursor-pointer"
-        >
-          <Bars3Icon className="w-5 h-5 stroke-[2]" />
-        </button>
-
-        <div className="absolute left-1/2 -translate-x-1/2">
-          <Logo width={110} height={33} priority={true} />
-        </div>
-
-        <Link
-          href="/login"
-          aria-label="ورود / پروفایل کاربر"
-          className="p-2.5 rounded-2xl border border-gray-200/60 bg-gray-50 text-gray-800 hover:bg-gray-100 active:scale-95 transition-all"
-        >
-          <UserIcon className="w-5 h-5 stroke-[1.8]" />
-        </Link>
-      </div>
-
-      {/* جستجو */}
-      <div className="px-4 pb-3">
-        <GlobalSearch />
-      </div>
-
-      {/* بک‌دراپ overlay */}
-      <Backdrop isOpen={isOpen} onClose={() => setIsOpen(false)} />
-
-      {/* Drawer */}
-      <aside
-        className={`fixed top-0 right-0 h-full w-[85vw] sm:w-[70vw] md:w-[480px] max-w-[480px] bg-gray-50 z-[100] shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out ${
-          isOpen ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        {/* Header Drawer */}
-        <div className="p-4 bg-white border-b border-gray-200/60 flex items-center justify-between shrink-0">
-          <Logo width={95} height={28} />
+    <>
+      <header className="lg:hidden sticky top-0 z-40 bg-white border-b border-gray-100 shadow-sm">
+        {/* Main Bar */}
+        <div className="px-4 pt-3 pb-3 flex items-center justify-between relative">
           <button
             type="button"
-            onClick={() => setIsOpen(false)}
-            aria-label="بستن منو"
-            className="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all active:scale-90 cursor-pointer"
+            onClick={() => setIsOpen(true)}
+            aria-label="باز کردن منو"
+            className="p-2.5 rounded-2xl bg-gray-50 border border-gray-200/60 text-gray-800 hover:bg-gray-100 active:scale-95 transition-all cursor-pointer"
           >
-            <XMarkIcon className="w-5 h-5 stroke-[2]" />
+            <Bars3Icon className="w-5 h-5 stroke-[2]" />
+          </button>
+
+          <div className="absolute left-1/2 -translate-x-1/2">
+            <Logo width={110} height={33} priority={true} />
+          </div>
+
+          {/* ۳. دکمه آیکون ورود بالا (جایگزین Link با button) */}
+          <button
+            type="button"
+            onClick={() => setIsAuthModalOpen(true)}
+            aria-label="ورود / پروفایل کاربر"
+            className="p-2.5 rounded-2xl border border-gray-200/60 bg-gray-50 text-gray-800 hover:bg-gray-100 active:scale-95 transition-all cursor-pointer"
+          >
+            <UserIcon className="w-5 h-5 stroke-[1.8]" />
           </button>
         </div>
 
-        {/* Body Drawer */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-6">
-          
-          {/* موقعیت مکانی */}
-          <Link
-            href="/location"
-            onClick={() => setIsOpen(false)}
-            className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F3F5F7] border border-[#E1E5EB] hover:border-[#D0D6E0] hover:bg-[#EDF0F5] shadow-2xs active:scale-[0.98] transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-[#E4E8EE] text-[#4B5E76] border border-[#D3D9E2] shrink-0">
-                <MapPinIcon className="w-4 h-4 stroke-[2]" />
-              </div>
-              <div className="flex flex-col min-w-0">
-                <span className="text-[10px] text-[#7A8A9E] font-medium">موقعیت تحویل سفارش</span>
-                <span className="text-xs font-bold text-[#2C3746] truncate">تهران، سعادت‌آباد</span>
-              </div>
-            </div>
-            <ChevronLeftIcon className="w-4 h-4 text-[#9CAAC0] group-hover:text-[#4B5E76] group-hover:-translate-x-0.5 transition-all shrink-0" />
-          </Link>
+        {/* جستجو */}
+        <div className="px-4 pb-3">
+          <GlobalSearch />
+        </div>
 
-          {/* دسترسی سریع */}
-          <section className="bg-surface rounded-2xl p-3 border border-[#E0DCD3] shadow-sm space-y-2">
-            <span className="text-[11px] font-black text-[#8C857B] uppercase tracking-wider block px-1 pb-1">
-              دسترسی سریع
-            </span>
-            <div className="grid grid-cols-2 gap-2">
-              {quickAccessItems.map((item, idx) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={idx}
-                    href={item.href}
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#F7F5F0]/80 border border-[#E5E1D8] hover:border-[#D0C9BD] hover:bg-[#F7F5F0] transition-all active:scale-95 shadow-2xs"
-                  >
-                    <div className={`p-2 rounded-lg ${item.bg} ${item.color} shrink-0`}>
-                      <Icon className="w-4 h-4 stroke-[2]" />
-                    </div>
-                    <span className="text-xs font-bold text-[#4A463D] truncate">{item.title}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
+        {/* بک‌دراپ overlay */}
+        <Backdrop isOpen={isOpen} onClose={() => setIsOpen(false)} />
 
-          {/*آکاردئون اول: راهنمای خرید و استایل*/}
-          <section className="bg-surface rounded-2xl border border-[#E0DCD3] shadow-sm overflow-hidden transition-all duration-300">
+        {/* Drawer */}
+        <aside
+          className={`fixed top-0 right-0 h-full w-[85vw] sm:w-[70vw] md:w-[480px] max-w-[480px] bg-gray-50 z-[100] shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out ${
+            isOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          {/* Header Drawer */}
+          <div className="p-4 bg-white border-b border-gray-200/60 flex items-center justify-between shrink-0">
+            <Logo width={95} height={28} />
             <button
               type="button"
-              onClick={() => setIsAccordionOpen(!isAccordionOpen)}
-              className="w-full flex items-center justify-between p-3.5 bg-surface transition-colors cursor-pointer"
+              onClick={() => setIsOpen(false)}
+              aria-label="بستن منو"
+              className="p-2 rounded-xl bg-gray-100 text-gray-600 hover:bg-gray-200 transition-all active:scale-90 cursor-pointer"
             >
-              <div className="flex items-center gap-2">
-                <RectangleStackIcon className="w-5 h-5 text-amber-500" />
-                <span className="text-xs font-black text-[#8C857B]">
-                  راهنمای خرید و استایل
-                </span>
-              </div>
-              <ChevronDownIcon
-                className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${
-                  isAccordionOpen ? 'rotate-180' : 'rotate-0'
-                }`}
-              />
+              <XMarkIcon className="w-5 h-5 stroke-[2]" />
             </button>
+          </div>
 
-            <AnimatePresence initial={false}>
-              {isAccordionOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="overflow-hidden border-t border-gray-100"
-                >
-                  <div className="p-3.5 space-y-5 bg-gray-50/40">
-                    
-                    {/* کالکشن‌ها */}
-                    <div className="space-y-2.5">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                          <span className="text-[11px] font-black text-gray-600 uppercase tracking-wider">
-                            کالکشن‌های ما
+          {/* Body Drawer */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+            
+            {/* موقعیت مکانی */}
+            <Link
+              href="/location"
+              onClick={() => setIsOpen(false)}
+              className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F3F5F7] border border-[#E1E5EB] hover:border-[#D0D6E0] hover:bg-[#EDF0F5] shadow-2xs active:scale-[0.98] transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-primary/5 text-secondary border border-primary-hover/10 shrink-0">
+                  <MapPinIcon className="w-4 h-4 stroke-[2] " />
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[10px] text-primary font-rokh font-bold">ارسال به: </span>
+                  <span className="text-xs font-bold text-[#2C3746] truncate">تهران، سعادت‌آباد</span>
+                </div>
+              </div>
+              <ChevronLeftIcon className="w-4 h-4 text-primary group-hover:text-primary-hover group-hover:-translate-x-0.5 transition-all shrink-0" />
+            </Link>
+
+            {/* دسترسی سریع */}
+            <section className="bg-surface rounded-2xl p-3 border border-[#E0DCD3] shadow-sm space-y-2">
+              <span className="text-[11px] font-black text-[#8C857B] uppercase tracking-wider block px-1 pb-1">
+                دسترسی سریع
+              </span>
+              <div className="grid grid-cols-2 gap-2">
+                {quickAccessItems.map((item, idx) => {
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={idx}
+                      href={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className="flex items-center gap-2.5 p-2.5 rounded-xl bg-[#F7F5F0]/80 border border-[#E5E1D8] hover:border-[#D0C9BD] hover:bg-[#F7F5F0] transition-all active:scale-95 shadow-2xs"
+                    >
+                      <div className={`p-2 rounded-lg ${item.bg} ${item.color} shrink-0`}>
+                        <Icon className="w-4 h-4 stroke-[2]" />
+                      </div>
+                      <span className="text-xs font-bold text-[#4A463D] truncate">{item.title}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* آکاردئون اول: راهنمای خرید و استایل */}
+            <section className="bg-surface rounded-2xl border border-[#E0DCD3] shadow-sm overflow-hidden transition-all duration-300">
+              <button
+                type="button"
+                onClick={() => setIsAccordionOpen(!isAccordionOpen)}
+                className="w-full flex items-center justify-between p-3.5 bg-surface transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <RectangleStackIcon className="w-5 h-5 text-amber-500" />
+                  <span className="text-xs font-black text-[#8C857B]">
+                    راهنمای خرید و استایل
+                  </span>
+                </div>
+                <ChevronDownIcon
+                  className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${
+                    isAccordionOpen ? 'rotate-180' : 'rotate-0'
+                  }`}
+                />
+              </button>
+
+              <AnimatePresence initial={false}>
+                {isAccordionOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden border-t border-gray-100"
+                  >
+                    <div className="p-3.5 space-y-5 bg-gray-50/40">
+                      
+                      {/* کالکشن‌ها */}
+                      <div className="space-y-2.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                            <span className="text-[11px] font-black text-gray-600 uppercase tracking-wider">
+                              کالکشن‌های ما
+                            </span>
+                          </div>
+                          <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
+                            ویژه پوشاک
                           </span>
                         </div>
-                        <span className="text-[9px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">
-                          ویژه پوشاک
-                        </span>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          {collections.map((item, index) => (
+                            <Link
+                              key={index}
+                              href={item.href}
+                              onClick={() => setIsOpen(false)}
+                              className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-gray-200/80 hover:border-amber-400/80 hover:bg-amber-50/40 transition-all duration-200 active:scale-95 shadow-2xs"
+                            >
+                              <div className="w-8 h-8 rounded-lg bg-amber-100/70 text-amber-700 font-black text-[10px] flex items-center justify-center shrink-0">
+                                {item.code}
+                              </div>
+                              <div className="truncate">
+                                <span className="text-xs font-bold text-gray-800 block truncate">{item.title}</span>
+                                <span className="text-[9px] text-gray-400 block truncate">{item.desc}</span>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
                       </div>
 
+                      {/* محبوب‌ترین دسته‌ها */}
+                      <div className="space-y-2.5 pt-3 border-t border-gray-200/60">
+                        <div className="flex items-center gap-1.5">
+                          <Squares2X2Icon className="w-4 h-4 text-amber-500" />
+                          <span className="text-[11px] font-black text-gray-600 uppercase tracking-wider">
+                            محبوب‌ترین دسته‌ها
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {popularCategories.map((cat, index) => (
+                            <Link
+                              key={index}
+                              href="#"
+                              onClick={() => setIsOpen(false)}
+                              className="px-2.5 py-1 text-[11px] font-bold rounded-full border border-gray-200 text-gray-600 bg-white hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 active:scale-95 transition-all shadow-2xs"
+                            >
+                              {cat}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* پرطرفدارترین استایل‌ها */}
+                      <div className="space-y-2 pt-3 border-t border-gray-200/60">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <BoltIcon className="w-4 h-4 text-amber-500" />
+                          <span className="text-[11px] font-black text-gray-600 uppercase tracking-wider">
+                            پرطرفدارترین استایل‌ها
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-1 gap-1.5">
+                          {popularStyles.map((style, idx) => (
+                            <Link
+                              key={idx}
+                              href={style.href}
+                              onClick={() => setIsOpen(false)}
+                              className="text-xs font-medium text-gray-700 hover:text-amber-600 flex items-center justify-between p-2 rounded-xl bg-white border border-gray-100 hover:border-amber-200 transition-colors shadow-2xs"
+                            >
+                              <span>{style.title}</span>
+                              <ChevronLeftIcon className="w-3.5 h-3.5 text-gray-400" />
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* مشاهده همه */}
+                      <div className="pt-2 border-t border-gray-200/60">
+                        <Link
+                          href="#"
+                          onClick={() => setIsOpen(false)}
+                          className="text-xs font-black text-primary flex items-center justify-between p-2 rounded-xl hover:bg-primary/5 transition-colors"
+                        >
+                          <span>مشاهده همه محصولات پوشاک</span>
+                          <ArrowLeftIcon className="w-4 h-4" />
+                        </Link>
+                      </div>
+
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </section>
+
+            {/* آکاردئون دوم: خدمات مشتریان */}
+            <section className="bg-surface rounded-2xl border border-[#E0DCD3] shadow-sm overflow-hidden transition-all duration-300">
+              <button
+                type="button"
+                onClick={() => setIsCustomerServicesOpen(!isCustomerServicesOpen)}
+                className="w-full flex items-center justify-between p-3.5 bg-surface cursor-pointer"
+              >
+                <div className="flex items-center gap-2">
+                  <LifebuoyIcon className="w-5 h-5 text-blue-500" />
+                  <span className="text-xs font-black text-[#8C857B]">
+                    خدمات مشتریان
+                  </span>
+                </div>
+                <ChevronDownIcon
+                  className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${
+                    isCustomerServicesOpen ? 'rotate-180' : 'rotate-0'
+                  }`}
+                />
+              </button>
+
+              <AnimatePresence initial={false}>
+                {isCustomerServicesOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden border-t border-gray-100"
+                  >
+                    <div className="p-3 bg-gray-50/40">
                       <div className="grid grid-cols-2 gap-2">
-                        {collections.map((item, index) => (
-                          <Link
-                            key={index}
-                            href={item.href}
-                            onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-gray-200/80 hover:border-amber-400/80 hover:bg-amber-50/40 transition-all duration-200 active:scale-95 shadow-2xs"
-                          >
-                            <div className="w-8 h-8 rounded-lg bg-amber-100/70 text-amber-700 font-black text-[10px] flex items-center justify-center shrink-0">
-                              {item.code}
-                            </div>
-                            <div className="truncate">
-                              <span className="text-xs font-bold text-gray-800 block truncate">{item.title}</span>
-                              <span className="text-[9px] text-gray-400 block truncate">{item.desc}</span>
-                            </div>
-                          </Link>
-                        ))}
+                        {customerServiceItems.map((item, idx) => {
+                          const Icon = item.icon;
+                          return (
+                            <Link
+                              key={idx}
+                              href={item.href}
+                              onClick={() => setIsOpen(false)}
+                              className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-gray-200/80 hover:border-blue-300 hover:bg-blue-50/30 transition-all duration-200 active:scale-95 shadow-2xs"
+                            >
+                              <div className={`p-2 rounded-lg ${item.bg} ${item.color} shrink-0`}>
+                                <Icon className="w-4 h-4 stroke-[2]" />
+                              </div>
+                              <span className="text-xs font-bold text-gray-700 truncate">
+                                {item.title}
+                              </span>
+                            </Link>
+                          );
+                        })}
                       </div>
                     </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </section>
 
-                    {/* محبوب‌ترین دسته‌ها */}
-                    <div className="space-y-2.5 pt-3 border-t border-gray-200/60">
-                      <div className="flex items-center gap-1.5">
-                        <Squares2X2Icon className="w-4 h-4 text-amber-500" />
-                        <span className="text-[11px] font-black text-gray-600 uppercase tracking-wider">
-                          محبوب‌ترین دسته‌ها
-                        </span>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {popularCategories.map((cat, index) => (
-                          <Link
-                            key={index}
-                            href="#"
-                            onClick={() => setIsOpen(false)}
-                            className="px-2.5 py-1 text-[11px] font-bold rounded-full border border-gray-200 text-gray-600 bg-white hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 active:scale-95 transition-all shadow-2xs"
-                          >
-                            {cat}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
+            {/* بنرهای داینامیک پروموشن */}
+            <section className="my-15">
+              <PromotionRenderer
+                type="smallBanner"
+                slotKey="megaMenu"
+                className="grid-cols-2 gap-2.5"
+              />
+            </section>
 
-                    {/* پرطرفدارترین استایل‌ها */}
-                    <div className="space-y-2 pt-3 border-t border-gray-200/60">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <BoltIcon className="w-4 h-4 text-amber-500" />
-                        <span className="text-[11px] font-black text-gray-600 uppercase tracking-wider">
-                          پرطرفدارترین استایل‌ها
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-1 gap-1.5">
-                        {popularStyles.map((style, idx) => (
-                          <Link
-                            key={idx}
-                            href={style.href}
-                            onClick={() => setIsOpen(false)}
-                            className="text-xs font-medium text-gray-700 hover:text-amber-600 flex items-center justify-between p-2 rounded-xl bg-white border border-gray-100 hover:border-amber-200 transition-colors shadow-2xs"
-                          >
-                            <span>{style.title}</span>
-                            <ChevronLeftIcon className="w-3.5 h-3.5 text-gray-400" />
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* مشاهده همه */}
-                    <div className="pt-2 border-t border-gray-200/60">
-                      <Link
-                        href="#"
-                        onClick={() => setIsOpen(false)}
-                        className="text-xs font-black text-primary flex items-center justify-between p-2 rounded-xl hover:bg-primary/5 transition-colors"
-                      >
-                        <span>مشاهده همه محصولات پوشاک</span>
-                        <ArrowLeftIcon className="w-4 h-4" />
-                      </Link>
-                    </div>
-
+            {/* اطلاعات ارتباطی (پشتیبانی و ایمیل) */}
+            <section className="bg-[#F8F6F0] rounded-2xl p-3.5 border border-[#E0DCD3]/70 shadow-xs">
+              <div className="flex flex-col gap-3">
+                <a
+                  href="tel:0210000"
+                  className="flex items-center gap-3 text-xs font-bold text-gray-700 hover:text-primary transition-colors"
+                >
+                  <div className="p-1.5 bg-white rounded-xl border border-[#E0DCD3]/50 shadow-2xs shrink-0">
+                    <svg
+                      className="w-4 h-4 text-gray-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                        strokeWidth="1.5"
+                      />
+                    </svg>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </section>
+                  <span>پشتیبانی: 123456-021</span>
+                </a>
 
-          {/* آکاردئون دوم: خدمات مشتریان */}
-          <section className="bg-surface rounded-2xl border border-[#E0DCD3] shadow-sm overflow-hidden transition-all duration-300">
-            <button
-              type="button"
-              onClick={() => setIsCustomerServicesOpen(!isCustomerServicesOpen)}
-              className="w-full flex items-center justify-between p-3.5 bg-surface  cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <LifebuoyIcon className="w-5 h-5 text-blue-500" />
-                <span className="text-xs font-black text-[#8C857B]">
-                  خدمات مشتریان
+                <a
+                  href="mailto:info@digikala.com"
+                  className="flex items-center gap-3 text-xs font-bold text-gray-700 hover:text-primary transition-colors"
+                >
+                  <div className="p-1.5 bg-white rounded-xl border border-[#E0DCD3]/50 shadow-2xs shrink-0">
+                    <svg
+                      className="w-4 h-4 text-gray-600"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                        strokeWidth="1.5"
+                      />
+                    </svg>
+                  </div>
+                  <span>ایمیل: info@digikala.com</span>
+                </a>
+              </div>
+            </section>
+
+            {/* شبکه‌های اجتماعی */}
+            <section className="bg-[#F8F6F0] rounded-2xl p-3.5 border border-[#E0DCD3]/70 shadow-xs space-y-2.5">
+              <div className="flex items-center gap-1.5">
+                <ShareIcon className="w-4 h-4 text-primary" />
+                <span className="text-[11px] font-black text-gray-500 uppercase tracking-wider">
+                  شبکه‌های اجتماعی
                 </span>
               </div>
-              <ChevronDownIcon
-                className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${
-                  isCustomerServicesOpen ? 'rotate-180' : 'rotate-0'
-                }`}
-              />
+              <div className="pt-1 flex justify-center">
+                <SocialLinks size="md" />
+              </div>
+            </section>
+          </div>
+
+          {/* Footer Drawer */}
+          <div className="p-4 bg-white border-t border-gray-200/60 shrink-0">
+            {/* ۴. دکمه اصلی ورود در انتهای کشو (بستن کشو و باز کردن مودال) */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                setIsAuthModalOpen(true);
+              }}
+              className="w-full p-4 rounded-[2rem] border border-secondary/10 bg-primary/20 text-primary flex items-center justify-between group transition-all active:scale-95 cursor-pointer"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shrink-0">
+                  <UserIcon className="w-6 h-6 stroke-[1.8]" />
+                </div>
+                <div>
+                  <span className="block font-black text-lg">ورود یا ثبت‌نام در سایت</span>
+                </div>
+              </div>
+              <ArrowLeftStartOnRectangleIcon className="w-5 h-5 opacity-80 group-hover:-translate-x-1 transition-transform shrink-0" />
             </button>
+          </div>
+        </aside>
+      </header>
 
-            <AnimatePresence initial={false}>
-              {isCustomerServicesOpen && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                  className="overflow-hidden border-t border-gray-100"
-                >
-                  <div className="p-3 bg-gray-50/40">
-                    <div className="grid grid-cols-2 gap-2">
-                      {customerServiceItems.map((item, idx) => {
-                        const Icon = item.icon;
-                        return (
-                          <Link
-                            key={idx}
-                            href={item.href}
-                            onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white border border-gray-200/80 hover:border-blue-300 hover:bg-blue-50/30 transition-all duration-200 active:scale-95 shadow-2xs"
-                          >
-                            <div className={`p-2 rounded-lg ${item.bg} ${item.color} shrink-0`}>
-                              <Icon className="w-4 h-4 stroke-[2]" />
-                            </div>
-                            <span className="text-xs font-bold text-gray-700 truncate">
-                              {item.title}
-                            </span>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </section>
-
-
-          {/* بنرهای داینامیک پروموشن */}
-          <section className="my-15">
-            <PromotionRenderer
-              type="smallBanner"
-              slotKey="megaMenu"
-              className="grid-cols-2 gap-2.5"
-            />
-          </section>
-
-
-          {/* اطلاعات ارتباطی (پشتیبانی و ایمیل) */}
-          <section className="bg-[#F8F6F0] rounded-2xl p-3.5 border border-[#E0DCD3]/70 shadow-xs">
-            <div className="flex flex-col gap-3">
-              <a
-                href="tel:0210000"
-                className="flex items-center gap-3 text-xs font-bold text-gray-700 hover:text-primary transition-colors"
-              >
-                <div className="p-1.5 bg-white rounded-xl border border-[#E0DCD3]/50 shadow-2xs shrink-0">
-                  <svg
-                    className="w-4 h-4 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                      strokeWidth="1.5"
-                    />
-                  </svg>
-                </div>
-                <span>پشتیبانی: 123456-021</span>
-              </a>
-
-              <a
-                href="mailto:info@digikala.com"
-                className="flex items-center gap-3 text-xs font-bold text-gray-700 hover:text-primary transition-colors"
-              >
-                <div className="p-1.5 bg-white rounded-xl border border-[#E0DCD3]/50 shadow-2xs shrink-0">
-                  <svg
-                    className="w-4 h-4 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      strokeWidth="1.5"
-                    />
-                  </svg>
-                </div>
-                <span>ایمیل: info@digikala.com</span>
-              </a>
-            </div>
-          </section>
-
-          {/* شبکه‌های اجتماعی */}
-          <section className="bg-[#F8F6F0] rounded-2xl p-3.5 border border-[#E0DCD3]/70 shadow-xs space-y-2.5">
-            <div className="flex items-center gap-1.5">
-              <ShareIcon className="w-4 h-4 text-primary" />
-              <span className="text-[11px] font-black text-gray-500 uppercase tracking-wider">
-                شبکه‌های اجتماعی
-              </span>
-            </div>
-            <div className="pt-1 flex justify-center">
-              <SocialLinks size="md" />
-            </div>
-          </section>
-        </div>
-
-        {/* Footer Drawer */}
-        <div className="p-4 bg-white border-t border-gray-200/60 shrink-0">
-          <Link
-            href="/login"
-            onClick={() => setIsOpen(false)}
-            className="p-4 rounded-[2rem] border border-secondary/10 bg-primary/20 text-primary flex items-center justify-between group transition-all active:scale-95"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shrink-0">
-                <UserIcon className="w-6 h-6 stroke-[1.8]" />
-              </div>
-              <div>
-                <span className="block font-black text-lg">ورود یا ثبت‌نام در سایت</span>
-              </div>
-            </div>
-            <ArrowLeftStartOnRectangleIcon className="w-5 h-5 opacity-80 group-hover:-translate-x-1 transition-transform shrink-0" />
-          </Link>
-        </div>
-      </aside>
-    </header>
+      {/* ۵. کامپوننت مودال ورود */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
+    </>
   );
 }

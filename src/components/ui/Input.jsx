@@ -49,7 +49,7 @@ const Input = forwardRef(
               ${
                 error
                   ? 'border-red-500 focus:ring-4 ring-red-500/20'
-                  : 'border-gray-200 focus:border-transparent focus:ring-4 ring-[var(--color-primary-500)]/30'
+                  : 'border-gray-200 focus:border-transparent focus:ring-4 ring-[var(--color-primary)]/30'
               }
               ${disabled ? 'opacity-60 cursor-not-allowed bg-gray-200' : ''}
               ${className}

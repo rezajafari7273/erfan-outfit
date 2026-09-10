@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 // ۱. ایمپورت کامپوننت Backdrop اختصاصی شما
-import Backdrop from "@/components/ui/Backdrop"; // مسیر فایل Backdrop خود را بررسی کنید
+import Backdrop from "@/components/ui/Backdrop";
 
 import PhoneStep from "./PhoneStep";
 import OtpStep from "./OtpStep";
@@ -13,11 +13,13 @@ import OtpStep from "./OtpStep";
 export default function AuthModal({ isOpen, onClose }) {
   const [step, setStep] = useState(1);
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  // اصلاح به ۵ خانه خالی
+  const [otp, setOtp] = useState(["", "", "", "", ""]);
   const [timer, setTimer] = useState(120);
   const [isTimerActive, setIsTimerActive] = useState(false);
 
-  const inputRefs = [useRef(), useRef(), useRef(), useRef()];
+  // اصلاح مراجع ۵‌تایی
+  const inputRefs = [useRef(), useRef(), useRef(), useRef(), useRef()];
 
   // ریست کردن استیت‌ها هنگام بسته‌شدن مودال
   const handleClose = () => {
@@ -25,7 +27,7 @@ export default function AuthModal({ isOpen, onClose }) {
     setTimeout(() => {
       setStep(1);
       setPhoneNumber("");
-      setOtp(["", "", "", ""]);
+      setOtp(["", "", "", "", ""]);
       setIsTimerActive(false);
     }, 300);
   };
@@ -41,14 +43,16 @@ export default function AuthModal({ isOpen, onClose }) {
   }, [isTimerActive, timer]);
 
   const handlePhoneSubmit = (e) => {
-    e.preventDefault();
-    if (phoneNumber.length >= 10) {
-      setStep(2);
-      setTimer(120);
-      setIsTimerActive(true);
-      setTimeout(() => inputRefs[0].current?.focus(), 150);
-    }
-  };
+      e.preventDefault();
+      if (phoneNumber.length >= 10) {
+        setStep(2);
+        setTimer(120);
+        setIsTimerActive(true);
+        setTimeout(() => {
+          inputRefs[0].current?.focus();
+        }, 100);
+      }
+    };
 
   const handleOtpChange = (index, value) => {
     if (isNaN(value)) return;
@@ -56,21 +60,23 @@ export default function AuthModal({ isOpen, onClose }) {
     newOtp[index] = value.substring(value.length - 1);
     setOtp(newOtp);
 
-    if (value && index < 3) {
-      inputRefs[index + 1].current.focus();
+    // انتقال فوکوس تا خانه پنجم (اندیس ۴)
+    if (value && index < 4) {
+      inputRefs[index + 1].current?.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputRefs[index - 1].current.focus();
+      inputRefs[index - 1].current?.focus();
     }
   };
 
   const handleVerifyOtp = (e) => {
     e.preventDefault();
     const fullCode = otp.join("");
-    if (fullCode.length === 4) {
+    // بررسی طول کد ۵ رقمی
+    if (fullCode.length === 5) {
       handleClose();
     }
   };
@@ -78,7 +84,7 @@ export default function AuthModal({ isOpen, onClose }) {
   const handleResendCode = () => {
     setTimer(120);
     setIsTimerActive(true);
-    setOtp(["", "", "", ""]);
+    setOtp(["", "", "", "", ""]);
     inputRefs[0].current?.focus();
   };
 
@@ -89,7 +95,6 @@ export default function AuthModal({ isOpen, onClose }) {
   };
 
   return (
-    // ۲. استفاده از کامپوننت Backdrop شما
     <Backdrop
       isOpen={isOpen}
       onClose={handleClose}
@@ -99,13 +104,12 @@ export default function AuthModal({ isOpen, onClose }) {
     >
       <AnimatePresence>
         {isOpen && (
-          /* ۳. باکس اصلی مودال با انیمیشن ورود و خروج روانی Framer Motion */
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 350 }}
-            onClick={(e) => e.stopPropagation()} // جلوگیری از بسته‌شدن مودال هنگام کلیک داخل باکس
+            onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-sm bg-white/95 backdrop-blur-xl border border-white/50 rounded-3xl shadow-2xl p-6 overflow-hidden z-10"
           >
             {/* دکمه بستن */}
@@ -117,7 +121,7 @@ export default function AuthModal({ isOpen, onClose }) {
               <XMarkIcon className="w-5 h-5" />
             </button>
 
-            {/* انیمیشن سوییچ بین فرم شماره موبایل و کد تایید OTP */}
+            {/* انیمیشن سوییچ فرم‌ها */}
             <AnimatePresence mode="wait">
               {step === 1 ? (
                 <motion.div

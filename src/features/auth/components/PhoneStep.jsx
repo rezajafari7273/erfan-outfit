@@ -1,42 +1,60 @@
 "use client";
 
-import { PhoneIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { DevicePhoneMobileIcon } from "@heroicons/react/24/outline";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import Logo from "@/components/ui/Logo"; // ایمپورت کامپوننت لوگو
 
 export default function PhoneStep({ phoneNumber, setPhoneNumber, onSubmit }) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col items-center text-center">
-      <div className="w-14 h-14 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center mb-4 shadow-inner border border-rose-100">
-        <PhoneIcon className="w-7 h-7" />
+      {/* استفاده از لوگو به جای آیکون */}
+      <div className="mb-4">
+        <Logo width={140} height={40} priority />
       </div>
 
-      <h3 className="text-lg font-black text-gray-900 mb-1">ورود یا ثبت‌نام</h3>
-      <p className="text-xs text-gray-500 mb-6 leading-relaxed">
+      <h3 className="text-lg font-rokh font-black text-gray-900 mb-1">ورود یا ثبت‌نام</h3>
+      <p className="text-xs  text-gray-500 mb-6 leading-relaxed">
         برای ادامه، لطفاً شماره موبایل خود را وارد کنید
       </p>
 
-      <div className="relative w-full mb-5">
-        <input
+      {/* ورودی شماره موبایل */}
+      <div className="w-full mb-5">
+        <Input
           type="tel"
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
           placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-          className="w-full bg-gray-50/80 border border-gray-200 rounded-2xl px-4 py-3.5 text-center text-base font-bold text-gray-900 tracking-widest placeholder:text-gray-400 placeholder:font-normal placeholder:tracking-normal focus:outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 transition-all"
           maxLength={11}
+          startIcon={DevicePhoneMobileIcon}
+          className="text-center tracking-widest font-bold text-base py-3 dir-ltr"
           required
           autoFocus
         />
       </div>
 
-      <button
+      {/* دکمه با واریانت گرادیانت */}
+      <Button
         type="submit"
+        variant="gradient"
+        size="lg"
         disabled={phoneNumber.length < 10}
-        className="w-full py-3.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-bold text-sm rounded-2xl shadow-lg shadow-rose-600/25 active:scale-98 transition-all"
+        className="w-full"
       >
         ارسال کد تایید
-      </button>
+      </Button>
 
-      <p className="text-[10px] text-gray-400 mt-4">
-        ورود شما به معنای پذیرش <span className="text-gray-700 underline cursor-pointer">شرایط و قوانین</span> است.
+      {/* لینک به شرایط و قوانین */}
+      <p className="text-[11px] text-gray-400 mt-4 leading-relaxed">
+        ورود شما به معنای پذیرش{" "}
+        <Link
+          href="/terms"
+          className="text-gray-700 font-bold underline hover:text-primary transition-colors"
+        >
+          شرایط و قوانین
+        </Link>{" "}
+        است.
       </p>
     </form>
   );
