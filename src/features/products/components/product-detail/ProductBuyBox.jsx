@@ -2,82 +2,95 @@ import {
   BuildingStorefrontIcon,
   ShieldCheckIcon,
   TruckIcon,
-  InformationCircleIcon,
-  ChevronLeftIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/outline";
+import Button from "@/components/ui/Button";
 
 export default function ProductBuyBox() {
   return (
-    <div className="border border-gray-200 rounded-2xl p-4 bg-gray-50/50 space-y-4">
-      <div className="flex items-center justify-between pb-3 border-b border-gray-200">
-        <span className="font-bold text-sm">فروشنده</span>
-        <a href="#" className="text-xs text-cyan-600 font-bold">
-          ۱ فروشنده دیگر
-        </a>
-      </div>
+    <div className="flex flex-col justify-between lg:h-[480px] border border-secondary/15 rounded-3xl p-5 bg-surface/60 backdrop-blur-md shadow-xs">
+      
+      {/* بخش بالا: اطلاعات فروشنده، گارانتی و ارسال */}
+      <div className="space-y-4">
+        {/* هدر فروشنده */}
+        <div className="flex items-center justify-between pb-3 border-b border-secondary/10">
+          <span className="font-bold text-sm text-gray-800">فروشنده</span>
+          <a href="#" className="text-xs text-primary font-bold hover:underline transition-all">
+            ۱ فروشنده دیگر
+          </a>
+        </div>
 
-      <div className="space-y-3 text-xs">
-        <div className="flex items-start gap-2">
-          <BuildingStorefrontIcon className="w-5 h-5 text-gray-600 shrink-0" />
-          <div>
-            <div className="font-bold text-gray-800 flex items-center gap-1">
-              هیسکا
-              <span className="text-[10px] bg-cyan-100 text-cyan-700 px-1.5 py-0.2 rounded">
-                رسمی
-              </span>
+        {/* اطلاعات فروشگاه، گارانتی و ارسال */}
+        <div className="space-y-4 text-xs">
+          {/* فروشنده */}
+          <div className="flex items-start gap-2.5">
+            <BuildingStorefrontIcon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold text-gray-800 flex items-center gap-1.5">
+                آنلاین مد
+                <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">
+                  رسمی
+                </span>
+              </div>
+              <div className="text-gray-500 mt-1">
+                <span className="text-emerald-600 font-bold">۹۸.۴٪</span> رضایت |{" "}
+                عملکرد <span className="text-emerald-600 font-bold">عالی</span>
+              </div>
             </div>
-            <div className="text-gray-400 mt-1">
-              <span className="text-emerald-600 font-bold">۸۶.۴٪</span> رضایت |{" "}
-              عملکرد <span className="text-emerald-600 font-bold">عالی</span>
+          </div>
+
+          {/* گارانتی */}
+          <div className="flex items-center gap-2.5 pt-3 border-t border-secondary/10">
+            <ShieldCheckIcon className="w-5 h-5 text-primary shrink-0" />
+            <span className="font-bold text-gray-700">
+              گارانتی اصالت و سلامت فیزیکی کالا
+            </span>
+          </div>
+
+          {/* روش و هزینه تحویل */}
+          <div className="flex items-start gap-2.5 pt-3 border-t border-secondary/10">
+            <TruckIcon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+            <div>
+              <div className="font-bold text-gray-800">روش و هزینه تحویل</div>
+              <div className="text-gray-500 text-[11px] mt-0.5">
+                تحویل عادی آنلاین مد • وابسته به سبد
+              </div>
             </div>
           </div>
         </div>
-
-        <div className="flex items-center gap-2 pt-2 border-t border-gray-200/60">
-          <ShieldCheckIcon className="w-5 h-5 text-gray-600 shrink-0" />
-          <span className="font-bold text-gray-700">
-            گارانتی ۱۲ ماهه هیسکا سرویس
-          </span>
-        </div>
-
-        <div className="flex items-start gap-2 pt-2 border-t border-gray-200/60">
-          <TruckIcon className="w-5 h-5 text-cyan-600 shrink-0" />
-          <div>
-            <div className="font-bold text-gray-800">توسط دیجی‌کالا</div>
-            <div className="text-gray-400 text-[11px] mt-0.5">
-              ارسال سریع و رایگان
-            </div>
-          </div>
-        </div>
       </div>
 
-      <div className="pt-3 border-t border-gray-200 space-y-2">
+      {/* بخش پایین: قیمت، دکمه و شعار */}
+      <div className="hidden lg:block space-y-3 pt-3 border-t border-secondary/10">
         <div className="flex items-center justify-between">
-          <span className="bg-rose-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+          <span className="bg-primary text-white text-xs font-bold px-2 py-0.5 rounded-full shadow-xs">
             ۳۲٪
           </span>
-          <div className="text-left">
-            <span className="text-xs text-gray-400 line-through block">
+          
+          <div className="text-left font-faNum">
+            <span className="text-xs text-gray-400 font-bold line-through decoration-red-400/50 tabular-nums block">
               ۷,۱۰۰,۰۰۰
             </span>
-            <div className="text-base font-black text-gray-900">
-              ۴,۷۹۹,۰۰۰ <span className="text-xs font-normal">تومان</span>
+            <div className="text-base sm:text-lg font-black text-[#263238] tabular-nums tracking-tighter">
+              ۴,۷۹۹,۰۰۰ <span className="text-[10px] sm:text-xs text-gray-500 font-bold">تومان</span>
             </div>
           </div>
         </div>
 
-        <button className="w-full bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-rose-600/20 transition-all text-sm">
+        {/* دکمه افزودن به سبد خرید */}
+        <Button variant="gradient" size="lg" className="w-full">
           افزودن به سبد خرید
-        </button>
+        </Button>
+
+        {/* شعار اختصاصی */}
+        <div className="pt-2 text-xs text-gray-400 flex items-center justify-center gap-1.5 border-t border-secondary/10">
+          <SparklesIcon className="w-4 h-4 text-amber-500 shrink-0" />
+          <span className="font-medium text-gray-500 text-[11px]">
+            تضمین بهترین کیفیت و اصالت استایل شما با آنلاین مد
+          </span>
+        </div>
       </div>
 
-      <div className="pt-2 text-xs text-gray-400 flex items-center justify-between cursor-pointer hover:text-gray-600">
-        <span className="flex items-center gap-1">
-          <InformationCircleIcon className="w-3.5 h-3.5" />
-          فرآیند قیمت‌گذاری و نظارت بر قیمت
-        </span>
-        <ChevronLeftIcon className="w-3.5 h-3.5" />
-      </div>
     </div>
   );
 }

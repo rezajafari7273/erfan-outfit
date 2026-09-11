@@ -8,6 +8,7 @@ import {
   ChevronDownIcon,
   PlusIcon,
   ChatBubbleLeftRightIcon,
+  SparklesIcon,
 } from "@heroicons/react/24/outline";
 
 import "swiper/css";
@@ -31,17 +32,17 @@ export default function ProductQuestions() {
   };
 
   return (
-    <section className="py-6 border-t border-gray-100">
+    <section className="pt-6 border-t border-rose-100/60">
       {/* هدر بخش پرسش‌ها */}
       <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <h2 className="text-lg font-bold text-gray-900">پرسش و پاسخ</h2>
-          <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full">
+          <span className="text-xs font-bold text-primary bg-primary/10 border border-primary/15 px-2.5 py-0.5 rounded-full font-faNum">
             {MOCK_QUESTIONS.length} پرسش
           </span>
         </div>
-        <button className="text-xs font-bold text-gray-700 hover:text-gray-900 flex items-center gap-1 border border-gray-200 px-3 py-1.5 rounded-xl transition-colors">
-          <PlusIcon className="w-4 h-4" />
+        <button className="text-xs font-bold text-primary hover:text-white bg-primary/10 hover:bg-primary border border-primary/20 px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer">
+          <PlusIcon className="w-4 h-4 stroke-[2.5]" />
           ثبت پرسش جدید
         </button>
       </div>
@@ -50,20 +51,20 @@ export default function ProductQuestions() {
       {/* 💻 حالت دسکتاپ (نمایش ۵تایی + مشاهده بیشتر) */}
       {/* ========================================== */}
       <div className="hidden lg:block space-y-4">
-        <div className="space-y-4">
+        <div className="space-y-3.5">
           {MOCK_QUESTIONS.slice(0, visibleCount).map((q) => (
             <QuestionCard key={q.id} data={q} />
           ))}
         </div>
 
         {visibleCount < MOCK_QUESTIONS.length && (
-          <div className="text-center pt-4">
+          <div className="text-center pt-5">
             <button
               onClick={handleLoadMore}
-              className="inline-flex items-center gap-2 text-sm font-bold text-gray-700 bg-gray-100 hover:bg-gray-200 px-6 py-2.5 rounded-xl transition-colors"
+              className="inline-flex items-center gap-2 text-xs font-bold text-gray-700 bg-rose-50/70 hover:bg-rose-100/80 border border-rose-200/60 px-6 py-2.5 rounded-xl transition-all cursor-pointer active:scale-98"
             >
               مشاهده بیشتر
-              <ChevronDownIcon className="w-4 h-4" />
+              <ChevronDownIcon className="w-4 h-4 text-primary" />
             </button>
           </div>
         )}
@@ -85,13 +86,13 @@ export default function ProductQuestions() {
           <SwiperSlide>
             <div
               onClick={() => setIsMobileModalOpen(true)}
-              className="h-full min-h-[180px] bg-gradient-to-br from-gray-100 to-gray-200/60 border border-gray-200 rounded-2xl p-5 flex flex-col items-center justify-center text-center cursor-pointer active:scale-98 transition-transform"
+              className="h-full min-h-[190px] bg-gradient-to-br from-rose-50/80 via-surface to-rose-100/40 border border-rose-200/70 rounded-2xl p-5 flex flex-col items-center justify-center text-center cursor-pointer active:scale-98 transition-transform shadow-xs"
             >
-              <div className="w-12 h-12 rounded-full bg-white text-gray-800 flex items-center justify-center shadow-sm mb-3">
-                <ChevronDownIcon className="w-6 h-6 -rotate-90" />
+              <div className="w-11 h-11 rounded-full bg-white text-primary flex items-center justify-center shadow-xs border border-rose-100 mb-2.5">
+                <ChevronDownIcon className="w-5 h-5 rotate-90 stroke-[2.5]" />
               </div>
-              <span className="text-sm font-bold text-gray-900">مشاهده همه پرسش‌ها</span>
-              <span className="text-xs text-gray-500 mt-1">
+              <span className="text-xs font-bold text-gray-900">مشاهده همه پرسش‌ها</span>
+              <span className="text-[11px] text-gray-500 font-medium mt-1 font-faNum">
                 ({MOCK_QUESTIONS.length} پرسش ثبت شده)
               </span>
             </div>
@@ -103,20 +104,23 @@ export default function ProductQuestions() {
       {/* 📱 مودال تمام‌صفحه موبایل (لیست اسکرولی)   */}
       {/* ========================================== */}
       {isMobileModalOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 bg-white flex flex-col">
+        <div className="lg:hidden fixed inset-0 z-50 bg-white/95 backdrop-blur-md flex flex-col">
           {/* هدر مودال */}
-          <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-gray-100 px-4 py-3.5 flex items-center justify-between">
-            <h3 className="font-bold text-gray-900 text-base">همه پرسش‌ها و پاسخ‌ها</h3>
+          <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-rose-100 px-4 py-3.5 flex items-center justify-between shadow-2xs">
+            <h3 className="font-bold text-gray-900 text-sm flex items-center gap-2">
+              <SparklesIcon className="w-4 h-4 text-primary" />
+              همه پرسش‌ها و پاسخ‌ها
+            </h3>
             <button
               onClick={() => setIsMobileModalOpen(false)}
-              className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 active:scale-95 transition-transform"
+              className="w-10 h-10 rounded-2xl border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer pointer-events-auto shadow-xs border-gray-200 bg-gray-100/80 text-gray-800 hover:bg-gray-200"
             >
               <XMarkIcon className="w-5 h-5" />
             </button>
           </div>
 
-          {/* لیست اسکرولی کامل */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {/* لیست اسکرولی کامل با افزودن pb-28 جهت جلوگیری از اورلپ با دکمه خرید */}
+          <div className="flex-1 overflow-y-auto p-4 pb-28 space-y-3">
             {MOCK_QUESTIONS.map((q) => (
               <QuestionCard key={q.id} data={q} />
             ))}
@@ -130,17 +134,17 @@ export default function ProductQuestions() {
 // کامپوننت کارت پرسش
 function QuestionCard({ data }) {
   return (
-    <div className="bg-gray-50/80 border border-gray-100 rounded-2xl p-4 flex flex-col justify-between">
+    <div className="bg-surface/70 backdrop-blur-xs border border-secondary/15 rounded-2xl p-4 flex flex-col justify-between shadow-2xs hover:border-rose-200 transition-colors">
       <div>
         {/* پرسش */}
-        <div className="flex items-start gap-2 mb-3">
-          <QuestionMarkCircleIcon className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" />
+        <div className="flex items-start gap-2.5 mb-3">
+          <QuestionMarkCircleIcon className="w-5 h-5 text-primary shrink-0 mt-0.5" />
           <div className="flex-1">
-            <div className="flex items-center justify-between mb-1">
+            <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-bold text-gray-800">{data.user}</span>
-              <span className="text-[10px] text-gray-400">{data.date}</span>
+              <span className="text-[10px] font-medium text-gray-400 font-faNum">{data.date}</span>
             </div>
-            <p className="text-xs font-medium text-gray-900 leading-relaxed">
+            <p className="text-xs font-semibold text-gray-900 leading-relaxed">
               {data.question}
             </p>
           </div>
@@ -148,12 +152,12 @@ function QuestionCard({ data }) {
 
         {/* پاسخ */}
         {data.answer && (
-          <div className="mr-3 pr-3 border-r-2 border-rose-400 bg-white/60 p-2.5 rounded-l-xl">
-            <div className="flex items-center gap-1.5 mb-1 text-rose-600">
+          <div className="mr-2 pr-3 border-r-2 border-primary bg-rose-50/50 p-3 rounded-l-xl border-y border-l border-rose-100/60">
+            <div className="flex items-center gap-1.5 mb-1 text-primary">
               <ChatBubbleLeftRightIcon className="w-3.5 h-3.5" />
               <span className="text-[11px] font-bold">پاسخ پشتیبانی</span>
             </div>
-            <p className="text-xs text-gray-600 leading-relaxed">{data.answer}</p>
+            <p className="text-xs text-gray-600 leading-relaxed font-medium">{data.answer}</p>
           </div>
         )}
       </div>

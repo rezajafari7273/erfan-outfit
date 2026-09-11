@@ -17,7 +17,8 @@
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "swiper": "^14.2.0",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "wavesurfer.js": "^7.12.12"
   },
   "devDependencies": {
     "daisyui": "^5.7.22",
