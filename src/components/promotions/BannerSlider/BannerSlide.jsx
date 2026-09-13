@@ -9,7 +9,7 @@ export function BannerSlide({ slide }) {
 
   return (
     <DestinationHandler destination={slide.destination} className="w-full h-full">
-      <div className="relative w-full h-[260px] md:h-[380px] rounded-2xl overflow-hidden shadow-md group">
+      <div className="relative w-full h-[260px] md:h-[480px] rounded-xl overflow-hidden shadow-md group">
         <img
           src={slide.image}
           alt={slide.title || "Banner Slide"}

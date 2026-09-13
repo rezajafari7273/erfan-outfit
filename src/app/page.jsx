@@ -16,6 +16,8 @@ export default function Home() {
   return (
       <div className="min-h-screen space-y-12 md:space-y-14">
 
+
+        
         {/* stories */}
         <section className="container">
           <PromotionRenderer type="stories" />
@@ -23,7 +25,7 @@ export default function Home() {
 
         
         {/* slider banner */}
-        <section className=" mx-auto 2xl:container">
+        <section className=" mx-auto ">
           <PromotionRenderer type="bannerSlider" />
         </section>
 

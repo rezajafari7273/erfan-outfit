@@ -18,10 +18,10 @@ export default function BannerSlider({ slides = [], isLoading = false }) {
     return (
       <div className="relative w-full my-6 overflow-hidden">
         <div className="flex gap-3 justify-center items-center lg:hidden px-4">
-          <div className="w-[88%] h-48 sm:h-64 rounded-3xl bg-gray-200/70 dark:bg-gray-800/60 animate-pulse shrink-0" />
-          <div className="w-[12%] h-48 sm:h-64 rounded-l-3xl bg-gray-200/40 dark:bg-gray-800/30 animate-pulse shrink-0" />
+          <div className="w-[88%] h-48 sm:h-64 rounded-xl bg-gray-200/70 dark:bg-gray-800/60 animate-pulse shrink-0" />
+          <div className="w-[12%] h-48 sm:h-64 rounded-l-xl bg-gray-200/40 dark:bg-gray-800/30 animate-pulse shrink-0" />
         </div>
-        <div className="hidden lg:block relative w-full h-[360px] xl:h-[420px] rounded-3xl bg-gray-200/80 dark:bg-gray-800/60 animate-pulse overflow-hidden" />
+        <div className="hidden lg:block relative w-full h-[360px] xl:h-[420px] rounded-xl bg-gray-200/80 dark:bg-gray-800/60 animate-pulse overflow-hidden" />
       </div>
     );
   }
@@ -61,7 +61,7 @@ export default function BannerSlider({ slides = [], isLoading = false }) {
             centeredSlides: false,
           },
         }}
-        className="w-full rounded-3xl !overflow-visible lg:!overflow-hidden"
+        className="w-full rounded-xl !overflow-visible lg:!overflow-hidden"
       >
         {slides.map((slide, index) => (
           <SwiperSlide key={slide.id || index} className="transition-all duration-300">

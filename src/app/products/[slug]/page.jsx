@@ -2,7 +2,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import { 
   XMarkIcon, 
   ShoppingBagIcon, 
@@ -26,6 +25,7 @@ import ProductQuestions from "@/features/products/components/product-detail/Prod
 
 import RelatedProductsSlider from "@/features/products/components/product-detail/RelatedProductsSlider";
 import SuggestedProductsSlider from "@/features/products/components/product-detail/SuggestedProductsSlider";
+import SpecialOffersBox from "@/features/products/components/product-detail/SpecialOffersBox";
 
 export default function ProductPage() {
   const router = useRouter();
@@ -36,7 +36,7 @@ export default function ProductPage() {
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
 
-  // استیت و رفرنس برای تشخیص چسبیدن کارت به بالای صفحه (تعریف صحیح useRef با مقدار null)
+  // استیت و رفرنس برای تشخیص چسبیدن کارت به بالای صفحه
   const [isScrolledToCard, setIsScrolledToCard] = useState(false);
   const mobileScrollContainerRef = useRef(null);
 
@@ -61,7 +61,7 @@ export default function ProductPage() {
       }
     };
 
-    container.addEventListener("scroll", handleScroll);
+    container.addEventListener("scroll", handleScroll, { passive: true });
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -80,15 +80,16 @@ export default function ProductPage() {
     }, 100);
   };
 
-  // کامپوننت دکمه‌های هدر (بدون تایپ‌دهی TS برای جلوگیری از خطای Build در فایل .jsx)
+  // کامپوننت دکمه‌های هدر
   const HeaderButtons = ({ isPinned = false }) => (
     <div className="flex items-center justify-between w-full transition-all duration-300">
       <button 
+        type="button"
         onClick={() => router.back()} 
-        className={`w-10 h-10 rounded-2xl border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer pointer-events-auto shadow-xs ${
+        className={`w-10 h-10 rounded-2xl border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer pointer-events-auto shadow-xs outline-none focus:outline-none focus:ring-0 select-none [-webkit-tap-highlight-color:transparent] ${
           isPinned 
-            ? "border-gray-200 bg-gray-100/80 text-gray-800 hover:bg-gray-200" 
-            : "border-white/20 bg-black/40 text-white backdrop-blur-xl shadow-black/10"
+            ? "border-gray-200 bg-gray-100 text-gray-800 hover:bg-gray-200" 
+            : "border-white/20 bg-black/50 text-white shadow-black/10"
         }`}
         title="بازگشت"
       >
@@ -98,10 +99,10 @@ export default function ProductPage() {
       <div className="flex items-center gap-2.5 pointer-events-auto">
         <button
           type="button"
-          className={`w-10 h-10 rounded-2xl border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer shadow-xs ${
+          className={`w-10 h-10 rounded-2xl border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer shadow-xs outline-none focus:outline-none focus:ring-0 select-none [-webkit-tap-highlight-color:transparent] ${
             isPinned 
-              ? "border-gray-200 bg-gray-100/80 text-gray-800 hover:bg-gray-200" 
-              : "border-white/20 bg-black/40 text-white backdrop-blur-xl shadow-black/10"
+              ? "border-gray-200 bg-gray-100 text-gray-800 hover:bg-gray-200" 
+              : "border-white/20 bg-black/50 text-white shadow-black/10"
           }`}
           title="سبد خرید"
         >
@@ -111,10 +112,10 @@ export default function ProductPage() {
         <button
           type="button"
           onClick={() => setIsBottomSheetOpen(true)}
-          className={`w-10 h-10 rounded-2xl border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer shadow-xs ${
+          className={`w-10 h-10 rounded-2xl border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer shadow-xs outline-none focus:outline-none focus:ring-0 select-none [-webkit-tap-highlight-color:transparent] ${
             isPinned 
-              ? "border-gray-200 bg-gray-100/80 text-gray-800 hover:bg-gray-200" 
-              : "border-white/20 bg-black/40 text-white backdrop-blur-xl shadow-black/10"
+              ? "border-gray-200 bg-gray-100 text-gray-800 hover:bg-gray-200" 
+              : "border-white/20 bg-black/50 text-white shadow-black/10"
           }`}
           title="گزینه‌ها"
         >
@@ -125,17 +126,17 @@ export default function ProductPage() {
   );
 
   return (
-    <div className="text-gray-800 text-sm pb-24 lg:pb-12" dir="rtl">
+    <div className="text-gray-800 text-sm pb-24 lg:pb-12 select-none" dir="rtl">
       
       {/* ============================================================== */}
-      {/* 📱 ۱. حالت موبایل                                             */}
+      {/* 📱 ۱. حالت موبایل                                              */}
       {/* ============================================================== */}
       <div 
         ref={mobileScrollContainerRef}
         className="lg:hidden fixed inset-0 z-50 bg-stone-900 overflow-y-auto"
       >
         
-        {/* 🔘 هدر شناور اولیه روی عکس (وقتی اسکرول پایینه) */}
+        {/* 🔘 هدر شناور اولیه روی عکس */}
         {!isScrolledToCard && (
           <div className="fixed top-4 left-4 right-4 z-40 flex items-center justify-between pointer-events-none transition-opacity duration-300">
             <HeaderButtons isPinned={false} />
@@ -151,9 +152,9 @@ export default function ProductPage() {
         <div className="relative z-20 bg-white rounded-t-[36px] shadow-[0_-12px_40px_rgba(0,0,0,0.25)] px-5 pt-3 pb-24 min-h-[50vh] -mt-6">
           <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3" />
 
-          {/* 🔘 هدر جابه‌جاشده (وقتی کارت به بالای صفحه می‌رسه) */}
+          {/* 🔘 هدر جابه‌جاشده */}
           {isScrolledToCard && (
-            <div className="sticky top-0 z-30 bg-white/95 backdrop-blur-md pt-2 pb-3 -mx-5 px-5 border-b border-gray-100 shadow-2xs transition-all duration-300">
+            <div className="sticky top-0 z-30 bg-white pt-2 pb-3 -mx-5 px-5 border-b border-gray-100 shadow-2xs transition-all duration-300">
               <HeaderButtons isPinned={true} />
             </div>
           )}
@@ -163,105 +164,86 @@ export default function ProductPage() {
             <Breadcrumb items={breadcrumbItems} isCustomPosition={true} />
           </div>
 
-          {/* 🔘 نوبار تب‌های موبایل با رنگ اکستنت Rose */}
-          <div className="sticky top-[58px] z-20 bg-white/95 backdrop-blur-md py-2 -mx-5 px-5 mb-6 border-b border-gray-100 transition-all duration-200">
+          {/* 🔘 نوبار تب‌های موبایل (اصلاح‌شده برای حذف کامل بردر مشکی و لایت آبی) */}
+          <div className="sticky top-[58px] z-20 bg-white py-2 -mx-5 px-5 mb-6 border-b border-gray-100">
             <div className="flex items-center bg-rose-50/70 p-1 font-rokh font-black rounded-2xl relative border border-rose-100">
               
               {/* تب توضیحات */}
               <button
                 type="button"
                 onClick={() => setMobileTab("info")}
-                className={`relative flex-1 py-2.5 text-xs font-bold transition-colors duration-200 cursor-pointer z-10 ${
-                  mobileTab === "info" ? "text-primary" : "text-gray-500 hover:text-gray-800"
+                className={`flex-1 py-2.5 text-xs font-bold cursor-pointer rounded-xl outline-none focus:outline-none focus:ring-0 active:outline-none active:bg-transparent select-none [-webkit-tap-highlight-color:transparent] ${
+                  mobileTab === "info"
+                    ? "bg-white text-primary shadow-xs"
+                    : "bg-transparent text-gray-500 hover:text-gray-800"
                 }`}
               >
-                {mobileTab === "info" && (
-                  <motion.div
-                    layoutId="activeMobileTab"
-                    className="absolute inset-0 bg-white rounded-xl shadow-sm border border-rose-200/60"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10">توضیحات</span>
+                توضیحات
               </button>
 
               {/* تب نظرات و پرسش‌ها */}
               <button
                 type="button"
                 onClick={() => setMobileTab("reviews_questions")}
-                className={`relative flex-1 py-2.5 text-xs font-bold transition-colors duration-200 cursor-pointer z-10 ${
-                  mobileTab === "reviews_questions" ? "text-primary" : "text-gray-500 hover:text-gray-800"
+                className={`flex-1 py-2.5 text-xs font-bold cursor-pointer rounded-xl outline-none focus:outline-none focus:ring-0 active:outline-none active:bg-transparent select-none [-webkit-tap-highlight-color:transparent] ${
+                  mobileTab === "reviews_questions"
+                    ? "bg-white text-primary shadow-xs"
+                    : "bg-transparent text-gray-500 hover:text-gray-800"
                 }`}
               >
-                {mobileTab === "reviews_questions" && (
-                  <motion.div
-                    layoutId="activeMobileTab"
-                    className="absolute inset-0 bg-white rounded-xl shadow-sm border border-rose-200/60"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10">نظرات و پرسش‌ها</span>
+                نظرات و پرسش‌ها
               </button>
 
             </div>
           </div>
 
-          {/* محتوای تب‌های موبایل همراه با انیمیشن Fade & Slide */}
-          <AnimatePresence mode="wait">
-            {mobileTab === "info" ? (
-              <motion.div
-                key="info-tab"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.22, ease: "easeOut" }}
-              >
-                <ProductInfo onShowMoreFeatures={handleShowMoreFeatures} />
-                <div className="my-6">
-                  <ProductBuyBox />
-                </div>
-                <ProductFeaturesBadge />
-                <ProductSellers />
-                <div id="product-description-mobile" className="pt-2">
-                  <ProductDescription />
-                </div>
+          {/* محتوای تب‌های موبایل */}
+          {mobileTab === "info" ? (
+            <div className="space-y-6">
+              <ProductInfo onShowMoreFeatures={handleShowMoreFeatures} />
+              <div className="my-6">
+                <ProductBuyBox />
+              </div>
 
-                {/* 🛍️ اسلایدر محصولات مشابه (موبایل) */}
-                <div className="mt-8 border-t border-gray-100 pt-6">
-                  <RelatedProductsSlider categoryId="shirts" />
-                </div>
+              <ProductFeaturesBadge />
+              <ProductSellers />
 
-                {/* 💡 اسلایدر محصولات پیشنهادی (موبایل) */}
-                <div className="mt-6 border-t border-gray-100 pt-6">
-                  <SuggestedProductsSlider categoryId="shirts" />
-                </div>
+              <div className="my-6">
+                <SpecialOffersBox />
+              </div>
 
-              </motion.div>
-            ) : (
-              <motion.div
-                key="reviews-tab"
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -12 }}
-                transition={{ duration: 0.22, ease: "easeOut" }}
-                className="space-y-6"
-              >
-                <ProductReviews />
-                <ProductQuestions />
-              </motion.div>
-            )}
-          </AnimatePresence>
+              <div id="product-description-mobile" className="pt-2">
+                <ProductDescription />
+              </div>
+
+              {/* 🛍️ اسلایدر محصولات مشابه (موبایل) */}
+              <div className="mt-8 border-t border-gray-100 pt-6">
+                <RelatedProductsSlider categoryId="shirts" />
+              </div>
+
+              {/* 💡 اسلایدر محصولات پیشنهادی (موبایل) */}
+              <div className="mt-6 border-t border-gray-100 pt-6">
+                <SuggestedProductsSlider categoryId="shirts" />
+              </div>
+
+            </div>
+          ) : (
+            <div className="space-y-8">
+              <ProductReviews />
+              <ProductQuestions />
+            </div>
+          )}
         </div>
 
-        {/*  منوی کشویی گزینه‌ها */}
+        {/* منوی کشویی گزینه‌ها */}
         {isBottomSheetOpen && (
           <div className="fixed inset-0 z-50 flex items-end justify-center">
             <div 
-              className="fixed inset-0 bg-black/30 backdrop-blur-xs transition-opacity"
+              className="fixed inset-0 bg-black/40 transition-opacity"
               onClick={() => setIsBottomSheetOpen(false)}
             />
 
-            <div className="relative w-full max-w-lg bg-[#FAF8F5]/90 border-t border-white/80 rounded-t-[32px] p-6 pb-10 backdrop-blur-2xl shadow-2xl z-50 transition-transform duration-300">
+            <div className="relative w-full max-w-lg bg-white border-t border-gray-100 rounded-t-[32px] p-6 pb-10 shadow-2xl z-50">
               <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-6" />
 
               <div className="flex flex-col gap-3">
@@ -271,7 +253,7 @@ export default function ProductPage() {
                     setIsFavorite(!isFavorite);
                     setIsBottomSheetOpen(false);
                   }}
-                  className="w-full flex items-center justify-between px-5 py-4 rounded-2xl bg-white/70 hover:bg-white/90 border border-[#E5E3DC] active:scale-[0.98] transition-all cursor-pointer shadow-xs"
+                  className="w-full flex items-center justify-between px-5 py-4 rounded-2xl bg-gray-50 hover:bg-gray-100 border border-gray-200/60 active:scale-[0.98] transition-all cursor-pointer shadow-xs outline-none focus:outline-none focus:ring-0 select-none [-webkit-tap-highlight-color:transparent]"
                 >
                   <span className="text-sm font-medium text-gray-800">
                     {isFavorite ? "حذف از علاقه‌مندی‌ها" : "افزودن به علاقه‌مندی‌ها"}
@@ -287,7 +269,7 @@ export default function ProductPage() {
                     }
                     setIsBottomSheetOpen(false);
                   }}
-                  className="w-full flex items-center justify-between px-5 py-4 rounded-2xl bg-white/70 hover:bg-white/90 border border-[#E5E3DC] active:scale-[0.98] transition-all cursor-pointer shadow-xs"
+                  className="w-full flex items-center justify-between px-5 py-4 rounded-2xl bg-gray-50 hover:bg-gray-100 border border-gray-200/60 active:scale-[0.98] transition-all cursor-pointer shadow-xs outline-none focus:outline-none focus:ring-0 select-none [-webkit-tap-highlight-color:transparent]"
                 >
                   <span className="text-sm font-medium text-gray-800">به اشتراک گذاشتن</span>
                   <ShareIcon className="w-5 h-5 text-gray-600 stroke-1.5" />
@@ -297,15 +279,11 @@ export default function ProductPage() {
           </div>
         )}
 
-        {/* نوار ثابت خرید گلس مورفیسم (Glassmorphic) */}
+        {/* نوار ثابت خرید پایینی */}
         <div className="fixed bottom-0 left-3 right-3 z-40 max-w-md mx-auto">
-          <div className="relative overflow-hidden rounded-3xl bg-white/60 backdrop-blur-2xl border border-white/80 p-3.5 shadow-[0_20px_50px_rgba(0,0,0,0.12),0_4px_12px_rgba(0,0,0,0.05)] ring-1 ring-black/5">
+          <div className="relative overflow-hidden rounded-3xl bg-white/95 border border-gray-200/80 p-3.5 shadow-xl ring-1 ring-black/5 mb-2">
             
-            {/* افکت نورپردازی لبه بالای گلس (Glow Effect) */}
-            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-
             <div className="flex items-center justify-between gap-3">
-              
               <Button
                 variant="gradient"
                 size="md"
@@ -320,7 +298,7 @@ export default function ProductPage() {
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <span className="relative flex items-center justify-center">
                     <span className="absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-30 animate-ping" />
-                    <span className="relative text-[10px] font-black bg-rose-500/10 text-rose-600 border border-rose-500/20 px-2 py-0.5 rounded-full backdrop-blur-xs">
+                    <span className="relative text-[10px] font-black bg-rose-500/10 text-rose-600 border border-rose-500/20 px-2 py-0.5 rounded-full">
                       ٪۳۲
                     </span>
                   </span>
@@ -337,14 +315,14 @@ export default function ProductPage() {
                   <span className="text-[10px] font-bold text-gray-500">تومان</span>
                 </div>
               </div>
-
             </div>
+
           </div>
         </div>
       </div>
 
       {/* ========================================== */}
-      {/*  ۲. حالت دسکتاپ                          */}
+      {/* 💻 ۲. حالت دسکتاپ                          */}
       {/* ========================================== */}
       <div className="hidden lg:block container space-y-8 mx-auto py-4">
         
@@ -362,7 +340,7 @@ export default function ProductPage() {
         <ProductFeaturesBadge />
         <ProductSellers />
 
-        {/* 🔘 نوبار دسکتاپ با پس‌زمینه تمام‌عرض */}
+        {/* 🔘 نوبار دسکتاپ */}
         <div className="w-full bg-rose-50/70 rounded-2xl mt-4 py-2.5">
           <div className="flex justify-start">
             <div className="flex items-center font-rokh font-black gap-2 min-w-[500px]">
@@ -371,54 +349,39 @@ export default function ProductPage() {
               <button
                 type="button"
                 onClick={() => setDesktopTab("desc")}
-                className={`relative flex-1 py-2.5 px-6 text-sm font-bold transition-colors duration-200 cursor-pointer z-10 text-center ${
-                  desktopTab === "desc" ? "text-primary" : "text-gray-500 hover:text-gray-800"
+                className={`flex-1 py-2.5 px-6 text-sm font-bold cursor-pointer text-center rounded-xl outline-none focus:outline-none focus:ring-0 active:outline-none active:bg-transparent select-none [-webkit-tap-highlight-color:transparent] ${
+                  desktopTab === "desc" 
+                    ? "bg-white text-primary shadow-xs" 
+                    : "bg-transparent text-gray-500 hover:text-gray-800"
                 }`}
               >
-                {desktopTab === "desc" && (
-                  <motion.div
-                    layoutId="activeDesktopTab"
-                    className="absolute inset-0 bg-white rounded-xl shadow-xs border border-rose-200/60"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10">توضیحات محصول</span>
+                توضیحات محصول
               </button>
 
               {/* تب نظرات کاربران */}
               <button
                 type="button"
                 onClick={() => setDesktopTab("reviews")}
-                className={`relative flex-1 py-2.5 px-6 text-sm font-bold transition-colors duration-200 cursor-pointer z-10 text-center ${
-                  desktopTab === "reviews" ? "text-primary" : "text-gray-500 hover:text-gray-800"
+                className={`flex-1 py-2.5 px-6 text-sm font-bold cursor-pointer text-center rounded-xl outline-none focus:outline-none focus:ring-0 active:outline-none active:bg-transparent select-none [-webkit-tap-highlight-color:transparent] ${
+                  desktopTab === "reviews" 
+                    ? "bg-white text-primary shadow-xs" 
+                    : "bg-transparent text-gray-500 hover:text-gray-800"
                 }`}
               >
-                {desktopTab === "reviews" && (
-                  <motion.div
-                    layoutId="activeDesktopTab"
-                    className="absolute inset-0 bg-white rounded-xl shadow-xs border border-rose-200/60"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10">نظرات کاربران</span>
+                نظرات کاربران
               </button>
 
               {/* تب پرسش و پاسخ */}
               <button
                 type="button"
                 onClick={() => setDesktopTab("questions")}
-                className={`relative flex-1 py-2.5 px-6 text-sm font-bold transition-colors duration-200 cursor-pointer z-10 text-center ${
-                  desktopTab === "questions" ? "text-primary" : "text-gray-500 hover:text-gray-800"
+                className={`flex-1 py-2.5 px-6 text-sm font-bold cursor-pointer text-center rounded-xl outline-none focus:outline-none focus:ring-0 active:outline-none active:bg-transparent select-none [-webkit-tap-highlight-color:transparent] ${
+                  desktopTab === "questions" 
+                    ? "bg-white text-primary shadow-xs" 
+                    : "bg-transparent text-gray-500 hover:text-gray-800"
                 }`}
               >
-                {desktopTab === "questions" && (
-                  <motion.div
-                    layoutId="activeDesktopTab"
-                    className="absolute inset-0 bg-white rounded-xl shadow-xs border border-rose-200/60"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <span className="relative z-10">پرسش و پاسخ</span>
+                پرسش و پاسخ
               </button>
 
             </div>
@@ -432,7 +395,7 @@ export default function ProductPage() {
           {desktopTab === "questions" && <ProductQuestions />}
         </div>
 
-        {/*  اسلایدر محصولات مشابه (دسکتاپ) */}
+        {/* 🛍️ اسلایدر محصولات مشابه (دسکتاپ) */}
         <div className="pt-8 border-t border-gray-100">
           <RelatedProductsSlider categoryId="shirts" />
         </div>

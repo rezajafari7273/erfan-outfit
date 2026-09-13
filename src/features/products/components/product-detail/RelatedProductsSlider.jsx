@@ -273,7 +273,7 @@ export default function RelatedProductsSlider() {
         </div>
       </div>
 
-      <div className="relative px-3 md:px-6 lg:px-12">
+      <div className="relative px-0.5 md:px-3 lg:px-12">
         {/* اسلایدر با Swiper */}
         <div 
           ref={swiperRef}
