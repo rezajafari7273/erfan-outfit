@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import PromotionRenderer from "@/components/promotions/PromotionRenderer";
@@ -14,30 +15,95 @@ import {
   MicrophoneIcon,
   XMarkIcon,
   ArrowRightIcon,
+  PhotoIcon,
+  SwatchIcon,
+  ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+
+async function safeFetch(url, options = {}) {
+  try {
+    const res = await fetch(url, {
+      ...options,
+      headers: { Accept: 'application/json', ...(options.headers || {}) },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (err) {
+    console.error('[SEARCH FETCH]', url, err);
+    return null;
+  }
+}
+
+function formatPrice(v) {
+  if (v === null || v === undefined) return '';
+  return Number(v).toLocaleString('fa-IR');
+}
+
 export default function ClothingSearch() {
+  const router = useRouter();
+
   const [searchTerm, setSearchTerm] = useState('');
   const [isListening, setIsListening] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopFocused, setIsDesktopFocused] = useState(false);
-  
+
+  const [trendingSearches, setTrendingSearches] = useState([]);
+  const [recentSearches, setRecentSearches] = useState([]);
+  const [popularProducts, setPopularProducts] = useState([]);
+  const [suggestions, setSuggestions] = useState([]);
+
+  const [isImageUploading, setIsImageUploading] = useState(false);
+  const [isColorPanelOpen, setIsColorPanelOpen] = useState(false);
+  const [colors, setColors] = useState([]);
+  const [selectedColorIds, setSelectedColorIds] = useState([]);
+
   const recognitionRef = useRef(null);
   const mobileInputRef = useRef(null);
+  const suggestTimerRef = useRef(null);
+  const imageInputRef = useRef(null);
 
-  // جستجوهای ترند مرتبط با پوشاک
-  const trendingSearches = [
-    'کت شلوار مجلسی',
-    'تیشرکت مردانه',
-    'پیراهن زنانه',
-    'کیف چرمی',
-    'کفش اسپرت',
-  ];
+  // mount: trending + recent + popular + colors
+  useEffect(() => {
+    (async () => {
+      const [trending, recent, popular, colorsData] = await Promise.all([
+        safeFetch(`${API_BASE}/search/trending/`),
+        safeFetch(`${API_BASE}/search/recent/`),
+        safeFetch(`${API_BASE}/search/products/?page_size=2`),
+        safeFetch(`${API_BASE}/search/colors/`),
+      ]);
 
-  // جستجوهای اخیر مرتبط با پوشاک
-  const recentSearches = ['شلوار جین', 'مانتو', 'پالتو', 'کیف دستی'];
+      if (Array.isArray(trending)) setTrendingSearches(trending.map((t) => t.term));
+      if (Array.isArray(recent)) setRecentSearches(recent.map((r) => r.query));
+      if (popular && Array.isArray(popular.results)) {
+        setPopularProducts(popular.results.slice(0, 2));
+      }
+      if (Array.isArray(colorsData)) setColors(colorsData);
+    })();
+  }, []);
 
-  // جلوگیری از اسکرول صفحه در زمان باز بودن مودال موبایل
+  // autocomplete debounce
+  useEffect(() => {
+    if (suggestTimerRef.current) clearTimeout(suggestTimerRef.current);
+
+    const q = searchTerm.trim();
+    if (q.length < 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    suggestTimerRef.current = setTimeout(async () => {
+      const data = await safeFetch(
+        `${API_BASE}/search/suggest/?q=${encodeURIComponent(q)}`
+      );
+      if (Array.isArray(data)) setSuggestions(data);
+    }, 300);
+
+    return () => clearTimeout(suggestTimerRef.current);
+  }, [searchTerm]);
+
+  // lock scroll موبایل
   useEffect(() => {
     if (isMobileOpen) {
       document.body.style.overflow = 'hidden';
@@ -100,26 +166,145 @@ export default function ClothingSearch() {
     }
   };
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchTerm.trim()) {
-      console.log('Searching for clothing:', searchTerm);
+  const goToResults = useCallback(
+    (q) => {
+      const term = (q ?? searchTerm).trim();
+      if (!term) return;
       setIsMobileOpen(false);
       setIsDesktopFocused(false);
+      router.push(`/search?q=${encodeURIComponent(term)}`);
+    },
+    [router, searchTerm]
+  );
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    goToResults();
+  };
+
+  const handleTrendingClick = (term) => {
+    setSearchTerm(term);
+    goToResults(term);
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsImageUploading(true);
+    setIsDesktopFocused(false);
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const res = await fetch(`${API_BASE}/search/image/`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        alert('خطا در جستجوی تصویر');
+        return;
+      }
+
+      const data = await res.json();
+      const results = data?.results || [];
+      const ids = results.map((p) => p.id).join(',');
+
+      if (!ids) {
+        alert('محصول مشابهی یافت نشد.');
+        return;
+      }
+
+      setIsMobileOpen(false);
+      router.push(`/search?ids=${ids}`);
+    } catch (err) {
+      console.error('[IMAGE SEARCH]', err);
+      alert('خطا در جستجوی تصویر');
+    } finally {
+      setIsImageUploading(false);
+      e.target.value = '';
     }
   };
 
+  const toggleColorId = (id) => {
+    setSelectedColorIds((prev) =>
+      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
+    );
+  };
+
+  const applyColorFilter = () => {
+    if (selectedColorIds.length === 0) return;
+    setIsDesktopFocused(false);
+    setIsMobileOpen(false);
+    setIsColorPanelOpen(false);
+    router.push(`/search?color_ids=${selectedColorIds.join(',')}`);
+  };
+
+  const clearColorFilter = () => setSelectedColorIds([]);
+
+  const renderColorPanel = () => (
+    <div className="p-5 bg-secondary/5 border border-secondary/15 rounded-2xl">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-xs font-black text-gray-800 uppercase">انتخاب رنگ</span>
+        {selectedColorIds.length > 0 && (
+          <button
+            type="button"
+            onClick={clearColorFilter}
+            className="text-[11px] font-bold text-rose-600 hover:underline cursor-pointer"
+          >
+            حذف همه
+          </button>
+        )}
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-4">
+        {colors.map((c) => {
+          const isSelected = selectedColorIds.includes(c.id);
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => toggleColorId(c.id)}
+              className={`flex items-center gap-2 px-3.5 py-1.5 text-[11px] font-bold rounded-xl border transition-all cursor-pointer ${
+                isSelected
+                  ? 'border-secondary/60 bg-white text-secondary shadow-sm'
+                  : 'border-secondary/10 bg-white/60 text-gray-600 hover:bg-white'
+              }`}
+            >
+              <span
+                className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0"
+                style={{ backgroundColor: c.hex_code }}
+              />
+              <span>{c.name}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <button
+        type="button"
+        onClick={applyColorFilter}
+        disabled={selectedColorIds.length === 0}
+        className="w-full py-2.5 rounded-xl bg-secondary text-white text-xs font-bold hover:bg-secondary/90 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        جستجوی محصولات با این رنگ‌ها
+      </button>
+    </div>
+  );
+
   return (
     <>
-      {/* ----------------- حالت دسکتاپ ----------------- */}
+      {/* ================= دسکتاپ ================= */}
       <div
         id="search-wrapper"
         className="hidden lg:flex flex-1 max-w-2xl relative group/search mx-auto"
       >
-        <Backdrop 
-          isOpen={isDesktopFocused} 
-          onClick={() => setIsDesktopFocused(false)} 
-          className="top-31.25" 
+        <Backdrop
+          isOpen={isDesktopFocused}
+          onClick={() => setIsDesktopFocused(false)}
+          className="top-31.25"
         />
 
         <div className="relative w-full z-[10000]">
@@ -160,7 +345,6 @@ export default function ClothingSearch() {
             </div>
           </form>
 
-          {/* پنل مگاسرچ دسکتاپ */}
           <div
             id="mega-search-panel"
             className={`absolute -top-3 left-[-15px] right-[-15px] pt-[65px] bg-white/95 backdrop-blur-2xl border border-white/40 rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] transition-all duration-500 z-[9999] ${
@@ -170,48 +354,119 @@ export default function ClothingSearch() {
             }`}
           >
             <div className="p-8">
-              <div className="flex items-center justify-start gap-3 mb-6">
-                <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
-                  <EyeIcon className="w-4 h-4 stroke-[2]" />
-                </div>
-                <span className="text-[13px] font-black text-gray-800 uppercase tracking-tighter">
-                  محصولات پوشاک پربازدید هفته
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
-                {[1, 2].map((id) => (
-                  <div
-                    key={id}
-                    className="group/card relative flex items-center p-2 bg-white/40 border border-gray-200/50 rounded-[1.8rem] hover:bg-white transition-all duration-500 cursor-pointer shadow-sm"
-                  >
-                    <div className="relative w-20 h-20 bg-gray-100 rounded-[1.5rem] p-2 flex-shrink-0">
-                      <Image
-                        src={`/assets/images/clothing/clothing-${id}.jpg`}
-                        alt="پوشاک"
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover rounded-xl group-hover/card:scale-110 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="flex-1 pr-4">
-                      <h4 className="text-[12px] font-bold text-gray-800 mb-2 group-hover/card:text-primary transition-colors line-clamp-1">
-                        {id === 1 ? 'کت و شلوار مجلسی مردانه' : 'مانتو زنانه بهاره'}
-                      </h4>
-                      <div className="flex items-center justify-between">
-                        <div className="px-3 py-1 bg-gray-100 rounded-xl text-[14px] font-black text-gray-900">
-                          {id === 1 ? '۴,۵۰۰,۰۰۰' : '۳,۲۰۰,۰۰۰'}{' '}
-                          <span className="text-[9px] text-gray-400 mr-1 font-bold">
-                            تومان
-                          </span>
-                        </div>
-                        <ChevronLeftIcon className="w-4 h-4 ml-2 text-primary opacity-0 -translate-x-2 group-hover/card:opacity-100 group-hover/card:translate-x-0 transition-all stroke-[3]" />
-                      </div>
-                    </div>
+              {/* Autocomplete */}
+              {suggestions.length > 0 && (
+                <div className="mb-6">
+                  <div className="flex items-center gap-2 mb-3 text-gray-800">
+                    <MagnifyingGlassIcon className="w-4 h-4 text-primary stroke-[2]" />
+                    <span className="text-xs font-black uppercase">پیشنهادات</span>
                   </div>
-                ))}
+                  <div className="flex flex-wrap gap-2">
+                    {suggestions.map((s) => (
+                      <Link
+                        key={s.id}
+                        href={`/products/${s.slug}`}
+                        className="px-4 py-2 bg-gray-100 text-[11px] font-bold text-gray-600 rounded-full hover:bg-primary/10 hover:text-primary transition-all"
+                        onClick={() => setIsDesktopFocused(false)}
+                      >
+                        {s.title}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* دو دکمه: تصویر و رنگ */}
+              <div className="grid grid-cols-2 gap-3 mb-6">
+                <button
+                  type="button"
+                  onClick={() => imageInputRef.current?.click()}
+                  disabled={isImageUploading}
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 text-primary text-xs font-bold hover:bg-primary/10 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {isImageUploading ? (
+                    <>
+                      <ArrowPathIcon className="w-4 h-4 animate-spin" />
+                      در حال جستجو...
+                    </>
+                  ) : (
+                    <>
+                      <PhotoIcon className="w-4 h-4" />
+                      جستجو با تصویر
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsColorPanelOpen((v) => !v)}
+                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-dashed border-secondary/40 bg-secondary/5 text-secondary text-xs font-bold hover:bg-secondary/10 transition-all cursor-pointer"
+                >
+                  <SwatchIcon className="w-4 h-4" />
+                  جستجو با رنگ
+                </button>
               </div>
 
+              {isColorPanelOpen && colors.length > 0 && (
+                <div className="mb-8">{renderColorPanel()}</div>
+              )}
+
+              {/* محصولات پربازدید */}
+              {popularProducts.length > 0 && (
+                <>
+                  <div className="flex items-center justify-start gap-3 mb-6">
+                    <div className="p-1.5 bg-primary/10 rounded-lg text-primary">
+                      <EyeIcon className="w-4 h-4 stroke-[2]" />
+                    </div>
+                    <span className="text-[13px] font-black text-gray-800 uppercase tracking-tighter">
+                      محصولات پوشاک پربازدید هفته
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
+                    {popularProducts.map((p) => (
+                      <Link
+                        key={p.id}
+                        href={`/products/${p.slug}`}
+                        onClick={() => setIsDesktopFocused(false)}
+                        className="group/card relative flex items-center p-2 bg-white/40 border border-gray-200/50 rounded-[1.8rem] hover:bg-white transition-all duration-500 cursor-pointer shadow-sm"
+                      >
+                        <div className="relative w-20 h-20 bg-gray-100 rounded-[1.5rem] p-2 flex-shrink-0">
+                          {p.thumbnail ? (
+                            <Image
+                              src={p.thumbnail}
+                              alt={p.title}
+                              width={80}
+                              height={80}
+                              className="w-full h-full object-cover rounded-xl group-hover/card:scale-110 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                              —
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 pr-4">
+                          <h4 className="text-[12px] font-bold text-gray-800 mb-2 group-hover/card:text-primary transition-colors line-clamp-1">
+                            {p.title}
+                          </h4>
+                          <div className="flex items-center justify-between">
+                            <div className="px-3 py-1 bg-gray-100 rounded-xl text-[14px] font-black text-gray-900">
+                              {formatPrice(p.final_price)}{' '}
+                              <span className="text-[9px] text-gray-400 mr-1 font-bold">
+                                تومان
+                              </span>
+                            </div>
+                            <ChevronLeftIcon className="w-4 h-4 ml-2 text-primary opacity-0 -translate-x-2 group-hover/card:opacity-100 group-hover/card:translate-x-0 transition-all stroke-[3]" />
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* ترند + recent + بنر */}
               <div className="border-t border-dashed border-gray-200 pt-8 grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div className="space-y-4">
                   <span className="text-[13px] font-black text-gray-800 uppercase tracking-tighter">
@@ -219,15 +474,39 @@ export default function ClothingSearch() {
                   </span>
                   <div className="flex flex-wrap gap-2">
                     {trendingSearches.map((item, index) => (
-                      <Link
+                      <button
                         key={index}
-                        href="#"
-                        className="px-4 py-2 bg-gray-100 text-[11px] font-bold text-gray-500 rounded-full hover:border-primary hover:text-primary border border-transparent transition-all"
+                        type="button"
+                        onClick={() => handleTrendingClick(item)}
+                        className="px-4 py-2 bg-gray-100 text-[11px] font-bold text-gray-500 rounded-full hover:border-primary hover:text-primary border border-transparent transition-all cursor-pointer"
                       >
                         {item}
-                      </Link>
+                      </button>
                     ))}
                   </div>
+
+                  {recentSearches.length > 0 && (
+                    <div className="pt-4">
+                      <div className="flex items-center gap-2 mb-2 text-gray-800">
+                        <ClockIcon className="w-4 h-4 text-primary stroke-[2]" />
+                        <span className="text-xs font-black uppercase">
+                          جستجوهای اخیر شما
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {recentSearches.map((item, index) => (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => handleTrendingClick(item)}
+                            className="px-3 py-1.5 bg-gray-50 text-[11px] font-bold text-gray-500 rounded-full hover:text-primary transition-all cursor-pointer"
+                          >
+                            {item}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="border-r border-gray-100">
@@ -239,7 +518,7 @@ export default function ClothingSearch() {
         </div>
       </div>
 
-      {/* ----------------- حالت موبایل ----------------- */}
+      {/* ================= موبایل ================= */}
       <div className="flex lg:hidden w-full items-center gap-2">
         <button
           type="button"
@@ -264,7 +543,7 @@ export default function ClothingSearch() {
         </button>
 
         {isMobileOpen && (
-          <div className="fixed inset-0 z-[99999] bg-white flex flex-col h-full w-full overflow-y-auto animate-in fade-in slide-in-from-bottom duration-300">
+          <div className="fixed inset-0 z-[99999] bg-white flex flex-col h-full w-full overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-100 p-4 shadow-sm z-10">
               <form onSubmit={handleSearchSubmit} className="flex items-center gap-3">
                 <button
@@ -308,73 +587,156 @@ export default function ClothingSearch() {
                   <MicrophoneIcon className="w-5 h-5 stroke-[2]" />
                 </button>
               </form>
+
+              {suggestions.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {suggestions.map((s) => (
+                    <Link
+                      key={s.id}
+                      href={`/products/${s.slug}`}
+                      onClick={() => setIsMobileOpen(false)}
+                      className="px-3.5 py-1.5 bg-gray-100 text-xs font-bold text-gray-600 rounded-full"
+                    >
+                      {s.title}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex-1 p-5 space-y-8">
-              <div>
-                <div className="flex items-center gap-2 mb-4 text-gray-800">
-                  <EyeIcon className="w-4 h-4 text-primary stroke-[2]" />
-                  <span className="text-xs font-black uppercase">
-                    پوشاک پربازدید هفته
-                  </span>
-                </div>
-                <div className="space-y-3">
-                  {[1, 2].map((id) => (
-                    <div
-                      key={id}
-                      className="flex items-center p-2.5 bg-gray-50 border border-gray-100 rounded-2xl active:bg-gray-100 transition-colors"
-                    >
-                      <div className="relative w-16 h-16 bg-white rounded-xl p-1 flex-shrink-0">
-                        <Image
-                          src={`/assets/images/clothing/clothing-${id}.jpg`}
-                          alt="پوشاک"
-                          width={64}
-                          height={64}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                      </div>
-                      <div className="flex-1 pr-3">
-                        <h4 className="text-xs font-bold text-gray-800 mb-1 line-clamp-1">
-                          {id === 1 ? 'کت و شلوار مجلسی مردانه' : 'مانتو زنانه بهاره'}
-                        </h4>
-                        <div className="text-xs font-black text-gray-900">
-                          {id === 1 ? '۴,۵۰۰,۰۰۰' : '۳,۲۰۰,۰۰۰'}{' '}
-                          <span className="text-[10px] text-gray-400">تومان</span>
+              {/* دو دکمه تصویر و رنگ */}
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => imageInputRef.current?.click()}
+                  disabled={isImageUploading}
+                  className="flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 text-primary text-xs font-bold disabled:opacity-50"
+                >
+                  {isImageUploading ? (
+                    <ArrowPathIcon className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <PhotoIcon className="w-4 h-4" />
+                  )}
+                  جستجو با تصویر
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsColorPanelOpen((v) => !v)}
+                  className="flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border border-dashed border-secondary/40 bg-secondary/5 text-secondary text-xs font-bold"
+                >
+                  <SwatchIcon className="w-4 h-4" />
+                  جستجو با رنگ
+                </button>
+              </div>
+
+              {isColorPanelOpen && colors.length > 0 && renderColorPanel()}
+
+              {popularProducts.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-4 text-gray-800">
+                    <EyeIcon className="w-4 h-4 text-primary stroke-[2]" />
+                    <span className="text-xs font-black uppercase">
+                      پوشاک پربازدید هفته
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    {popularProducts.map((p) => (
+                      <Link
+                        key={p.id}
+                        href={`/products/${p.slug}`}
+                        onClick={() => setIsMobileOpen(false)}
+                        className="flex items-center p-2.5 bg-gray-50 border border-gray-100 rounded-2xl active:bg-gray-100 transition-colors"
+                      >
+                        <div className="relative w-16 h-16 bg-white rounded-xl p-1 flex-shrink-0">
+                          {p.thumbnail ? (
+                            <Image
+                              src={p.thumbnail}
+                              alt={p.title}
+                              width={64}
+                              height={64}
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-gray-400 text-[10px]">
+                              —
+                            </div>
+                          )}
                         </div>
-                      </div>
-                      <ChevronLeftIcon className="w-4 h-4 text-gray-400 stroke-[2.5]" />
-                    </div>
-                  ))}
+                        <div className="flex-1 pr-3">
+                          <h4 className="text-xs font-bold text-gray-800 mb-1 line-clamp-1">
+                            {p.title}
+                          </h4>
+                          <div className="text-xs font-black text-gray-900">
+                            {formatPrice(p.final_price)}{' '}
+                            <span className="text-[10px] text-gray-400">تومان</span>
+                          </div>
+                        </div>
+                        <ChevronLeftIcon className="w-4 h-4 text-gray-400 stroke-[2.5]" />
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <span className="block text-xs font-black text-gray-800 uppercase mb-3">
-                  جستجوهای ترند پوشاک
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {trendingSearches.map((item, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => setSearchTerm(item)}
-                      className="px-3.5 py-1.5 bg-gray-100 text-xs font-bold text-gray-600 rounded-full active:bg-primary active:text-white transition-all"
-                    >
-                      {item}
-                    </button>
-                  ))}
+              {trendingSearches.length > 0 && (
+                <div>
+                  <span className="block text-xs font-black text-gray-800 uppercase mb-3">
+                    جستجوهای ترند پوشاک
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {trendingSearches.map((item, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => handleTrendingClick(item)}
+                        className="px-3.5 py-1.5 bg-gray-100 text-xs font-bold text-gray-600 rounded-full active:bg-primary active:text-white transition-all"
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              <div>
-                <div onClick={() => setIsMobileOpen(false)}>
-                  <PromotionRenderer type="smallBanner" slotKey="searchModal" />
+              {recentSearches.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-2 mb-3 text-gray-800">
+                    <ClockIcon className="w-4 h-4 text-primary stroke-[2]" />
+                    <span className="text-xs font-black uppercase">جستجوهای اخیر</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {recentSearches.map((item, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => handleTrendingClick(item)}
+                        className="px-3.5 py-1.5 bg-gray-50 text-xs font-bold text-gray-500 rounded-full"
+                      >
+                        {item}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+              )}
+
+              <div onClick={() => setIsMobileOpen(false)}>
+                <PromotionRenderer type="smallBanner" slotKey="searchModal" />
               </div>
             </div>
           </div>
         )}
       </div>
+
+      {/* hidden file input */}
+      <input
+        ref={imageInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleImageUpload}
+        className="hidden"
+      />
     </>
   );
 }

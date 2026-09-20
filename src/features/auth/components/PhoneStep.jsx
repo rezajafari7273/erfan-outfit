@@ -6,7 +6,7 @@ import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import Logo from "@/components/ui/Logo"; // ایمپورت کامپوننت لوگو
 
-export default function PhoneStep({ phoneNumber, setPhoneNumber, onSubmit }) {
+export default function PhoneStep({ phoneNumber, setPhoneNumber, onSubmit, loading, error }) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col items-center text-center">
       {/* استفاده از لوگو به جای آیکون */}
@@ -31,6 +31,7 @@ export default function PhoneStep({ phoneNumber, setPhoneNumber, onSubmit }) {
           className="text-center tracking-widest font-bold text-base py-3 dir-ltr"
           required
           autoFocus
+          error={error}
         />
       </div>
 
@@ -39,7 +40,8 @@ export default function PhoneStep({ phoneNumber, setPhoneNumber, onSubmit }) {
         type="submit"
         variant="gradient"
         size="lg"
-        disabled={phoneNumber.length < 10}
+        disabled={phoneNumber.length < 10 || loading}
+        isLoading={loading}
         className="w-full"
       >
         ارسال کد تایید

@@ -1,35 +1,70 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { 
-  XMarkIcon, 
-  ChevronLeftIcon, 
+import { useState, useRef, useEffect } from "react";
+import {
+  XMarkIcon,
+  ChevronLeftIcon,
   ChevronRightIcon,
-  EllipsisHorizontalIcon
+  EllipsisHorizontalIcon,
 } from "@heroicons/react/24/outline";
 
-export default function ProductGallery({ isMobile = false }) {
+export default function ProductGallery({
+  product,
+  isMobile = false,
+  selectedVariant = null,
+}) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const dragStartX = useRef(null);
   const dragEndX = useRef(null);
 
+  // ۱. گالری از product.gallery
+  const galleryFromApi = Array.isArray(product?.gallery)
+    ? product.gallery.map((g) => g.url).filter(Boolean)
+    : [];
+
+  // ۲. تصویر واریانت انتخاب‌شده (اول لیست)
+  const variantImage = selectedVariant?.image || null;
+
+  // ۳. تصاویر بقیه واریانت‌ها (بعدش)
+  const otherVariantImages = Array.isArray(product?.variants)
+    ? product.variants
+        .map((v) => v.image)
+        .filter((img) => img && img !== variantImage)
+    : [];
+
+  // ۴. تصویر اصلی (آخر)
+  const mainImage = product?.main_image ? [product.main_image] : [];
+
+  // ترتیب نهایی
   const images = [
-    "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?auto=format&fit=crop&w=1000&q=80",
-    "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1000&q=80",
-    "https://images.unsplash.com/photo-1565849904461-04a58ad377e0?auto=format&fit=crop&w=1000&q=80",
-    "https://images.unsplash.com/photo-1523206489230-c012c64b2b48?auto=format&fit=crop&w=1000&q=80",
-    "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=1000&q=80",
+    ...new Set([
+      ...(variantImage ? [variantImage] : []),
+      ...galleryFromApi,
+      ...otherVariantImages,
+      ...mainImage,
+    ]),
   ];
 
-  const handleNext = () => {
-    setSelectedImage((prev) => (prev + 1) % images.length);
-  };
+  // وقتی رنگ عوض شد، برو به تصویر اول
+  useEffect(() => {
+    setSelectedImage(0);
+  }, [selectedVariant?.id]);
 
-  const handlePrev = () => {
+  if (images.length === 0) {
+    return (
+      <div className="w-full h-[480px] rounded-3xl border border-[#E0DCD3] bg-[#FAF8F5] flex items-center justify-center">
+        <span className="text-gray-400 text-xs">
+          تصویری برای این محصول ثبت نشده است.
+        </span>
+      </div>
+    );
+  }
+
+  const handleNext = () => setSelectedImage((prev) => (prev + 1) % images.length);
+  const handlePrev = () =>
     setSelectedImage((prev) => (prev - 1 + images.length) % images.length);
-  };
 
   const handleTouchStart = (e) => {
     dragStartX.current = e.touches ? e.touches[0].clientX : e.clientX;
@@ -45,7 +80,6 @@ export default function ProductGallery({ isMobile = false }) {
     const distance = dragStartX.current - dragEndX.current;
     if (distance > 40) handleNext();
     else if (distance < -40) handlePrev();
-
     dragStartX.current = null;
     dragEndX.current = null;
   };
@@ -62,18 +96,24 @@ export default function ProductGallery({ isMobile = false }) {
             type="button"
             onClick={() => setSelectedImage(idx)}
             className={`${
-              isMobileLayout ? "w-12 h-12 rounded-xl p-0.5 backdrop-blur-md" : "w-16 h-16 rounded-2xl p-0.5"
+              isMobileLayout
+                ? "w-12 h-12 rounded-xl p-0.5 backdrop-blur-md"
+                : "w-16 h-16 rounded-2xl p-0.5"
             } border overflow-hidden transition-all duration-200 cursor-pointer ${
               selectedImage === idx
                 ? isMobileLayout
                   ? "border-white bg-white/60"
                   : "border-[#333] bg-white"
                 : isMobileLayout
-                  ? "border-white/20 bg-white/10 opacity-70"
-                  : "border-[#E5E3DC] bg-[#FAF8F5] opacity-60 hover:opacity-100"
+                ? "border-white/20 bg-white/10 opacity-70"
+                : "border-[#E5E3DC] bg-[#FAF8F5] opacity-60 hover:opacity-100"
             }`}
           >
-            <img src={img} alt="thumb" className="w-full h-full object-cover rounded-xl" />
+            <img
+              src={img}
+              alt="thumb"
+              className="w-full h-full object-cover rounded-xl"
+            />
           </button>
         ))}
 
@@ -82,8 +122,8 @@ export default function ProductGallery({ isMobile = false }) {
             type="button"
             onClick={() => setIsModalOpen(true)}
             className={`${
-              isMobileLayout 
-                ? "w-12 h-12 rounded-xl border-white/20 bg-white/10 text-white backdrop-blur-md" 
+              isMobileLayout
+                ? "w-12 h-12 rounded-xl border-white/20 bg-white/10 text-white backdrop-blur-md"
                 : "w-16 h-16 rounded-2xl border-[#E5E3DC] bg-[#FAF8F5] text-[#333] hover:border-[#333]"
             } border flex items-center justify-center transition-all duration-200 cursor-pointer active:scale-95`}
           >
@@ -97,20 +137,17 @@ export default function ProductGallery({ isMobile = false }) {
   if (isMobile) {
     return (
       <div className="relative w-full h-full select-none overflow-hidden">
-        {/* تصویر اصلی محصول */}
         <img
           src={images[selectedImage]}
-          alt="تصویر اصلی محصول"
+          alt={product?.title || "تصویر اصلی محصول"}
           className="w-full h-full object-cover cursor-pointer z-0"
           onClick={() => setIsModalOpen(true)}
         />
 
-        {/* تامبنیل‌های روی عکس در موبایل */}
         <div className="absolute bottom-6 left-0 right-0 z-10 flex items-center justify-center">
           {renderThumbnails(true)}
         </div>
 
-        {/* مودال فول‌اسکرین بزرگ‌نمایی */}
         {isModalOpen && renderModal()}
       </div>
     );
@@ -119,9 +156,9 @@ export default function ProductGallery({ isMobile = false }) {
   return (
     <div className="flex flex-col items-center relative select-none">
       <div className="w-full h-[480px] border border-[#E0DCD3] rounded-3xl p-2 bg-gradient-to-b from-[#FAF8F5] to-[#EAE5DC] overflow-hidden">
-        <img 
-          src={images[selectedImage]} 
-          alt="تصویر محصول" 
+        <img
+          src={images[selectedImage]}
+          alt={product?.title || "تصویر محصول"}
           className="w-full h-full object-cover rounded-2xl cursor-pointer"
           onClick={() => setIsModalOpen(true)}
         />
@@ -137,20 +174,21 @@ export default function ProductGallery({ isMobile = false }) {
     return (
       <div className="fixed inset-0 z-50 bg-black/92 backdrop-blur-sm flex flex-col justify-between p-6 sm:p-8 select-none">
         <div className="flex items-center justify-between text-white/80 z-20">
-          <button 
+          <button
             type="button"
-            onClick={() => setIsModalOpen(false)} 
+            onClick={() => setIsModalOpen(false)}
             className="p-2 rounded-full hover:bg-white/10 text-white/80 hover:text-white transition-colors cursor-pointer"
           >
             <XMarkIcon className="w-6 h-6 stroke-1.5" />
           </button>
-          
+
           <span className="text-xs font-mono tracking-widest text-white/60">
-            0{selectedImage + 1} / 0{images.length}
+            {String(selectedImage + 1).padStart(2, "0")} /{" "}
+            {String(images.length).padStart(2, "0")}
           </span>
         </div>
 
-        <div 
+        <div
           className="relative w-full h-[65vh] flex items-center justify-center my-auto cursor-grab active:cursor-grabbing touch-pan-y"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -159,7 +197,7 @@ export default function ProductGallery({ isMobile = false }) {
           onMouseMove={handleTouchMove}
           onMouseUp={handleTouchEnd}
         >
-          <button 
+          <button
             type="button"
             onClick={handlePrev}
             className="absolute right-2 sm:right-8 z-10 p-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white backdrop-blur-md transition-all cursor-pointer active:scale-95"
@@ -168,14 +206,14 @@ export default function ProductGallery({ isMobile = false }) {
           </button>
 
           <div className="w-full h-full flex items-center justify-center p-2">
-            <img 
-              src={images[selectedImage]} 
-              alt="نمای بزرگ محصول" 
+            <img
+              src={images[selectedImage]}
+              alt={product?.title || "نمای بزرگ محصول"}
               className="max-w-full max-h-full h-full w-auto object-contain select-none pointer-events-none"
             />
           </div>
 
-          <button 
+          <button
             type="button"
             onClick={handleNext}
             className="absolute left-2 sm:left-8 z-10 p-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-white/80 hover:text-white backdrop-blur-md transition-all cursor-pointer active:scale-95"
@@ -184,7 +222,7 @@ export default function ProductGallery({ isMobile = false }) {
           </button>
         </div>
 
-        <div className="flex items-center justify-center gap-2 z-10 pb-2">
+        <div className="flex items-center justify-center gap-2 z-10 pb-2 overflow-x-auto">
           {images.map((img, idx) => (
             <button
               key={idx}
@@ -196,7 +234,11 @@ export default function ProductGallery({ isMobile = false }) {
                   : "border-white/10 bg-black/20 opacity-40 hover:opacity-80"
               }`}
             >
-              <img src={img} alt="thumb" className="w-full h-full object-cover rounded-lg pointer-events-none" />
+              <img
+                src={img}
+                alt="thumb"
+                className="w-full h-full object-cover rounded-lg pointer-events-none"
+              />
             </button>
           ))}
         </div>

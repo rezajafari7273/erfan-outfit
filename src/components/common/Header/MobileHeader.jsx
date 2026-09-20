@@ -10,6 +10,8 @@ import Backdrop from '@/components/ui/Backdrop';
 import PromotionRenderer from '@/components/promotions/PromotionRenderer';
 import AuthModal from '@/features/auth/components/AuthModal';
 
+// ایمپورت کامپوننت دکمه کاربر
+import UserAuthButton from '@/features/auth/components/UserAuthButton';
 
 import {
   UserIcon,
@@ -38,9 +40,6 @@ import {
   ArrowLeftStartOnRectangleIcon,
 } from '@heroicons/react/24/outline';
 
-/* ==========================================================================
-   داده‌ها و تنظیمات شبکه‌های اجتماعی
-   ========================================================================== */
 const SOCIAL_NETWORKS = {
   primary: [
     {
@@ -162,9 +161,6 @@ const SIZE_MAP = {
   lg: { button: "w-12 h-12 rounded-2xl", icon: "w-5 h-5", gap: "gap-4" },
 };
 
-/* ==========================================================================
-   کامپوننت آیکون‌های شبکه‌های اجتماعی (SocialLinks)
-   ========================================================================== */
 function SocialLinks({ size = "md", className = "" }) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -262,16 +258,10 @@ function SocialLinks({ size = "md", className = "" }) {
   );
 }
 
-/* ==========================================================================
-   کامپوننت اصلی MobileHeader
-   ========================================================================== */
 export default function MobileHeader() {
   const [isOpen, setIsOpen] = useState(false);
-  
-  // ۲. استیت باز/بسته بودن مودال ورود
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  // استیت آکاردئون‌ها
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [isCustomerServicesOpen, setIsCustomerServicesOpen] = useState(false);
 
@@ -286,7 +276,6 @@ export default function MobileHeader() {
     };
   }, [isOpen]);
 
-  // دسترسی سریع
   const quickAccessItems = [
     { title: 'شگفت‌انگیزها', icon: SparklesIcon, href: '/promotions', color: 'text-rose-500', bg: 'bg-rose-50' },
     { title: 'پرفروش‌ترین‌ها', icon: FireIcon, href: '/best-sellers', color: 'text-amber-500', bg: 'bg-amber-50' },
@@ -296,7 +285,6 @@ export default function MobileHeader() {
     { title: 'همکاری', icon: UserPlusIcon, href: '/cooperation', color: 'text-cyan-500', bg: 'bg-cyan-50' },
   ];
 
-  // آیتم‌های خدمات مشتریان
   const customerServiceItems = [
     { title: 'سوالات متداول', icon: QuestionMarkCircleIcon, href: '/faq', color: 'text-blue-500', bg: 'bg-blue-50' },
     { title: 'شرایط و ضوابط', icon: DocumentTextIcon, href: '/terms', color: 'text-purple-500', bg: 'bg-purple-50' },
@@ -304,7 +292,6 @@ export default function MobileHeader() {
     { title: 'راهنمای خرید', icon: ShoppingBagIcon, href: '/buying-guide', color: 'text-emerald-500', bg: 'bg-emerald-50' },
   ];
 
-  // کالکشن‌ها
   const collections = [
     { code: 'WIN', title: 'کالکشن زمستانه', desc: 'جدیدترین مدل‌های فصل', href: '#' },
     { code: 'CAS', title: 'استایل کژوال', desc: 'راحت و کاربردی', href: '#' },
@@ -312,7 +299,6 @@ export default function MobileHeader() {
     { code: 'BIG', title: 'سایز بزرگ', desc: 'تنوع بالا و سایزبندی کامل', href: '#' },
   ];
 
-  // محبوب‌ترین دسته‌ها
   const popularCategories = [
     'کتانی مردانه',
     'مانتو تابستانی',
@@ -322,7 +308,6 @@ export default function MobileHeader() {
     'کاپشن دخترانه',
   ];
 
-  // پرطرفدارترین استایل‌ها
   const popularStyles = [
     { title: 'استایل خیابانی (Streetwear)', href: '#' },
     { title: 'استایل مینیمال (Minimalist)', href: '#' },
@@ -348,15 +333,8 @@ export default function MobileHeader() {
             <Logo width={110} height={33} priority={true} />
           </div>
 
-          {/* ۳. دکمه آیکون ورود بالا (جایگزین Link با button) */}
-          <button
-            type="button"
-            onClick={() => setIsAuthModalOpen(true)}
-            aria-label="ورود / پروفایل کاربر"
-            className="p-2.5 rounded-2xl border border-gray-200/60 bg-gray-50 text-gray-800 hover:bg-gray-100 active:scale-95 transition-all cursor-pointer"
-          >
-            <UserIcon className="w-5 h-5 stroke-[1.8]" />
-          </button>
+          {/* دکمه آیکونی ورود / پروفایل در نوار بالایی موبایل */}
+          <UserAuthButton onOpenAuthModal={() => setIsAuthModalOpen(true)} />
         </div>
 
         {/* جستجو */}
@@ -686,30 +664,18 @@ export default function MobileHeader() {
 
           {/* Footer Drawer */}
           <div className="p-4 bg-white border-t border-gray-200/60 shrink-0">
-            {/* ۴. دکمه اصلی ورود در انتهای کشو (بستن کشو و باز کردن مودال) */}
-            <button
-              type="button"
-              onClick={() => {
+            {/* دکمه ورود/پروفایل در انتهای کشوی موبایل */}
+            <UserAuthButton
+              onOpenAuthModal={() => {
                 setIsOpen(false);
                 setIsAuthModalOpen(true);
               }}
-              className="w-full p-4 rounded-[2rem] border border-secondary/10 bg-primary/20 text-primary flex items-center justify-between group transition-all active:scale-95 cursor-pointer"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30 shrink-0">
-                  <UserIcon className="w-6 h-6 stroke-[1.8]" />
-                </div>
-                <div>
-                  <span className="block font-black text-lg">ورود یا ثبت‌نام در سایت</span>
-                </div>
-              </div>
-              <ArrowLeftStartOnRectangleIcon className="w-5 h-5 opacity-80 group-hover:-translate-x-1 transition-transform shrink-0" />
-            </button>
+            />
           </div>
         </aside>
       </header>
 
-      {/* ۵. کامپوننت مودال ورود */}
+      {/* کامپوننت مودال ورود */}
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}

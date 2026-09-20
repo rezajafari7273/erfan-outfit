@@ -9,6 +9,10 @@ import PromotionRenderer from "@/components/promotions/PromotionRenderer";
 import Footer from "@/components/common/Footer/Footer";
 import { BreadcrumbProvider } from "@/context/BreadcrumbContext";
 import GlobalBreadcrumb from "@/components/common/Breadcrumb/GlobalBreadcrumb";
+import { AuthProvider } from "@/features/auth/context/AuthContext";
+
+// دقت کنید: حتماً داخل {} و با آدرس صحیح ایمپورت شود
+import { ProductProvider } from "@/features/products/context/ProductContext"; 
 
 export default function RootLayout({ children }) {
   return (
@@ -29,28 +33,31 @@ export default function RootLayout({ children }) {
           zIndex={1600}
           shadow="0 0 10px #6f0000, 0 0 5px #6f0000"
         />
-        <PromotionProvider>
-          <BreadcrumbProvider>
-            {/* Header */}
-            <div className="contents lg:block lg:header-wrapper lg:sticky lg:top-0 lg:z-50">        
-              <div className="relative z-30">
-                <PromotionRenderer type="topBanner" />
-              </div>
+        <AuthProvider>
+          <PromotionProvider>
+            <ProductProvider>
+              <BreadcrumbProvider>
+                {/* Header */}
+                <div className="contents lg:block lg:header-wrapper lg:sticky lg:top-0 lg:z-50">        
+                  <div className="relative z-30">
+                    <PromotionRenderer type="topBanner" />
+                  </div>
 
-              <div className="sticky top-0 z-30 lg:static lg:z-auto">
-                <Header />
-              </div>
-            </div>
+                  <div className="sticky top-0 z-30 lg:static lg:z-auto">
+                    <Header />
+                  </div>
+                </div>
 
-            
-            <GlobalBreadcrumb />
+                <GlobalBreadcrumb />
 
-            <main>{children}</main>
+                <main>{children}</main>
 
-            <Footer />
-            <MobileBottomNav />
-          </BreadcrumbProvider>
-        </PromotionProvider>
+                <Footer />
+                <MobileBottomNav />
+              </BreadcrumbProvider>
+            </ProductProvider>
+          </PromotionProvider>
+        </AuthProvider>
       </body>
     </html>
   );

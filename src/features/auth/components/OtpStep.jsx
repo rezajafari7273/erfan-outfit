@@ -16,6 +16,8 @@ export default function OtpStep({
   onBack,
   onResend,
   formatTime,
+  loading,
+  error,
 }) {
   return (
     <form onSubmit={onVerify} className="flex flex-col items-center text-center">
@@ -56,12 +58,15 @@ export default function OtpStep({
         ))}
       </div>
 
+      {error && <p className="text-xs text-rose-500 mb-4">{error}</p>}
+
       {/* دکمه تایید و ورود */}
       <Button
         type="submit"
         variant="primary"
         size="lg"
-        disabled={otp.length < 5 || otp.some((digit) => !digit)}
+        disabled={otp.length < 5 || otp.some((digit) => !digit) || loading}
+        isLoading={loading}
         className="w-full !bg-emerald-600 hover:!bg-emerald-700 shadow-emerald-600/20"
       >
         تایید و ورود
@@ -76,6 +81,7 @@ export default function OtpStep({
           <button
             type="button"
             onClick={onResend}
+            disabled={loading}
             className="text-rose-600 font-bold hover:underline cursor-pointer"
           >
             ارسال مجدد کد

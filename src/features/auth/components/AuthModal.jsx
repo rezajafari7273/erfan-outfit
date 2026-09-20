@@ -3,25 +3,27 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-
-// ۱. ایمپورت کامپوننت Backdrop اختصاصی شما
+import { cartApi } from "@/features/cart/api/cartApi";
 import Backdrop from "@/components/ui/Backdrop";
-
 import PhoneStep from "./PhoneStep";
 import OtpStep from "./OtpStep";
 
+import { authApi } from "../api/authApi";
+import { useAuthContext } from "../context/AuthContext";
+
 export default function AuthModal({ isOpen, onClose }) {
+  const { login } = useAuthContext(); // ✅ دریافت تابع login اصلی از Context
+
   const [step, setStep] = useState(1);
   const [phoneNumber, setPhoneNumber] = useState("");
-  // اصلاح به ۵ خانه خالی
   const [otp, setOtp] = useState(["", "", "", "", ""]);
   const [timer, setTimer] = useState(120);
   const [isTimerActive, setIsTimerActive] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // اصلاح مراجع ۵‌تایی
   const inputRefs = [useRef(), useRef(), useRef(), useRef(), useRef()];
 
-  // ریست کردن استیت‌ها هنگام بسته‌شدن مودال
   const handleClose = () => {
     onClose();
     setTimeout(() => {
@@ -29,6 +31,8 @@ export default function AuthModal({ isOpen, onClose }) {
       setPhoneNumber("");
       setOtp(["", "", "", "", ""]);
       setIsTimerActive(false);
+      setError("");
+      setLoading(false);
     }, 300);
   };
 
@@ -42,17 +46,26 @@ export default function AuthModal({ isOpen, onClose }) {
     return () => clearInterval(interval);
   }, [isTimerActive, timer]);
 
-  const handlePhoneSubmit = (e) => {
-      e.preventDefault();
-      if (phoneNumber.length >= 10) {
+  const handlePhoneSubmit = async (e) => {
+    e.preventDefault();
+    if (phoneNumber.length >= 10) {
+      setLoading(true);
+      setError("");
+      try {
+        await authApi.sendOtp(phoneNumber);
         setStep(2);
         setTimer(120);
         setIsTimerActive(true);
         setTimeout(() => {
           inputRefs[0].current?.focus();
         }, 100);
+      } catch (err) {
+        setError(err?.message || err?.detail || "خطا در ارسال کد تایید");
+      } finally {
+        setLoading(false);
       }
-    };
+    }
+  };
 
   const handleOtpChange = (index, value) => {
     if (isNaN(value)) return;
@@ -60,7 +73,6 @@ export default function AuthModal({ isOpen, onClose }) {
     newOtp[index] = value.substring(value.length - 1);
     setOtp(newOtp);
 
-    // انتقال فوکوس تا خانه پنجم (اندیس ۴)
     if (value && index < 4) {
       inputRefs[index + 1].current?.focus();
     }
@@ -72,20 +84,59 @@ export default function AuthModal({ isOpen, onClose }) {
     }
   };
 
-  const handleVerifyOtp = (e) => {
-    e.preventDefault();
-    const fullCode = otp.join("");
-    // بررسی طول کد ۵ رقمی
-    if (fullCode.length === 5) {
-      handleClose();
-    }
-  };
+const handleVerifyOtp = async (e) => {
+  e.preventDefault();
+  const fullCode = otp.join("");
 
-  const handleResendCode = () => {
-    setTimer(120);
-    setIsTimerActive(true);
-    setOtp(["", "", "", "", ""]);
-    inputRefs[0].current?.focus();
+  if (fullCode.length === 5) {
+    setLoading(true);
+    setError("");
+    try {
+      const guestSessionKey =
+        typeof window !== "undefined"
+          ? localStorage.getItem("guestSessionKey")
+          : null;
+
+      const res = await authApi.verifyOtp(phoneNumber, fullCode);
+      const tokens = res?.data || res;
+      await login(tokens);
+
+      // merge سبد مهمان با کاربر
+      if (guestSessionKey && typeof window !== "undefined") {
+        try {
+          await cartApi.mergeGuestCart(guestSessionKey);
+          localStorage.removeItem("guestSessionKey");
+        } catch (e) {
+          console.error("[MERGE CART]", e);
+        }
+      }
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("cart:updated"));
+      }
+
+      handleClose();
+    } catch (err) {
+      setError(err?.message || err?.detail || "کد وارد شده اشتباه است");
+    } finally {
+      setLoading(false);
+    }
+  }
+};
+  const handleResendCode = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      await authApi.sendOtp(phoneNumber);
+      setTimer(120);
+      setIsTimerActive(true);
+      setOtp(["", "", "", "", ""]);
+      inputRefs[0].current?.focus();
+    } catch (err) {
+      setError(err?.message || err?.detail || "خطا در ارسال مجدد کد");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const formatTime = (seconds) => {
@@ -98,7 +149,7 @@ export default function AuthModal({ isOpen, onClose }) {
     <Backdrop
       isOpen={isOpen}
       onClose={handleClose}
-      zIndex="z-50"
+      zIndex="z-[10000]"
       className="flex items-center justify-center p-4 overflow-hidden"
       dir="rtl"
     >
@@ -112,7 +163,6 @@ export default function AuthModal({ isOpen, onClose }) {
             onClick={(e) => e.stopPropagation()}
             className="relative w-full max-w-sm bg-white/95 backdrop-blur-xl border border-white/50 rounded-3xl shadow-2xl p-6 overflow-hidden z-10"
           >
-            {/* دکمه بستن */}
             <button
               type="button"
               onClick={handleClose}
@@ -121,7 +171,6 @@ export default function AuthModal({ isOpen, onClose }) {
               <XMarkIcon className="w-5 h-5" />
             </button>
 
-            {/* انیمیشن سوییچ فرم‌ها */}
             <AnimatePresence mode="wait">
               {step === 1 ? (
                 <motion.div
@@ -135,6 +184,8 @@ export default function AuthModal({ isOpen, onClose }) {
                     phoneNumber={phoneNumber}
                     setPhoneNumber={setPhoneNumber}
                     onSubmit={handlePhoneSubmit}
+                    loading={loading}
+                    error={error}
                   />
                 </motion.div>
               ) : (
@@ -154,9 +205,14 @@ export default function AuthModal({ isOpen, onClose }) {
                     onOtpChange={handleOtpChange}
                     onKeyDown={handleKeyDown}
                     onVerify={handleVerifyOtp}
-                    onBack={() => setStep(1)}
+                    onBack={() => {
+                      setError("");
+                      setStep(1);
+                    }}
                     onResend={handleResendCode}
                     formatTime={formatTime}
+                    loading={loading}
+                    error={error}
                   />
                 </motion.div>
               )}

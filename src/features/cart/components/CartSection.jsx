@@ -5,49 +5,62 @@ import FreeShippingBar from "./FreeShippingBar";
 import CartItemCard from "./CartItemCard";
 import CartSummary from "./CartSummary";
 import EmptyCart from "./EmptyCart";
-import { initialCartItems, FREE_SHIPPING_THRESHOLD } from "../mocks/cartMockData";
+import { useCart } from "../hooks/useCart";
+
+const FREE_SHIPPING_THRESHOLD = 1500000;
 
 export default function CartSection() {
-  const [cartItems, setCartItems] = useState(initialCartItems);
+  const {
+    items,
+    totalItemsCount,
+    finalPrice,
+    loading,
+    error,
+    updateItem,
+    removeItem,
+  } = useCart();
+
   const [appliedDiscount, setAppliedDiscount] = useState(0);
 
-  const totalItemsCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-  
-  const rawTotalPrice = cartItems.reduce(
-    (acc, item) => acc + item.originalPrice * item.quantity,
+  const normalizedItems = items.map((it) => ({
+    id: it.id,
+    title: it.product_title,
+    slug: it.product_slug,
+    color: it.color_name || "—",
+    size: (it.sizes || []).join("، ") || "—",
+    seller: "",
+    image: it.image,
+    quantity: it.quantity,
+    price: Number(it.final_price) / (it.quantity || 1),
+  }));
+
+  const rawTotalPrice = normalizedItems.reduce(
+    (acc, i) => acc + i.price * i.quantity,
     0
   );
-
-  const totalDiscount = cartItems.reduce(
-    (acc, item) => acc + (item.originalPrice - item.price) * item.quantity,
-    0
-  );
-
-  const finalPrice = rawTotalPrice - totalDiscount - appliedDiscount;
+  const totalDiscount = 0;
+  const payable = rawTotalPrice - appliedDiscount;
 
   const progressPercent = Math.min(
     100,
-    Math.round((finalPrice / FREE_SHIPPING_THRESHOLD) * 100)
+    Math.round((payable / FREE_SHIPPING_THRESHOLD) * 100)
   );
+  const remainingForFreeShipping = FREE_SHIPPING_THRESHOLD - payable;
 
-  const remainingForFreeShipping = FREE_SHIPPING_THRESHOLD - finalPrice;
-
-  const handleIncrease = (id) => {
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
+  const handleIncrease = async (id) => {
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+    await updateItem(id, item.quantity + 1);
   };
 
-  const handleDecrease = (id) => {
-    setCartItems((prev) =>
-      prev
-        .map((item) =>
-          item.id === id ? { ...item, quantity: item.quantity - 1 } : item
-        )
-        .filter((item) => item.quantity > 0)
-    );
+  const handleDecrease = async (id) => {
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+    if (item.quantity <= 1) {
+      await removeItem(id);
+    } else {
+      await updateItem(id, item.quantity - 1);
+    }
   };
 
   const handleApplyCoupon = (code) => {
@@ -58,7 +71,23 @@ export default function CartSection() {
     }
   };
 
-  if (cartItems.length === 0) {
+  if (loading) {
+    return (
+      <div className="w-full max-w-6xl mx-auto p-8 text-center text-gray-500 font-bold">
+        در حال بارگذاری سبد خرید...
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full max-w-6xl mx-auto p-8 text-center text-rose-500 font-bold">
+        {error}
+      </div>
+    );
+  }
+
+  if (normalizedItems.length === 0) {
     return <EmptyCart />;
   }
 
@@ -81,7 +110,7 @@ export default function CartSection() {
           </div>
 
           <div className="space-y-3">
-            {cartItems.map((item) => (
+            {normalizedItems.map((item) => (
               <CartItemCard
                 key={item.id}
                 item={item}
@@ -97,7 +126,7 @@ export default function CartSection() {
             totalItemsCount={totalItemsCount}
             rawTotalPrice={rawTotalPrice}
             totalDiscount={totalDiscount}
-            finalPrice={finalPrice}
+            finalPrice={payable}
             isFreeShipping={remainingForFreeShipping <= 0}
             onApplyCoupon={handleApplyCoupon}
             appliedDiscount={appliedDiscount}
@@ -106,4 +135,4 @@ export default function CartSection() {
       </div>
     </div>
   );
-}
+} 

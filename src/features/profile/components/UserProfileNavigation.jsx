@@ -1,14 +1,21 @@
 "use client";
 
-import { 
-  ShoppingBagIcon, 
-  MapPinIcon, 
-  HeartIcon, 
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import {
+  ShoppingBagIcon,
+  MapPinIcon,
+  HeartIcon,
   UserIcon,
-  ArrowLeftStartOnRectangleIcon
+  ArrowLeftStartOnRectangleIcon,
 } from "@heroicons/react/24/outline";
+import { useAuthContext } from "@/features/auth/context/AuthContext";
 
 export default function UserProfileNavigation({ activeTab, setActiveTab }) {
+  const router = useRouter();
+  const { logout } = useAuthContext();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
   const navItems = [
     { id: "orders", label: "سفارش‌های من", icon: ShoppingBagIcon },
     { id: "addresses", label: "آدرس‌های ثبت‌شده", icon: MapPinIcon },
@@ -16,12 +23,31 @@ export default function UserProfileNavigation({ activeTab, setActiveTab }) {
     { id: "account", label: "اطلاعات حساب", icon: UserIcon },
   ];
 
+const handleLogout = async () => {
+  if (isLoggingOut) return;
+  if (!confirm("آیا از خروج از حساب کاربری مطمئن هستید؟")) return;
+
+  setIsLoggingOut(true);
+  try {
+    await logout();
+
+    // ← این را اضافه کن:
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("cart:updated"));
+    }
+
+    router.push("/");
+    router.refresh();
+  } catch (err) {
+    console.error("خطا در خروج:", err);
+  } finally {
+    setIsLoggingOut(false);
+  }
+};
+
   return (
     <div className="w-full">
-      {/* باکس اصلی با استایل شیشه‌ای (Glassmorphic) و بردر الگوی BuyBox */}
-      <div className="border border-secondary/15 rounded-3xl p-5 bg-surface/60 backdrop-blur-md shadow-xs">
-        
-        {/* هدر باکس */}
+      <div className="border border-secondary/15 rounded-3xl p-5 bg-surface/60 backdrop-blur-md shadow-xs select-none">
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-secondary/10">
           <span className="font-bold text-sm text-gray-800">منوی کاربری</span>
           <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">
@@ -29,7 +55,6 @@ export default function UserProfileNavigation({ activeTab, setActiveTab }) {
           </span>
         </div>
 
-        {/* آیتم‌های ناوبری */}
         <div className="space-y-1.5">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -40,34 +65,42 @@ export default function UserProfileNavigation({ activeTab, setActiveTab }) {
                 key={item.id}
                 type="button"
                 onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-all cursor-pointer outline-none focus:outline-none select-none [-webkit-tap-highlight-color:transparent] ${
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl text-xs font-bold transition-colors duration-150 cursor-pointer outline-none select-none [-webkit-tap-highlight-color:transparent] border border-transparent ${
                   isActive
-                    ? "bg-primary text-white shadow-xs"
-                    : "bg-transparent text-gray-700 hover:bg-secondary/10 hover:text-gray-900 border border-transparent"
+                    ? "bg-primary text-white"
+                    : "bg-transparent text-gray-700 hover:bg-secondary/10 hover:text-gray-900"
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  <Icon className={`w-5 h-5 stroke-1.5 ${isActive ? "text-white" : "text-primary"}`} />
+                  <Icon
+                    className={`w-5 h-5 stroke-1.5 transition-colors ${
+                      isActive ? "text-white" : "text-secondary"
+                    }`}
+                  />
                   <span>{item.label}</span>
                 </div>
-                
-                <span className={`w-1.5 h-1.5 rounded-full ${isActive ? "bg-white" : "bg-transparent"}`} />
+
+                <span
+                  className={`w-1.5 h-1.5 rounded-full transition-opacity ${
+                    isActive ? "bg-white opacity-100" : "opacity-0"
+                  }`}
+                />
               </button>
             );
           })}
         </div>
 
-        {/* دکمه خروج */}
         <div className="pt-3 mt-3 border-t border-secondary/10">
           <button
             type="button"
-            className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs font-bold text-rose-600 hover:bg-rose-50/60 transition-all cursor-pointer outline-none select-none [-webkit-tap-highlight-color:transparent]"
+            onClick={handleLogout}
+            disabled={isLoggingOut}
+            className="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs font-bold text-rose-600 hover:bg-rose-50/60 transition-colors cursor-pointer outline-none select-none [-webkit-tap-highlight-color:transparent] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ArrowLeftStartOnRectangleIcon className="w-5 h-5 stroke-1.5 shrink-0" />
-            <span>خروج از حساب کاربری</span>
+            <span>{isLoggingOut ? "در حال خروج..." : "خروج از حساب کاربری"}</span>
           </button>
         </div>
-
       </div>
     </div>
   );

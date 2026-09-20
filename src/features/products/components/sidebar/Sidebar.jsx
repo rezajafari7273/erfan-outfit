@@ -8,6 +8,7 @@ import {
   AdjustmentsHorizontalIcon,
   Squares2X2Icon,
   ArrowsUpDownIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 
 // ایمپورت کامپوننت‌های پایه
@@ -20,6 +21,7 @@ import SizeFilter from "./filters/SizeFilter";
 import VideoPlayerWidget from "./VideoPlayerWidget";
 
 export default function Sidebar({
+  filters = {},
   activeVideo,
   onCloseVideo,
   onCategoryChange,
@@ -28,11 +30,10 @@ export default function Sidebar({
   onSizeChange,
   currentSort = "newest",
   onSortChange,
+  onResetFilters,
 }) {
-  // مدیریت وضعیت باتن‌شیت‌های موبایل
-  const [activeSheet, setActiveSheet] = useState(null); // null | 'all' | 'sort' | 'category' | 'color' | 'price' | 'size'
+  const [activeSheet, setActiveSheet] = useState(null);
 
-  // عناوین باتن‌شیت‌ها
   const sheetTitles = {
     all: "همه فیلترها",
     sort: "مرتب‌سازی محصولات",
@@ -50,38 +51,70 @@ export default function Sidebar({
     { id: "expensive", label: "گران‌ترین" },
   ];
 
+  // بررسی فعال بودن حداقل یک فیلتر
+  const hasActiveFilters = Boolean(
+    filters.category ||
+      filters.colors ||
+      filters.sizes ||
+      filters.price_min ||
+      filters.price_max
+  );
+
   return (
     <>
       {/* ========================================== */}
-      {/* ۱. حالت دسکتاپ (فقط در lg به بالا) */}
+      {/* ۱. حالت دسکتاپ */}
       {/* ========================================== */}
       <aside className="hidden lg:flex flex-col gap-4 w-72 shrink-0">
         <VideoPlayerWidget activeVideo={activeVideo} onCloseVideo={onCloseVideo} />
 
+        {/* دکمه پاک‌سازی فیلترها در دسکتاپ */}
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={onResetFilters}
+            className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-2xl text-xs font-bold transition-colors cursor-pointer"
+          >
+            <TrashIcon className="w-4 h-4" />
+            <span>پاک‌سازی همه فیلترها</span>
+          </button>
+        )}
+
         <FilterAccordion title="دسته‌بندی‌ها" icon={TagIcon}>
-          <CategoryFilter onCategoryChange={onCategoryChange} />
+          <CategoryFilter
+            selectedCategorySlug={filters.category}
+            onCategoryChange={onCategoryChange}
+          />
         </FilterAccordion>
 
         <FilterAccordion title="محدوده قیمت" icon={CurrencyDollarIcon}>
-          <PriceFilter onPriceChange={onPriceChange} />
+          <PriceFilter
+            selectedPrice={filters.price}
+            onPriceChange={onPriceChange}
+          />
         </FilterAccordion>
 
         <FilterAccordion title="انتخاب رنگ" icon={SwatchIcon}>
-          <ColorFilter onColorChange={onColorChange} />
+          <ColorFilter
+            selectedColors={filters.colors}
+            onColorChange={onColorChange}
+          />
         </FilterAccordion>
 
         <FilterAccordion title="انتخاب سایز" icon={Squares2X2Icon}>
-          <SizeFilter onSizeChange={onSizeChange} />
+          <SizeFilter
+            selectedSizes={filters.sizes}
+            onSizeChange={onSizeChange}
+          />
         </FilterAccordion>
       </aside>
 
       {/* ========================================== */}
-      {/* ۲. حالت موبایل (تک ردیف اسکرولی با دکمه‌های کپسولی) */}
+      {/* ۲. حالت موبایل */}
       {/* ========================================== */}
-      <div className="lg:hidden w-full ">
+      <div className="lg:hidden w-full">
         <div className="flex items-center gap-2 overflow-x-auto pb-2 px-1 no-scrollbar scroll-smooth">
-          
-          {/* ۱. دکمه فیلترها */}
+          {/* دکمه فیلترها */}
           <button
             type="button"
             onClick={() => setActiveSheet("all")}
@@ -89,9 +122,12 @@ export default function Sidebar({
           >
             <AdjustmentsHorizontalIcon className="w-4 h-4 text-white" />
             <span>فیلترها</span>
+            {hasActiveFilters && (
+              <span className="w-2 h-2 rounded-full bg-rose-500" />
+            )}
           </button>
 
-          {/* ۲. دکمه مرتب‌سازی */}
+          {/* دکمه مرتب‌سازی */}
           <button
             type="button"
             onClick={() => setActiveSheet("sort")}
@@ -101,7 +137,18 @@ export default function Sidebar({
             <span>مرتب‌سازی</span>
           </button>
 
-          {/* ۳. دکمه‌های تکی (پشت سر هم) */}
+          {/* دکمه پاک‌سازی سریع در نوار موبایل */}
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={onResetFilters}
+              className="flex items-center gap-1 px-3 py-2 bg-rose-50 text-rose-600 border border-rose-200 rounded-full text-xs font-bold shrink-0 shadow-xs cursor-pointer active:scale-95 transition-transform"
+            >
+              <TrashIcon className="w-3.5 h-3.5" />
+              <span>حذف فیلترها</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => setActiveSheet("category")}
@@ -121,7 +168,7 @@ export default function Sidebar({
           <button
             type="button"
             onClick={() => setActiveSheet("price")}
-            className="px-4 py-2 bg-white text-stone-700 border border-stone-200 rounded-full text-xs font-medium shrink-0 cursor-pointer active:scale-95 transition-transform"
+            className="px-4 py-2 bg-white text-stone-700 border border-stone-200 rounded-full text-xs font-medium shrink-0 shadow-xs cursor-pointer active:scale-95 transition-transform"
           >
             قیمت
           </button>
@@ -133,7 +180,6 @@ export default function Sidebar({
           >
             سایز
           </button>
-
         </div>
 
         {/* ========================================== */}
@@ -142,25 +188,51 @@ export default function Sidebar({
         <BottomSheet
           isOpen={activeSheet !== null}
           onClose={() => setActiveSheet(null)}
-          title={sheetTitles[activeSheet]}
+          title={sheetTitles[activeSheet] || ""}
         >
-          {/* حالت ۱: همه فیلترها (آکاردئونی) */}
+          {/* حالت ۱: همه فیلترها */}
           {activeSheet === "all" && (
             <div className="space-y-4">
+              {hasActiveFilters && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onResetFilters();
+                    setActiveSheet(null);
+                  }}
+                  className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-rose-50 text-rose-600 rounded-2xl text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <TrashIcon className="w-4 h-4" />
+                  <span>حذف همه فیلترها</span>
+                </button>
+              )}
+
               <FilterAccordion title="دسته‌بندی‌ها" icon={TagIcon}>
-                <CategoryFilter onCategoryChange={onCategoryChange} />
+                <CategoryFilter
+                  selectedCategorySlug={filters.category}
+                  onCategoryChange={onCategoryChange}
+                />
               </FilterAccordion>
 
               <FilterAccordion title="محدوده قیمت" icon={CurrencyDollarIcon}>
-                <PriceFilter onPriceChange={onPriceChange} />
+                <PriceFilter
+                  selectedPrice={filters.price}
+                  onPriceChange={onPriceChange}
+                />
               </FilterAccordion>
 
               <FilterAccordion title="انتخاب رنگ" icon={SwatchIcon}>
-                <ColorFilter onColorChange={onColorChange} />
+                <ColorFilter
+                  selectedColors={filters.colors}
+                  onColorChange={onColorChange}
+                />
               </FilterAccordion>
 
               <FilterAccordion title="انتخاب سایز" icon={Squares2X2Icon}>
-                <SizeFilter onSizeChange={onSizeChange} />
+                <SizeFilter
+                  selectedSizes={filters.sizes}
+                  onSizeChange={onSizeChange}
+                />
               </FilterAccordion>
             </div>
           )}
@@ -188,11 +260,33 @@ export default function Sidebar({
             </div>
           )}
 
-          {/* حالت‌های تکی (بدون آکاردئون) */}
-          {activeSheet === "category" && <CategoryFilter onCategoryChange={onCategoryChange} />}
-          {activeSheet === "color" && <ColorFilter onColorChange={onColorChange} />}
-          {activeSheet === "price" && <PriceFilter onPriceChange={onPriceChange} />}
-          {activeSheet === "size" && <SizeFilter onSizeChange={onSizeChange} />}
+          {/* حالت‌های تکی */}
+          {activeSheet === "category" && (
+            <CategoryFilter
+              selectedCategorySlug={filters.category}
+              onCategoryChange={onCategoryChange}
+            />
+          )}
+
+          {activeSheet === "color" && (
+            <ColorFilter
+              selectedColors={filters.colors}
+              onColorChange={onColorChange}
+            />
+          )}
+
+          {activeSheet === "price" && (
+            <PriceFilter
+              selectedPrice={filters.price}
+              onPriceChange={onPriceChange}
+            />
+          )}
+          {activeSheet === "size" && (
+            <SizeFilter
+              selectedSizes={filters.sizes}
+              onSizeChange={onSizeChange}
+            />
+          )}
         </BottomSheet>
       </div>
     </>

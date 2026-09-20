@@ -252,7 +252,7 @@ export default function SuggestedProductsSlider() {
     <section className="w-full pt-6 space-y-4">
       {/* هدر کامپوننت پیشنهاد شده با گرادینت و آیکون متمایز */}
       <div className="relative flex items-center gap-2.5 sm:gap-3.5 z-10 shrink-0  pb-2 border-b border-cart-boarder/60">
-        <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-md sm:rounded-2xl bg-gradient-to-tr from-primary to-rose-900 flex items-center justify-center shadow-md shadow-amber-500/20 shrink-0">
+        <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-md sm:rounded-2xl bg-gradient-to-tr from-primary to-rose-900 flex items-center justify-center shadow-md shadow-amber-500/20 shrink-0">
           <SparklesIcon className="w-4 h-4 sm:w-5 sm:h-5 stroke-[2.2] text-amber-600" />
         </div>
 

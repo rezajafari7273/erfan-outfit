@@ -18,16 +18,25 @@ export default function VideoPlayerWidget({ activeVideo, onCloseVideo }) {
     }
   }, [activeVideo]);
 
+  // اصلاح آدرس ویدیو برای اطمینان از وجود دامین کامل
+  const getVideoUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    return `http://localhost:8000${url}`;
+  };
+
   const renderPlayerContent = () => (
     <div className="relative aspect-[9/16] w-full rounded-2xl overflow-hidden bg-black flex items-center justify-center border border-stone-200/80 shadow-inner">
-      {activeVideo ? (
-        <iframe
+      {activeVideo && activeVideo.videoUrl ? (
+        <video
           key={activeVideo.id || activeVideo.videoUrl}
-          src={activeVideo.videoUrl}
-          title={activeVideo.title || "ویدیوی محصول"}
+          src={getVideoUrl(activeVideo.videoUrl)}
+          controls
+          autoPlay
+          playsInline
           className="w-full h-full object-cover"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
         />
       ) : (
         <div className="flex flex-col items-center justify-center p-4 text-center">

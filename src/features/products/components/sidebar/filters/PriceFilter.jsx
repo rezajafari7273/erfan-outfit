@@ -1,14 +1,26 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-export default function PriceFilter({ min = 0, max = 3000000, onPriceChange }) {
-  const [price, setPrice] = useState(max);
+export default function PriceFilter({
+  min = 0,
+  max = 100000000,
+  initialMax,
+  onPriceChange,
+}) {
+  const startMax = initialMax ?? max;
+  const [price, setPrice] = useState(startMax);
+
+  useEffect(() => {
+    setPrice(startMax);
+  }, [startMax]);
 
   const handleChange = (e) => {
     const value = Number(e.target.value);
     setPrice(value);
-    if (onPriceChange) onPriceChange(value);
+    if (onPriceChange) {
+      onPriceChange({ min, max: value });
+    }
   };
 
   return (
@@ -25,7 +37,9 @@ export default function PriceFilter({ min = 0, max = 3000000, onPriceChange }) {
       <div className="flex items-center justify-between text-xs font-bold text-stone-600">
         <span>تا:</span>
         <div className="flex items-center gap-1 text-stone-900">
-          <span className="text-base font-black">{price.toLocaleString("fa-IR")}</span>
+          <span className="text-base font-black">
+            {price.toLocaleString("fa-IR")}
+          </span>
           <span className="text-[11px] text-stone-500">تومان</span>
         </div>
       </div>

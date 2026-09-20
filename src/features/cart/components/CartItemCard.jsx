@@ -2,11 +2,30 @@
 
 import { PlusIcon, MinusIcon, TrashIcon } from "@heroicons/react/24/outline";
 
+const API_HOST = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1")
+  .replace(/\/api\/v1\/?$/, "");
+
+function resolveImage(url) {
+  if (!url) return null;
+  if (url.startsWith("http")) return url;
+  return `${API_HOST}${url}`;
+}
+
 export default function CartItemCard({ item, onIncrease, onDecrease }) {
+  const imageUrl = resolveImage(item.image);
+
   return (
     <div className="border border-rose-100/80 rounded-3xl p-4 sm:p-5 bg-white/80 backdrop-blur-md shadow-xs transition-all hover:border-rose-200 flex flex-col sm:flex-row gap-4 items-center">
       <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gray-100 overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center text-xs text-gray-400 font-bold">
-        تصویر محصول
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={item.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          "تصویر محصول"
+        )}
       </div>
 
       <div className="flex-1 w-full space-y-2 text-right">
@@ -21,8 +40,6 @@ export default function CartItemCard({ item, onIncrease, onDecrease }) {
           <span className="bg-gray-50 border border-gray-100 px-2 py-0.5 rounded-lg">
             سایز: <span className="text-gray-800">{item.size}</span>
           </span>
-          <span className="text-gray-300">|</span>
-          <span className="text-gray-500">{item.seller}</span>
         </div>
 
         <div className="flex items-center justify-between pt-2 border-t border-gray-100/80">
@@ -53,16 +70,6 @@ export default function CartItemCard({ item, onIncrease, onDecrease }) {
           </div>
 
           <div className="text-left">
-            {item.discountPercent > 0 && (
-              <div className="flex items-center gap-1.5 justify-end">
-                <span className="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full tabular-nums">
-                  {item.discountPercent.toLocaleString("fa-IR")}٪
-                </span>
-                <span className="text-[11px] text-gray-400 line-through tabular-nums">
-                  {(item.originalPrice * item.quantity).toLocaleString("fa-IR")}
-                </span>
-              </div>
-            )}
             <div className="text-sm sm:text-base font-black text-gray-900 tabular-nums">
               {(item.price * item.quantity).toLocaleString("fa-IR")}{" "}
               <span className="text-[10px] text-gray-500 font-bold">تومان</span>
