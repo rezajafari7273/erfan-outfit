@@ -42,73 +42,77 @@ export function ProductProvider({ children }) {
     }
   }, []);
 
-  const fetchProducts = useCallback(
-    async (customFilters = {}) => {
-      const queryParams = { ...filters, ...customFilters };
-      const isFirstPage = queryParams.page === 1 || !queryParams.page;
+  const fetchProducts = useCallback(async (targetFilters) => {
+    const isFirstPage = !targetFilters.page || Number(targetFilters.page) === 1;
 
-      if (isFirstPage) {
-        setLoading(true);
-      } else {
-        setLoadingMore(true);
-      }
-      setError(null);
+    if (isFirstPage) {
+      setLoading(true);
+    } else {
+      setLoadingMore(true);
+    }
+    setError(null);
 
-      try {
-        const cleanParams = {};
-        Object.keys(queryParams).forEach((key) => {
-          const val = queryParams[key];
-          if (val !== "" && val !== null && val !== undefined && val !== false) {
-            cleanParams[key] = val;
-          }
-        });
-
-        const data = await productApi.getProducts(cleanParams);
-
-        if (Array.isArray(data)) {
-          setProducts(data);
-          setProductsCount(data.length);
-          setHasMore(false);
-        } else {
-          const results = data?.results || [];
-          const count = data?.count || 0;
-          setProductsCount(count);
-
-          if (isFirstPage) {
-            setProducts(results);
-          } else {
-            // الحاق به محصولات قبلی
-            setProducts((prev) => [...prev, ...results]);
-          }
-
-          // بررسی وجود صفحه بعدی در پاسخ DRF
-          setHasMore(Boolean(data?.next));
+    try {
+      const cleanParams = {};
+      Object.keys(targetFilters).forEach((key) => {
+        const val = targetFilters[key];
+        if (val !== "" && val !== null && val !== undefined && val !== false) {
+          cleanParams[key] = val;
         }
-      } catch (err) {
-        setError(err || "خطا در دریافت لیست محصولات");
-      } finally {
-        setLoading(false);
-        setLoadingMore(false);
+      });
+
+      const data = await productApi.getProducts(cleanParams);
+
+      if (Array.isArray(data)) {
+        setProducts(data);
+        setProductsCount(data.length);
+        setHasMore(false);
+      } else {
+        const results = data?.results || [];
+        const count = data?.count || 0;
+        setProductsCount(count);
+
+        if (isFirstPage) {
+          setProducts(results);
+        } else {
+          setProducts((prev) => [...prev, ...results]);
+        }
+
+        setHasMore(Boolean(data?.next));
       }
-    },
-    [filters]
-  );
+    } catch (err) {
+      console.error("خطا در دریافت لیست محصولات:", err);
+      setError(err || "خطا در دریافت لیست محصولات");
+    } finally {
+      setLoading(false);
+      setLoadingMore(false);
+    }
+  }, []);
 
-  const updateFilters = (newFilters) => {
+  const updateFilters = useCallback((newFilters) => {
     setFilters((prev) => {
-      const next = { ...prev, ...newFilters, page: newFilters.page || 1 };
-      return next;
-    });
-  };
+      const isPageOnlyChange = Object.keys(newFilters).length === 1 && "page" in newFilters;
+      const updatedPage = isPageOnlyChange ? (newFilters.page || 1) : 1;
 
-  const loadMore = () => {
+      const nextFilters = {
+        ...prev,
+        ...newFilters,
+        page: updatedPage,
+      };
+
+      fetchProducts(nextFilters);
+      return nextFilters;
+    });
+  }, [fetchProducts]);
+
+  const loadMore = useCallback(() => {
     if (!loadingMore && !loading && hasMore) {
       updateFilters({ page: (filters.page || 1) + 1 });
     }
-  };
+  }, [loadingMore, loading, hasMore, filters.page, updateFilters]);
 
-  const resetFilters = () => {
-    setFilters({
+  const resetFilters = useCallback(() => {
+    const initialFilters = {
       page: 1,
       category: "",
       colors: "",
@@ -121,8 +125,10 @@ export function ProductProvider({ children }) {
       style: "",
       gender: "",
       featured: false,
-    });
-  };
+    };
+    setFilters(initialFilters);
+    fetchProducts(initialFilters);
+  }, [fetchProducts]);
 
   const fetchProductDetail = useCallback(async (slug) => {
     setLoading(true);
@@ -140,28 +146,17 @@ export function ProductProvider({ children }) {
   }, []);
 
   const submitReview = async (slug, payload) => {
-    try {
-      return await productApi.submitProductReview(slug, payload);
-    } catch (err) {
-      throw err;
-    }
+    return await productApi.submitProductReview(slug, payload);
   };
 
   const submitQuestion = async (slug, payload) => {
-    try {
-      return await productApi.submitProductQuestion(slug, payload);
-    } catch (err) {
-      throw err;
-    }
+    return await productApi.submitProductQuestion(slug, payload);
   };
 
   useEffect(() => {
     fetchCategories();
-  }, [fetchCategories]);
-
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+    fetchProducts(filters);
+  }, []);
 
   return (
     <ProductContext.Provider

@@ -1,13 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Sidebar from "@/features/products/components/sidebar/Sidebar";
 import ProductCard from "@/features/products/components/ProductCard";
 import SortBar from "@/features/products/components/SortBar";
 import ProductCardSkeleton from "@/features/products/components/ProductCardSkeleton";
 import { useProductContext } from "@/features/products/hooks/useProductContext";
 
-export default function ProductsPage() {
+function ProductsContent() {
+  const searchParams = useSearchParams();
   const [activeVideo, setActiveVideo] = useState(null);
 
   const {
@@ -24,7 +26,35 @@ export default function ProductsPage() {
 
   const observerRef = useRef(null);
 
-  // تشخیص رسیدن کاربر به انتهای صفحه
+  // سینک کردن پارامترهای URL با Context
+  useEffect(() => {
+    const categoryParam = searchParams.get("category") || "";
+    const sortParam = searchParams.get("ordering") || searchParams.get("sort") || "";
+    const minPriceParam = searchParams.get("price_min") || "";
+    const maxPriceParam = searchParams.get("price_max") || "";
+    const colorsParam = searchParams.get("colors") || "";
+    const sizesParam = searchParams.get("sizes") || "";
+
+    if (
+      filters.category !== categoryParam ||
+      filters.ordering !== sortParam ||
+      filters.price_min !== minPriceParam ||
+      filters.price_max !== maxPriceParam ||
+      filters.colors !== colorsParam ||
+      filters.sizes !== sizesParam
+    ) {
+      updateFilters({
+        category: categoryParam,
+        ordering: sortParam,
+        price_min: minPriceParam,
+        price_max: maxPriceParam,
+        colors: colorsParam,
+        sizes: sizesParam,
+      });
+    }
+  }, [searchParams]);
+
+  // Infinite Scroll Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -101,7 +131,7 @@ export default function ProductsPage() {
             <div className="flex items-center gap-2 bg-white px-5 py-3.5 rounded-2xl border border-stone-200/80 shadow-xs text-xs text-stone-500 font-medium">
               <span>تعداد محصولات:</span>
               <span className="font-bold text-stone-900 text-sm">
-                {productsCount} محصول
+                {productsCount || 0} محصول
               </span>
             </div>
           </div>
@@ -109,10 +139,10 @@ export default function ProductsPage() {
           {/* هدر موبایل */}
           <div className="lg:hidden flex items-center justify-between text-xs text-stone-500 mb-4 px-1">
             <span>تعداد محصولات:</span>
-            <span className="font-bold text-stone-900">{productsCount} محصول</span>
+            <span className="font-bold text-stone-900">{productsCount || 0} محصول</span>
           </div>
 
-          {/* لودینگ اولیه: ۸ اسکلتون */}
+          {/* لودینگ اولیه */}
           {loading ? (
             <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 items-start">
               {Array.from({ length: 8 }).map((_, index) => (
@@ -123,22 +153,21 @@ export default function ProductsPage() {
             <>
               {/* گرید اصلی محصولات */}
               <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 items-start">
-                {products.map((product) => (
+                {products.map((product, idx) => (
                   <ProductCard
-                    key={product.id}
+                    key={product.id ? `prod-${product.id}` : `prod-idx-${idx}`}
                     product={product}
                     onPlayVideo={(video) => setActiveVideo(video)}
                   />
                 ))}
 
-                {/* اسکلتون‌های لودینگ اسکرول (۴ عدد جدید در پایین) */}
+                {/* اسکلتون‌های لودینگ اسکرول */}
                 {loadingMore &&
                   Array.from({ length: 4 }).map((_, index) => (
                     <ProductCardSkeleton key={`skeleton-more-${index}`} />
                   ))}
               </main>
 
-              {/* نقطه محرک IntersectionObserver برای صفحه بعد */}
               <div ref={observerRef} className="h-12 w-full mt-4" />
             </>
           ) : (
@@ -149,5 +178,13 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-stone-100 p-8 text-center text-stone-500">در حال بارگذاری...</div>}>
+      <ProductsContent />
+    </Suspense>
   );
 }
