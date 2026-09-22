@@ -2,26 +2,90 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { 
-  Squares2X2Icon, 
-  ShoppingBagIcon, 
-  FolderIcon, 
+import { useState } from 'react';
+import {
+  Squares2X2Icon,
+  ShoppingBagIcon,
+  FolderIcon,
+  SwatchIcon,
+  ArrowsPointingOutIcon,
+  TruckIcon,
   UsersIcon,
-  Cog6ToothIcon 
+  UserGroupIcon,
+  TagIcon,
+  GiftIcon,
+  DocumentTextIcon,
+  CubeIcon,
+  ShieldCheckIcon,
+  ChartBarIcon,
+  EnvelopeIcon,
+  ChevronDownIcon,
+  ChevronLeftIcon,
+  Cog6ToothIcon,
 } from '@heroicons/react/24/outline';
 
-const navItems = [
-  { name: 'داشبورد', href: '/admin-panel', icon: Squares2X2Icon },
-  { name: 'محصولات', href: '/admin-panel/products', icon: ShoppingBagIcon },
-  { name: 'دسته‌بندی‌ها', href: '/admin-panel/categories', icon: FolderIcon },
-  { name: 'تنظیمات', href: '/admin-panel/settings', icon: Cog6ToothIcon },
+const navGroups = [
+  {
+    title: 'داشبورد',
+    items: [
+      { name: 'خلاصه وضعیت', href: '/admin-panel', icon: Squares2X2Icon, exact: true },
+      { name: 'آمار و تحلیل', href: '/admin-panel/analytics', icon: ChartBarIcon },
+    ],
+  },
+  {
+    title: 'کاتالوگ',
+    items: [
+      { name: 'محصولات', href: '/admin-panel/products', icon: ShoppingBagIcon },
+      { name: 'دسته‌بندی‌ها', href: '/admin-panel/categories', icon: FolderIcon },
+      { name: 'رنگ‌ها', href: '/admin-panel/colors', icon: SwatchIcon },
+      { name: 'سایزها', href: '/admin-panel/sizes', icon: ArrowsPointingOutIcon },
+      { name: 'واریانت‌ها', href: '/admin-panel/variants', icon: CubeIcon },
+    ],
+  },
+  {
+    title: 'فروش',
+    items: [
+      { name: 'سفارشات', href: '/admin-panel/orders', icon: TruckIcon },
+      { name: 'فروشندگان', href: '/admin-panel/vendors', icon: UserGroupIcon },
+      { name: 'کاربران', href: '/admin-panel/users', icon: UsersIcon },
+    ],
+  },
+  {
+    title: 'بازاریابی',
+    items: [
+      { name: 'پروموشن‌ها', href: '/admin-panel/promotions', icon: TagIcon },
+      { name: 'کوپن‌ها', href: '/admin-panel/coupons', icon: GiftIcon },
+      { name: 'باشگاه مشتریان', href: '/admin-panel/loyalty', icon: GiftIcon },
+      { name: 'محتوا', href: '/admin-panel/content', icon: DocumentTextIcon },
+    ],
+  },
+  {
+    title: 'سیستم',
+    items: [
+      { name: 'انبار', href: '/admin-panel/wms', icon: CubeIcon },
+      { name: 'امنیت', href: '/admin-panel/security', icon: ShieldCheckIcon },
+      { name: 'ایمیل‌ها', href: '/admin-panel/mailbox', icon: EnvelopeIcon },
+      { name: 'تنظیمات', href: '/admin-panel/settings', icon: Cog6ToothIcon },
+    ],
+  },
 ];
+
+function isActivePath(pathname, href, exact = false) {
+  if (exact) return pathname === href;
+  return pathname === href || pathname.startsWith(href + '/');
+}
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState({});
+
+  const toggleGroup = (title) => {
+    setCollapsed((prev) => ({ ...prev, [title]: !prev[title] }));
+  };
 
   return (
     <aside className="w-64 bg-slate-900 text-slate-300 min-h-screen flex flex-col border-l border-slate-800 shrink-0">
+      {/* Header */}
       <div className="h-16 flex items-center justify-between px-6 bg-slate-950/50 border-b border-slate-800">
         <span className="font-bold text-base text-white">پنل مدیریت</span>
         <span className="text-[10px] bg-amber-500/10 text-amber-400 font-bold px-2 py-0.5 rounded border border-amber-500/20">
@@ -29,27 +93,61 @@ export default function AdminSidebar() {
         </span>
       </div>
 
-      <nav className="flex-1 p-4 space-y-1">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          const Icon = item.icon;
+      {/* Nav */}
+      <nav className="flex-1 p-4 space-y-4 overflow-y-auto">
+        {navGroups.map((group) => {
+          const isCollapsed = collapsed[group.title];
+          const groupHasActive = group.items.some((it) =>
+            isActivePath(pathname, it.href, it.exact)
+          );
 
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                isActive
-                  ? 'bg-amber-500 text-slate-950 font-bold'
-                  : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
-              }`}
-            >
-              <Icon className="w-5 h-5 shrink-0" />
-              <span>{item.name}</span>
-            </Link>
+            <div key={group.title}>
+              <button
+                type="button"
+                onClick={() => toggleGroup(group.title)}
+                className="w-full flex items-center justify-between px-2 mb-1.5 text-[10px] font-black tracking-wide text-slate-500 hover:text-slate-300 transition"
+              >
+                <span className="uppercase">{group.title}</span>
+                {isCollapsed ? (
+                  <ChevronLeftIcon className="w-3 h-3" />
+                ) : (
+                  <ChevronDownIcon className="w-3 h-3" />
+                )}
+              </button>
+
+              {!isCollapsed && (
+                <div className="space-y-0.5">
+                  {group.items.map((item) => {
+                    const active = isActivePath(pathname, item.href, item.exact);
+                    const Icon = item.icon;
+
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                          active
+                            ? 'bg-amber-500 text-slate-950 font-bold shadow-lg shadow-amber-500/10'
+                            : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+                        }`}
+                      >
+                        <Icon className="w-4.5 h-4.5 shrink-0" />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           );
         })}
       </nav>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-slate-800 text-[10px] text-slate-500 text-center">
+        Erfan Apparel · v1.0
+      </div>
     </aside>
   );
 }
