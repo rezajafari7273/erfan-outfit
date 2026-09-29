@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import FreeShippingBar from "./FreeShippingBar";
 import CartItemCard from "./CartItemCard";
 import CartSummary from "./CartSummary";
@@ -10,6 +11,7 @@ import { useCart } from "../hooks/useCart";
 const FREE_SHIPPING_THRESHOLD = 1500000;
 
 export default function CartSection() {
+  const router = useRouter();
   const {
     items,
     totalItemsCount,
@@ -71,6 +73,10 @@ export default function CartSection() {
     }
   };
 
+  const handleGoToCheckout = () => {
+    router.push("/checkout");
+  };
+
   if (loading) {
     return (
       <div className="w-full max-w-6xl mx-auto p-8 text-center text-gray-500 font-bold">
@@ -130,9 +136,10 @@ export default function CartSection() {
             isFreeShipping={remainingForFreeShipping <= 0}
             onApplyCoupon={handleApplyCoupon}
             appliedDiscount={appliedDiscount}
+            onNextStep={handleGoToCheckout}
           />
         </div>
       </div>
     </div>
   );
-} 
+}

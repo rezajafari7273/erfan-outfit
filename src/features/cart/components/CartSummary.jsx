@@ -2,31 +2,35 @@
 
 import { useState } from "react";
 import { TagIcon, ShieldCheckIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
-import Button from "@/components/ui/Button"; // مسیر ایمپورت را بر اساس ساختار پروژه خود چک کنید
+import Button from "@/components/ui/Button";
 
 export default function CartSummary({
-  totalItemsCount,
-  rawTotalPrice,
-  totalDiscount,
-  finalPrice,
-  isFreeShipping,
+  totalItemsCount = 0,
+  rawTotalPrice = 0,
+  totalDiscount = 0,
+  finalPrice = 0,
+  isFreeShipping = false,
   onApplyCoupon,
-  appliedDiscount,
+  appliedDiscount = 0,
+  onNextStep,
 }) {
   const [couponCode, setCouponCode] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleCouponSubmit = (e) => {
     e.preventDefault();
-    onApplyCoupon(couponCode);
+    if (onApplyCoupon && couponCode.trim()) {
+      onApplyCoupon(couponCode.trim());
+    }
   };
 
   return (
-    <div className="border border-rose-100 rounded-3xl p-5 bg-white/80 backdrop-blur-md shadow-xs space-y-4">
+    <div className="border border-rose-100 rounded-3xl p-5 bg-white/80 backdrop-blur-md shadow-xs space-y-4 dir-rtl">
       <h3 className="font-bold text-sm text-gray-800 pb-3 border-b border-gray-100">
         اطلاعات پرداخت
       </h3>
 
-      <form onSubmit={handleSubmit} className="flex gap-2">
+      {/* فرم ثبت کد تخفیف */}
+      <form onSubmit={handleCouponSubmit} className="flex gap-2">
         <div className="relative flex-1">
           <TagIcon className="w-4 h-4 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
           <input
@@ -42,6 +46,7 @@ export default function CartSummary({
         </Button>
       </form>
 
+      {/* جزییات فاکتور */}
       <div className="space-y-3 text-xs pt-2">
         <div className="flex items-center justify-between text-gray-600 font-bold">
           <span>قیمت کالاها ({totalItemsCount.toLocaleString("fa-IR")})</span>
@@ -90,12 +95,15 @@ export default function CartSummary({
         </div>
       </div>
 
+      {/* دکمه انتقال به مرحله بعد */}
       <Button
+        type="button"
         variant="primary"
         size="lg"
         icon={ArrowLeftIcon}
         iconPosition="left"
         className="w-full font-black rounded-2xl"
+        onClick={onNextStep}
       >
         تکمیل و ثبت سفارش
       </Button>

@@ -13,6 +13,9 @@ import AuthModal from '@/features/auth/components/AuthModal';
 // ایمپورت کامپوننت دکمه کاربر
 import UserAuthButton from '@/features/auth/components/UserAuthButton';
 
+// ایمپورت کامپوننت انتخاب آدرس/موقعیت مکانی (مطابق با دسکتاپ)
+import LocationSelector from './components/LocationSelector'; 
+
 import {
   UserIcon,
   Bars3Icon,
@@ -367,23 +370,8 @@ export default function MobileHeader() {
           {/* Body Drawer */}
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
             
-            {/* موقعیت مکانی */}
-            <Link
-              href="/location"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F3F5F7] border border-[#E1E5EB] hover:border-[#D0D6E0] hover:bg-[#EDF0F5] shadow-2xs active:scale-[0.98] transition-all group"
-            >
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-primary/5 text-secondary border border-primary-hover/10 shrink-0">
-                  <MapPinIcon className="w-4 h-4 stroke-[2] " />
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-[10px] text-primary font-rokh font-bold">ارسال به: </span>
-                  <span className="text-xs font-bold text-[#2C3746] truncate">تهران، سعادت‌آباد</span>
-                </div>
-              </div>
-              <ChevronLeftIcon className="w-4 h-4 text-primary group-hover:text-primary-hover group-hover:-translate-x-0.5 transition-all shrink-0" />
-            </Link>
+            {/* موقعیت مکانی / انتخاب آدرس با منطق یکسان دسکتاپ */}
+            <LocationSelector />
 
             {/* دسترسی سریع */}
             <section className="bg-surface rounded-2xl p-3 border border-[#E0DCD3] shadow-sm space-y-2">

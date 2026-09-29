@@ -55,7 +55,6 @@ export default function ClothingSearch() {
   const [suggestions, setSuggestions] = useState([]);
 
   const [isImageUploading, setIsImageUploading] = useState(false);
-  const [isColorPanelOpen, setIsColorPanelOpen] = useState(false);
   const [colors, setColors] = useState([]);
   const [selectedColorIds, setSelectedColorIds] = useState([]);
 
@@ -228,26 +227,31 @@ export default function ClothingSearch() {
     }
   };
 
-  const toggleColorId = (id) => {
-    setSelectedColorIds((prev) =>
-      prev.includes(id) ? prev.filter((c) => c !== id) : [...prev, id]
-    );
-  };
+  // انتخاب رنگ و اجرای خودکار جستجو
+  const handleColorClick = (id) => {
+    const nextIds = selectedColorIds.includes(id)
+      ? selectedColorIds.filter((c) => c !== id)
+      : [...selectedColorIds, id];
 
-  const applyColorFilter = () => {
-    if (selectedColorIds.length === 0) return;
-    setIsDesktopFocused(false);
-    setIsMobileOpen(false);
-    setIsColorPanelOpen(false);
-    router.push(`/search?color_ids=${selectedColorIds.join(',')}`);
+    setSelectedColorIds(nextIds);
+
+    if (nextIds.length > 0) {
+      setIsDesktopFocused(false);
+      setIsMobileOpen(false);
+      router.push(`/search?color_ids=${nextIds.join(',')}`);
+    }
   };
 
   const clearColorFilter = () => setSelectedColorIds([]);
 
+// بخش پالت رنگ‌ها با قابلیت انکود امن آدرس‌های فارسی
   const renderColorPanel = () => (
-    <div className="p-5 bg-secondary/5 border border-secondary/15 rounded-2xl">
+    <div className="p-5 bg-secondary/5 border border-secondary/15 rounded-2xl mb-6">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-black text-gray-800 uppercase">انتخاب رنگ</span>
+        <div className="flex items-center gap-2">
+          <SwatchIcon className="w-4 h-4 text-secondary stroke-[2]" />
+          <span className="text-xs font-rokh font-black text-primary uppercase">جستجو با رنگ مورد نظر</span>
+        </div>
         {selectedColorIds.length > 0 && (
           <button
             type="button"
@@ -259,38 +263,44 @@ export default function ClothingSearch() {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-2.5">
         {colors.map((c) => {
           const isSelected = selectedColorIds.includes(c.id);
+          // انکود کردن امن آدرس تصویر برای جلوگیری از خطای کاراکترهای فارسی
+          const safeImageUrl = c.image ? encodeURI(c.image) : '';
+
           return (
             <button
               key={c.id}
               type="button"
-              onClick={() => toggleColorId(c.id)}
-              className={`flex items-center gap-2 px-3.5 py-1.5 text-[11px] font-bold rounded-xl border transition-all cursor-pointer ${
+              onClick={() => handleColorClick(c.id)}
+              className={`flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold rounded-xl border transition-all cursor-pointer ${
                 isSelected
-                  ? 'border-secondary/60 bg-white text-secondary shadow-sm'
+                  ? 'border-secondary/60 bg-white text-secondary shadow-sm ring-2 ring-secondary/20'
                   : 'border-secondary/10 bg-white/60 text-gray-600 hover:bg-white'
               }`}
             >
-              <span
-                className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0"
-                style={{ backgroundColor: c.hex_code }}
-              />
+              {/* باکس تصویر رنگ با ابعاد دقیق 40 در 40 پیکسل */}
+              <div className="w-[40px] h-[40px] rounded-lg overflow-hidden border border-black/10 shrink-0 relative bg-gray-100 flex items-center justify-center">
+                {c.image ? (
+                  <img
+                    // اگر آدرس سرور است، آن را چک کنید؛ یا اگر نسبی است مابقی را اضافه کنید
+                    src={c.image.startsWith('http') ? c.image : `http://127.0.0.1:8000${c.image}`}
+                    alt={c.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      console.error(`خطا در بارگذاری تصویر رنگ (${c.name}):`, e.currentTarget.src);
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200" />
+                )}
+              </div>
               <span>{c.name}</span>
             </button>
           );
         })}
       </div>
-
-      <button
-        type="button"
-        onClick={applyColorFilter}
-        disabled={selectedColorIds.length === 0}
-        className="w-full py-2.5 rounded-xl bg-secondary text-white text-xs font-bold hover:bg-secondary/90 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-      >
-        جستجوی محصولات با این رنگ‌ها
-      </button>
     </div>
   );
 
@@ -376,13 +386,13 @@ export default function ClothingSearch() {
                 </div>
               )}
 
-              {/* دو دکمه: تصویر و رنگ */}
-              <div className="grid grid-cols-2 gap-3 mb-6">
+              {/* جستجو با تصویر */}
+              <div className="mb-6">
                 <button
                   type="button"
                   onClick={() => imageInputRef.current?.click()}
                   disabled={isImageUploading}
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 text-primary text-xs font-bold hover:bg-primary/10 transition-all cursor-pointer disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 text-primary text-xs font-bold hover:bg-primary/10 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isImageUploading ? (
                     <>
@@ -396,20 +406,10 @@ export default function ClothingSearch() {
                     </>
                   )}
                 </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsColorPanelOpen((v) => !v)}
-                  className="flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-dashed border-secondary/40 bg-secondary/5 text-secondary text-xs font-bold hover:bg-secondary/10 transition-all cursor-pointer"
-                >
-                  <SwatchIcon className="w-4 h-4" />
-                  جستجو با رنگ
-                </button>
               </div>
 
-              {isColorPanelOpen && colors.length > 0 && (
-                <div className="mb-8">{renderColorPanel()}</div>
-              )}
+              {/* پالت رنگ‌ها */}
+              {colors.length > 0 && renderColorPanel()}
 
               {/* محصولات پربازدید */}
               {popularProducts.length > 0 && (
@@ -605,13 +605,13 @@ export default function ClothingSearch() {
             </div>
 
             <div className="flex-1 p-5 space-y-8">
-              {/* دو دکمه تصویر و رنگ */}
-              <div className="grid grid-cols-2 gap-3">
+              {/* جستجو با تصویر */}
+              <div>
                 <button
                   type="button"
                   onClick={() => imageInputRef.current?.click()}
                   disabled={isImageUploading}
-                  className="flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 text-primary text-xs font-bold disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 text-primary text-xs font-bold disabled:opacity-50"
                 >
                   {isImageUploading ? (
                     <ArrowPathIcon className="w-4 h-4 animate-spin" />
@@ -620,18 +620,10 @@ export default function ClothingSearch() {
                   )}
                   جستجو با تصویر
                 </button>
-
-                <button
-                  type="button"
-                  onClick={() => setIsColorPanelOpen((v) => !v)}
-                  className="flex items-center justify-center gap-2 px-3 py-3 rounded-2xl border border-dashed border-secondary/40 bg-secondary/5 text-secondary text-xs font-bold"
-                >
-                  <SwatchIcon className="w-4 h-4" />
-                  جستجو با رنگ
-                </button>
               </div>
 
-              {isColorPanelOpen && colors.length > 0 && renderColorPanel()}
+              {/* پالت رنگ‌ها در موبایل */}
+              {colors.length > 0 && renderColorPanel()}
 
               {popularProducts.length > 0 && (
                 <div>

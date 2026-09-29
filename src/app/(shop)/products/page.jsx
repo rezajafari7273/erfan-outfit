@@ -119,27 +119,28 @@ function ProductsContent() {
 
         {/* ستون اصلی */}
         <div className="flex-1 w-full">
-          {/* هدر دسکتاپ */}
+          {/* هدر دسکتاپ - یکپارچه و مدرن */}
           <div className="hidden lg:flex items-center justify-between mb-6">
-            <div>
+            <div className="flex-1">
               <SortBar
                 currentSort={filters.ordering || "newest"}
                 onSortChange={handleSortChange}
               />
             </div>
 
-            <div className="flex items-center gap-2 bg-white px-5 py-3.5 rounded-2xl border border-stone-200/80 shadow-xs text-xs text-stone-500 font-medium">
-              <span>تعداد محصولات:</span>
-              <span className="font-bold text-stone-900 text-sm">
+            <div className="flex items-center gap-2 text-xs text-secondary font-medium px-1 pb-3 shrink-0">
+              <span className="font-rokh font-bold pt-1">تعداد محصولات:</span>
+              <span className="font-bold text-primary text-sm">
                 {productsCount || 0} محصول
               </span>
             </div>
           </div>
 
           {/* هدر موبایل */}
-          <div className="lg:hidden flex items-center justify-between text-xs text-stone-500 mb-4 px-1">
-            <span>تعداد محصولات:</span>
-            <span className="font-bold text-stone-900">{productsCount || 0} محصول</span>
+          <div className="lg:hidden flex items-center justify-between text-xs text-secondary mb-4 px-1">
+            <span className="font-rokh font-bold pt-1">تعداد محصولات:</span>
+            
+            <span className="font-fanum font-bold text-primary text-xs">{productsCount || 0} محصول</span>
           </div>
 
           {/* لودینگ اولیه */}

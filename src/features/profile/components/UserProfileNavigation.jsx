@@ -17,10 +17,10 @@ export default function UserProfileNavigation({ activeTab, setActiveTab }) {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const navItems = [
+    { id: "account", label: "اطلاعات حساب", icon: UserIcon },
     { id: "orders", label: "سفارش‌های من", icon: ShoppingBagIcon },
     { id: "addresses", label: "آدرس‌های ثبت‌شده", icon: MapPinIcon },
     { id: "favorites", label: "علاقه‌مندی‌ها", icon: HeartIcon },
-    { id: "account", label: "اطلاعات حساب", icon: UserIcon },
   ];
 
 const handleLogout = async () => {

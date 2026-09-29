@@ -9,8 +9,10 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // ۱. استیت کنترل نمایش مودال ورود/ثبت‌نام
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  // بررسی وضعیت لاگین و دریافت پروفایل هنگام لود اولیه برنامه
   useEffect(() => {
     const fetchCurrentUser = async () => {
       const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
@@ -26,7 +28,6 @@ export function AuthProvider({ children }) {
         setIsAuthenticated(true);
       } catch (error) {
         console.error("خطا در دریافت اطلاعات کاربر:", error);
-        // در صورت عدم معتبر بودن توکن، خروج انجام می‌شود
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
         setUser(null);
@@ -39,7 +40,6 @@ export function AuthProvider({ children }) {
     fetchCurrentUser();
   }, []);
 
-  // ذخیره توکن‌ها و به‌روزرسانی استیت‌ها پس از تایید موفق OTP
   const login = async (tokens) => {
     if (tokens?.access) {
       localStorage.setItem("accessToken", tokens.access);
@@ -52,6 +52,7 @@ export function AuthProvider({ children }) {
       const userData = await authApi.getProfile();
       setUser(userData);
       setIsAuthenticated(true);
+      setIsAuthModalOpen(false); // پس از لاگین موفق، مودال را می‌بندیم
       return userData;
     } catch (error) {
       console.error("خطا در بارگذاری پروفایل پس از ورود:", error);
@@ -59,7 +60,6 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // خروج از حساب کاربری
   const logout = async () => {
     try {
       await authApi.logout();
@@ -73,9 +73,26 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // به‌روزرسانی دستی اطلاعات پروفایل (مثلاً پس از ویرایش نام یا آدرس)
   const updateUserProfile = (updatedData) => {
     setUser((prev) => ({ ...prev, ...updatedData }));
+  };
+
+  // ۲. توابع کنترل مودال
+  const openAuthModal = () => setIsAuthModalOpen(true);
+  const closeAuthModal = () => setIsAuthModalOpen(false);
+
+  // ۳. تابع کلیدی: بررسی لاگین بودن کاربر
+  // اگر لاگین بود اکشن مورد نظر اجرا می‌شود، اگر نبود مودال باز می‌شود
+  const requireAuth = (actionCallback) => {
+    if (isAuthenticated) {
+      if (typeof actionCallback === "function") {
+        actionCallback();
+      }
+      return true;
+    } else {
+      openAuthModal();
+      return false;
+    }
   };
 
   return (
@@ -84,17 +101,21 @@ export function AuthProvider({ children }) {
         user,
         loading,
         isAuthenticated,
+        isAuthModalOpen,
+        openAuthModal,
+        closeAuthModal,
+        requireAuth,
         login,
         logout,
         updateUserProfile,
       }}
     >
       {children}
+      {/* در صورت داشتن کامپوننت مودال عمومی لاگین می‌توانید آن را همینجا رندر کنید */}
     </AuthContext.Provider>
   );
 }
 
-// هوک اختصاصی برای استفاده راحت‌تر از کانتکست
 export const useAuthContext = () => {
   const context = useContext(AuthContext);
   if (!context) {

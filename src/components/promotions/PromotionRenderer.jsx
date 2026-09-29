@@ -8,36 +8,41 @@ import BannerSlider from "./BannerSlider/BannerSlider";
 import SmallBanner from "./SmallBanner/SmallBanner";
 
 export default function PromotionRenderer({ type, slotKey, className = "" }) {
-  const promotionsData = usePromotions();
+  const { promotions, isLoading } = usePromotions();
 
-  if (!promotionsData) return null;
+  if (isLoading || !promotions) return null;
 
   switch (type) {
     case "topBanner":
-      return <TopBanner data={promotionsData.topBanner} />;
+      if (!promotions.topBanner) return null;
+      return <TopBanner data={promotions.topBanner} />;
 
     case "stories":
-      return <Stories items={promotionsData.stories} />;
+      if (!promotions.stories || !promotions.stories.length) return null;
+      return <Stories items={promotions.stories} />;
 
     case "bannerSlider":
-      return <BannerSlider slides={promotionsData.bannerSlider} />;
+      if (!promotions.bannerSlider || !promotions.bannerSlider.length) return null;
+      return <BannerSlider slides={promotions.bannerSlider} />;
 
     case "smallBanner": {
-      const bannerData =
-        promotionsData[`${slotKey}Banners`] ||
-        promotionsData[slotKey] ||
-        promotionsData.smallBanners?.[slotKey];
+      let bannerData = null;
+
+      if (slotKey === "homeMiddle" || slotKey === "instantBanners") {
+        bannerData = promotions.homeMiddleBanners;
+      } else if (slotKey) {
+        bannerData = promotions[`${slotKey}Banners`] || promotions[slotKey];
+      }
 
       if (!bannerData) return null;
 
       const bannerList = Array.isArray(bannerData) ? bannerData : [bannerData];
-
       if (bannerList.length === 0) return null;
 
       return (
-        <div className={`grid gap-3 ${className.includes('grid-cols') ? '' : 'grid-cols-1'} ${className}`}>
+        <div className={`grid gap-3 ${className}`}>
           {bannerList.map((banner) => (
-            <SmallBanner key={banner.id || banner.title} banner={banner} />
+            <SmallBanner key={banner.id} banner={banner} />
           ))}
         </div>
       );

@@ -34,12 +34,13 @@ export default function SortBar({ currentSort, onSortChange }) {
 
   return (
     <>
-      <div className="hidden lg:flex items-center gap-3 bg-white p-3 px-5 rounded-2xl border border-stone-200/80 shadow-sm text-xs font-medium text-stone-600 mb-6">
-        <div className="flex items-center gap-1.5 text-stone-800 font-bold shrink-0 ml-2">
-          <ArrowsUpDownIcon className="w-4 h-4 text-rose-500" />
-          <span>مرتب‌سازی بر اساس:</span>
+      {/* نسخه دسکتاپ - مدرن و مینیمال با رنگ primary */}
+      <div className="hidden lg:flex items-center gap-6 pt-2 px-1 border-b border-stone-200/60 mb-6 text-xs text-stone-500 font-medium">
+        <div className="flex items-center gap-2 text-primary text-sm font-bold font-rokh shrink-0">
+          <ArrowsUpDownIcon className="w-4 h-4 text-secondary" />
+          <span className="pt-1">مرتب‌سازی:</span>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1 relative">
           {SORT_OPTIONS.map((option) => {
             const isActive = selectedSort === option.id;
             return (
@@ -47,33 +48,42 @@ export default function SortBar({ currentSort, onSortChange }) {
                 key={option.id}
                 type="button"
                 onClick={() => handleSelect(option.id)}
-                className={`px-3.5 py-2 rounded-xl transition-all duration-200 cursor-pointer ${
+                className={`relative px-3 py-2 transition-colors duration-200 cursor-pointer ${
                   isActive
-                    ? "bg-rose-50 text-rose-600 font-bold shadow-xs border border-rose-100"
-                    : "hover:bg-stone-100 text-stone-500 hover:text-stone-800"
+                    ? "text-stone-900 font-bold"
+                    : "hover:text-stone-800 text-stone-500"
                 }`}
               >
                 {option.label}
+                {/* خط متحرک زیر تب فعال با رنگ primary */}
+                {isActive && (
+                  <motion.div
+                    layoutId="activeSortIndicator"
+                    className="absolute bottom-0 inset-x-2 h-0.5 bg-primary rounded-full"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
               </button>
             );
           })}
         </div>
       </div>
 
+      {/* نسخه موبایل - همگام با استایل دسکتاپ */}
       <div className="lg:hidden mb-4">
         <button
           type="button"
           onClick={() => setIsMobileMenuOpen(true)}
-          className="w-full flex items-center justify-between bg-white p-3.5 px-4 rounded-2xl border border-stone-200/80 shadow-sm text-xs cursor-pointer active:scale-[0.99] transition-transform"
+          className="w-full flex items-center justify-between bg-white p-3.5 px-4 rounded-2xl border border-stone-200/80 shadow-xs text-xs cursor-pointer active:scale-[0.99] transition-transform"
         >
-          <div className="flex items-center gap-2 text-stone-700">
-            <ArrowsUpDownIcon className="w-4 h-4 text-rose-500" />
-            <span className="font-bold">مرتب‌سازی:</span>
+          <div className="flex items-center gap-2 text-primary font-bold font-rokh">
+            <ArrowsUpDownIcon className="w-4 h-4 text-secondary" />
+            <span>مرتب‌سازی:</span>
             <span className="text-stone-500 font-medium">
               {activeOption?.label}
             </span>
           </div>
-          <span className="text-[11px] font-bold text-rose-500 bg-rose-50 px-2.5 py-1 rounded-lg">
+          <span className="text-[11px] font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-lg">
             تغییر
           </span>
         </button>
@@ -95,8 +105,8 @@ export default function SortBar({ currentSort, onSortChange }) {
             >
               <div className="w-12 h-1 bg-stone-200 rounded-full mx-auto mb-4" />
               <div className="flex items-center justify-between pb-3 mb-2 border-b border-stone-100">
-                <div className="flex items-center gap-2 font-bold text-stone-800 text-sm">
-                  <ArrowsUpDownIcon className="w-4 h-4 text-rose-500" />
+                <div className="flex items-center gap-2 font-bold font-rokh text-primary text-sm">
+                  <ArrowsUpDownIcon className="w-4 h-4 text-secondary" />
                   <span>مرتب‌سازی محصولات</span>
                 </div>
                 <button
@@ -117,13 +127,13 @@ export default function SortBar({ currentSort, onSortChange }) {
                       onClick={() => handleSelect(option.id)}
                       className={`w-full flex items-center justify-between p-3.5 rounded-2xl text-xs font-medium transition-colors ${
                         isActive
-                          ? "bg-rose-50 text-rose-600 font-bold"
+                          ? "bg-primary/10 text-primary font-bold"
                           : "text-stone-600 hover:bg-stone-50 active:bg-stone-100"
                       }`}
                     >
                       <span>{option.label}</span>
                       {isActive && (
-                        <CheckIcon className="w-4 h-4 text-rose-500" />
+                        <CheckIcon className="w-4 h-4 text-primary" />
                       )}
                     </button>
                   );

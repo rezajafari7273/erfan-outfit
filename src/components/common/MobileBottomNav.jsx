@@ -28,8 +28,11 @@ export default function MobileBottomNav() {
   const activeTab = activeIndex !== -1 ? activeIndex : null;
 
   return (
-    <div className="fixed bottom-5 left-0 right-0 z-20 flex justify-center px-4 lg:hidden" dir="rtl">
-      <div className="relative flex items-center justify-around bg-[#fff3e1] rounded-full py-3 shadow-[0_10px_30px_rgba(0,0,0,0.08)] border border-gray-100 w-full max-w-md">
+    <div className="fixed bottom-4 left-0 right-0 z-40 flex justify-center px-4 lg:hidden" dir="rtl">
+      {/* 
+        پس‌زمینه اصلی: سبز/زیتونی ملایم گلس‌مورفیسم (Warm Sage Glass)
+      */}
+      <div className="relative flex items-center justify-around bg-[#E5E8DF]/80 backdrop-blur-xl rounded-full px-2 py-2 shadow-lg shadow-stone-900/5 border border-[#D1D6C7]/60 w-full max-w-md">
         <LayoutGroup id="mobile-nav">
           {navItems.map((item, index) => {
             const isActive = activeTab === index;
@@ -39,37 +42,37 @@ export default function MobileBottomNav() {
               <Link
                 key={item.id}
                 href={item.href}
-                className="relative flex items-center justify-center py-3 px-6 rounded-full transition-all duration-300 focus:outline-none"
+                className="relative flex items-center justify-center py-2.5 px-4 rounded-full transition-all duration-300 focus:outline-none"
               >
-                {/* پس‌زمینه کپسولی فعال (Pill Highlight) */}
+                {/* کپسول فعال دقیقاً مانند نسخه قبلی (bg-primary/10) */}
                 {isActive && (
                   <motion.div
                     layoutId="activePill"
-                    className="absolute inset-0 bg-primary/15 rounded-full z-0"
+                    className="absolute inset-0 bg-primary/10 rounded-full z-0"
                     transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                   />
                 )}
 
-                {/* محتوای آیتم: آیکون + متن افقی */}
+                {/* محتوای آیتم: آیکون + متن افقی با رنگ برند (text-primary) */}
                 <div className="relative z-10 flex items-center gap-2">
                   <div className="relative flex items-center justify-center">
                     <Icon
-                      className={`w-6 h-6 transition-colors duration-200 ${
+                      className={`w-5 h-5 transition-colors duration-200 ${
                         isActive
                           ? 'text-primary stroke-[2.2]'
-                          : 'text-gray-500 stroke-[1.8] hover:text-neutral-800'
+                          : 'text-stone-500 stroke-[1.8] hover:text-stone-800'
                       }`}
                     />
 
-                    {/* بج سبد خرید (فقط در حالت غیرفعال) */}
+                    {/* بج سبد خرید */}
                     {item.hasBadge && !isActive && (
-                      <span className="absolute -top-1 -left-1 bg-primary text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full ring-2 ring-white">
+                      <span className="absolute -top-1.5 -left-1.5 bg-primary text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full ring-2 ring-[#E5E8DF]">
                         {item.badgeCount}
                       </span>
                     )}
                   </div>
 
-                  {/* متن آیتم (فقط زمانی که فعال باشد ظاهر می‌شود) */}
+                  {/* متن آیتم فعال با همان رنگ اصلی برند */}
                   {isActive && (
                     <motion.span
                       initial={{ opacity: 0, width: 0 }}

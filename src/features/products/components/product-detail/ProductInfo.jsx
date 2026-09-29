@@ -186,6 +186,75 @@ export default function ProductInfo({
         </button>
       </div>
 
+        {/* رنگ و سایز موبایل */}
+      <div className="block lg:hidden">
+            
+        {/* انتخاب رنگ */}
+        {uniqueColors.length > 0 && (
+          <div className="pt-2">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs text-gray-500">رنگ:</span>
+              <span className="font-bold text-sm">{selectedColorId || "—"}</span>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              {uniqueColors.map((color) => {
+                const isSelected = selectedColorId === color.name;
+                return (
+                  <button
+                    key={color.name}
+                    onClick={() => setSelectedColorId(color.name)}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+                      isSelected
+                        ? "border-secondary/50 bg-gray-300 text-primary shadow-md"
+                        : "border-secondary/10 bg-gray-200/60 backdrop-blur-md text-secondary hover:bg-gray-200"
+                    }`}
+                  >
+                    <span
+                      className="w-3.5 h-3.5 rounded-full shrink-0 border border-black/10"
+                      style={{ backgroundColor: color.hex }}
+                    />
+                    <span>{color.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* انتخاب سایز */}
+        {allSizes.length > 0 && (
+          <div className="pt-2 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">سایز:</span>
+                <span className="font-bold text-sm">{selectedSize || "—"}</span>
+              </div>
+              <SizeGuideModal />
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              {allSizes.map((size) => {
+                const isSelected = selectedSize === size;
+                return (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`px-3.5 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+                      isSelected
+                        ? "border-secondary/50 bg-gray-300 text-primary shadow-md"
+                        : "border-secondary/10 bg-gray-200/60 backdrop-blur-md text-secondary"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* باکس AI */}
       <div className="pt-2">
         <div className="bg-violet-50/70 border border-violet-200/80 rounded-2xl p-2.5 px-3 flex items-center justify-between gap-3 shadow-xs select-none overflow-hidden">
@@ -223,70 +292,74 @@ export default function ProductInfo({
         </div>
       </div>
 
-      {/* انتخاب رنگ */}
-      {uniqueColors.length > 0 && (
-        <div className="pt-2">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs text-gray-500">رنگ:</span>
-            <span className="font-bold text-sm">{selectedColorId || "—"}</span>
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            {uniqueColors.map((color) => {
-              const isSelected = selectedColorId === color.name;
-              return (
-                <button
-                  key={color.name}
-                  onClick={() => setSelectedColorId(color.name)}
-                  className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
-                    isSelected
-                      ? "border-secondary/50 bg-gray-300 text-primary shadow-md"
-                      : "border-secondary/10 bg-gray-200/60 backdrop-blur-md text-secondary hover:bg-gray-200"
-                  }`}
-                >
-                  <span
-                    className="w-3.5 h-3.5 rounded-full shrink-0 border border-black/10"
-                    style={{ backgroundColor: color.hex }}
-                  />
-                  <span>{color.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* انتخاب سایز */}
-      {allSizes.length > 0 && (
-        <div className="pt-2 border-t border-gray-100">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500">سایز:</span>
-              <span className="font-bold text-sm">{selectedSize || "—"}</span>
+      {/* رنگ و سایز دسکتاپ */}
+      <div className="hidden lg:block">
+            
+        {/* انتخاب رنگ */}
+        {uniqueColors.length > 0 && (
+          <div className="pt-2">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs text-gray-500">رنگ:</span>
+              <span className="font-bold text-sm">{selectedColorId || "—"}</span>
             </div>
-            <SizeGuideModal />
-          </div>
 
-          <div className="flex items-center gap-2 flex-wrap">
-            {allSizes.map((size) => {
-              const isSelected = selectedSize === size;
-              return (
-                <button
-                  key={size}
-                  onClick={() => setSelectedSize(size)}
-                  className={`px-3.5 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
-                    isSelected
-                      ? "border-secondary/50 bg-gray-300 text-primary shadow-md"
-                      : "border-secondary/10 bg-gray-200/60 backdrop-blur-md text-secondary"
-                  }`}
-                >
-                  {size}
-                </button>
-              );
-            })}
+            <div className="flex items-center gap-2 flex-wrap">
+              {uniqueColors.map((color) => {
+                const isSelected = selectedColorId === color.name;
+                return (
+                  <button
+                    key={color.name}
+                    onClick={() => setSelectedColorId(color.name)}
+                    className={`flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+                      isSelected
+                        ? "border-secondary/50 bg-gray-300 text-primary shadow-md"
+                        : "border-secondary/10 bg-gray-200/60 backdrop-blur-md text-secondary hover:bg-gray-200"
+                    }`}
+                  >
+                    <span
+                      className="w-3.5 h-3.5 rounded-full shrink-0 border border-black/10"
+                      style={{ backgroundColor: color.hex }}
+                    />
+                    <span>{color.name}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {/* انتخاب سایز */}
+        {allSizes.length > 0 && (
+          <div className="pt-2 border-t border-gray-100">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-500">سایز:</span>
+                <span className="font-bold text-sm">{selectedSize || "—"}</span>
+              </div>
+              <SizeGuideModal />
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              {allSizes.map((size) => {
+                const isSelected = selectedSize === size;
+                return (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`px-3.5 py-1.5 text-xs font-bold rounded-xl border transition-all cursor-pointer ${
+                      isSelected
+                        ? "border-secondary/50 bg-gray-300 text-primary shadow-md"
+                        : "border-secondary/10 bg-gray-200/60 backdrop-blur-md text-secondary"
+                    }`}
+                  >
+                    {size}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* ویژگی‌ها */}
       {features.length > 0 && (

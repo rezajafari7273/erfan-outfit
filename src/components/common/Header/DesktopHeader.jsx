@@ -8,10 +8,11 @@ import GlobalSearch from './components/GlobalSearch';
 import Logo from '@/components/ui/Logo';
 import AuthModal from '@/features/auth/components/AuthModal';
 import UserAuthButton from '@/features/auth/components/UserAuthButton';
+import LocationSelector from './components/LocationSelector';
 import baseApi from '@/lib/baseApi'; 
+
 import {
   ShoppingBagIcon,
-  MapPinIcon,
   FireIcon,
   SparklesIcon,
   BookOpenIcon,
@@ -38,10 +39,8 @@ export default function DesktopHeader() {
 
   const topHeaderRef = useRef(null);
 
-  // اصلاح تابع دریافت تعداد سبد خرید با استفاده از baseApi
   const fetchCartCount = useCallback(async () => {
     try {
-      // baseApi خودکار توکن Bearer را اضافه می‌کند و response.data را برمی‌گرداند
       const data = await baseApi.get('/cart/');
       const items = Array.isArray(data?.items) ? data.items : [];
       const total = items.reduce((sum, it) => sum + (it.quantity || 0), 0);
@@ -197,15 +196,10 @@ export default function DesktopHeader() {
               )}
             </li>
 
+            {/* بخش آدرس پویای جدید */}
             <li className="mr-auto flex items-center gap-4">
               <div className="h-4 w-[1px] bg-gray-200"></div>
-              <Link
-                href="/location"
-                className="flex items-center gap-1.5 text-xs font-bold text-primary/80 hover:text-primary transition-colors"
-              >
-                <MapPinIcon className="w-5 h-5 text-secondary" />
-                ارسال به: <span className="text-gray-800">تهران، سعادت‌آباد</span>
-              </Link>
+              <LocationSelector />
             </li>
           </ul>
         </div>

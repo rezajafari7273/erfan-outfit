@@ -1,8 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { XMarkIcon, CameraIcon } from "@heroicons/react/24/outline";
+import {
+  XMarkIcon,
+  CameraIcon,
+  UserIcon,
+  PhoneIcon,
+  EnvelopeIcon,
+  IdentificationIcon,
+  CalendarIcon,
+} from "@heroicons/react/24/outline";
 import { useProfileContext } from "../hooks/useProfileContext";
+import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 
@@ -100,29 +110,33 @@ export default function UserProfileEditModal({ isOpen, onClose }) {
     }
   };
 
+  // کلاس مشترک برای افزایش ارتفاع و بهبود پدینگ تمام اینپوت‌ها
+  const inputHeightClass = "py-3 text-sm";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-      <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl border border-gray-100 space-y-5">
-        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
-          <h3 className="font-bold text-gray-900 text-sm">ویرایش اطلاعات شخصی</h3>
+      <div className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl border border-slate-100 space-y-5" dir="rtl">
+        {/* هدر مدال */}
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 className="font-bold text-slate-900 text-sm">ویرایش اطلاعات شخصی</h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded-lg transition-colors cursor-pointer"
+            className="text-slate-400 hover:text-slate-700 p-1 rounded-lg transition-colors cursor-pointer"
           >
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
         {formError && (
-          <div className="p-3 rounded-xl bg-rose-50 text-rose-600 text-xs font-semibold">
+          <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-semibold">
             {formError}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Avatar */}
+          {/* بخش آواتار */}
           <div className="flex flex-col items-center justify-center gap-2">
-            <div className="relative w-20 h-20 rounded-2xl bg-rose-50 border border-rose-100 overflow-hidden flex items-center justify-center group">
+            <div className="relative w-20 h-20 rounded-2xl bg-slate-50 border border-slate-200 overflow-hidden flex items-center justify-center group shadow-xs">
               {previewAvatar ? (
                 <img
                   src={previewAvatar}
@@ -133,7 +147,7 @@ export default function UserProfileEditModal({ isOpen, onClose }) {
                   }}
                 />
               ) : (
-                <span className="text-xl font-bold text-rose-500">
+                <span className="text-xl font-bold text-indigo-600">
                   {formData.first_name ? formData.first_name[0] : "؟"}
                 </span>
               )}
@@ -147,110 +161,102 @@ export default function UserProfileEditModal({ isOpen, onClose }) {
                 />
               </label>
             </div>
-            <span className="text-[11px] text-gray-400">
+            <span className="text-[11px] text-slate-400 font-medium">
               کلیک جهت تغییر آواتار
             </span>
           </div>
 
+          {/* نام و نام خانوادگی */}
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-[11px] font-bold text-gray-600 mb-1">
-                نام
-              </label>
-              <input
-                type="text"
-                name="first_name"
-                value={formData.first_name}
-                onChange={handleChange}
-                readOnly
-                className="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 outline-none cursor-default"
-              />
-            </div>
-            <div>
-              <label className="block text-[11px] font-bold text-gray-600 mb-1">
-                نام خانوادگی
-              </label>
-              <input
-                type="text"
-                name="last_name"
-                value={formData.last_name}
-                onChange={handleChange}
-                readOnly
-                className="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 outline-none cursor-default"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-bold text-gray-600 mb-1">
-              شماره موبایل
-            </label>
-            <input
+            <Input
+              label="نام"
               type="text"
-              value={profile?.phone || ""}
-              readOnly
-              className="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 outline-none dir-ltr text-left cursor-default"
-            />
-          </div>
-
-          <div>
-            <label className="block text-[11px] font-bold text-gray-600 mb-1">
-              پست الکترونیک (ایمیل)
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
+              name="first_name"
+              value={formData.first_name}
               onChange={handleChange}
-              readOnly
-              className="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 outline-none dir-ltr text-left cursor-default"
+              placeholder="نام"
+              startIcon={UserIcon}
+              className={inputHeightClass}
             />
-          </div>
 
-          <div>
-            <label className="block text-[11px] font-bold text-gray-600 mb-1">
-              کد ملی
-            </label>
-            <input
+            <Input
+              label="نام خانوادگی"
               type="text"
-              name="national_id"
-              maxLength={10}
-              value={formData.national_id}
+              name="last_name"
+              value={formData.last_name}
               onChange={handleChange}
-              readOnly
-              className="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 outline-none dir-ltr text-right cursor-default"
+              placeholder="نام خانوادگی"
+              startIcon={UserIcon}
+              className={inputHeightClass}
             />
           </div>
 
-          <div>
-            <label className="block text-[11px] font-bold text-gray-600 mb-1">
-              تاریخ تولد
-            </label>
-            <input
-              type="date"
-              name="birth_date"
-              value={formData.birth_date || ""}
-              onChange={handleChange}
-              readOnly
-              className="w-full text-xs p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-700 outline-none dir-ltr text-right cursor-default"
-            />
-          </div>
+          {/* شماره موبایل (غیرقابل تغییر) */}
+          <Input
+            label="شماره موبایل (غیرقابل تغییر)"
+            type="text"
+            value={profile?.phone || profile?.phone_number || ""}
+            disabled
+            startIcon={PhoneIcon}
+            className={`${inputHeightClass} font-fanum text-left dir-ltr`}
+          />
 
+          {/* پست الکترونیک */}
+          <Input
+            label="پست الکترونیک (ایمیل)"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="example@mail.com"
+            startIcon={EnvelopeIcon}
+            className={`${inputHeightClass} text-left dir-ltr`}
+          />
+
+          {/* کد ملی (قابل ویرایش) */}
+          <Input
+            label="کد ملی"
+            type="text"
+            name="national_id"
+            maxLength={10}
+            value={formData.national_id}
+            onChange={handleChange}
+            placeholder="کد ملی ۱۰ رقمی"
+            startIcon={IdentificationIcon}
+            className={`${inputHeightClass}  font-fanum text-right dir-ltr`}
+          />
+
+          {/* تاریخ تولد */}
+          <Input
+            label="تاریخ تولد"
+            type="date"
+            name="birth_date"
+            value={formData.birth_date || ""}
+            onChange={handleChange}
+            startIcon={CalendarIcon}
+            className={`${inputHeightClass} font-fanum text-right dir-ltr`}
+          />
+
+          {/* دکمه‌های اقدام */}
           <div className="pt-2 flex gap-2">
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="flex-1 py-2.5 rounded-xl bg-primary text-white text-xs font-bold hover:bg-rose-700 transition-colors disabled:opacity-50 cursor-pointer"
+              variant="gradient"
+              size="md"
+              loading={loading}
+              className="flex-1"
             >
-              {loading ? "در حال ثبت..." : "ذخیره تغییرات"}
-            </button>
-            <button
+              ذخیره تغییرات
+            </Button>
+
+            <Button
               type="button"
+              variant="outline"
+              size="md"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl bg-gray-100 text-gray-600 text-xs font-bold hover:bg-gray-200 transition-colors cursor-pointer"
             >
               انصراف
-            </button>
+            </Button>
           </div>
         </form>
       </div>

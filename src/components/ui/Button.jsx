@@ -3,102 +3,74 @@
 import React from 'react';
 
 const VARIANTS = {
-  primary:
-    'bg-primary/80 text-white hover:bg-primary shadow-md shadow-primary/20',
-  secondary:
-    'bg-secondary/80 text-white hover:bg-secondary shadow-md shadow-secondary/20',
-  outline:
-    'border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-gray-300/50',
-  ghost:
-    'text-gray-600 hover:bg-gray-100/80 hover:text-gray-900 focus:ring-gray-200',
-  danger:
-    'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500/30 shadow-md shadow-red-600/20',
   gradient:
-    'group relative bg-gradient-to-l from-primary to-rose-800 text-white shadow-md shadow-primary/25 hover:shadow-lg hover:shadow-primary/35 hover:scale-[1.02] whitespace-nowrap',
+    'bg-gradient-to-l from-primary to-rose-800 text-white shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/30 hover:brightness-110',
+  solid:
+    'bg-primary text-white hover:bg-primary/90 shadow-sm',
+  outline:
+    'bg-transparent border border-primary/30 text-primary hover:bg-primary/5',
+  ghost:
+    'bg-transparent text-primary hover:bg-primary/5',
+  soft:
+    'bg-primary/10 text-primary hover:bg-primary/20',
+  danger:
+    'bg-rose-600 text-white hover:bg-rose-700 shadow-sm',
 };
 
 const SIZES = {
-  sm: 'px-3 py-1.5 text-xs rounded-lg gap-1.5',
-  md: 'px-4 py-2.5 text-xs font-bold rounded-xl gap-2',
-  lg: 'px-5 py-3 text-sm font-medium rounded-2xl gap-2',
+  xs: 'text-[10px] px-2 py-1 rounded-md gap-1',
+  sm: 'text-[11px] px-3 py-1.5 rounded-lg gap-1.5',
+  md: 'text-xs px-4 py-2 rounded-xl gap-2',
+  lg: 'text-sm px-5 py-2.5 rounded-xl gap-2',
+  xl: 'text-base px-6 py-3 rounded-2xl gap-2.5',
+};
+
+const ICON_SIZES = {
+  xs: 'w-3 h-3',
+  sm: 'w-3.5 h-3.5',
+  md: 'w-4 h-4',
+  lg: 'w-4.5 h-4.5',
+  xl: 'w-5 h-5',
 };
 
 export default function Button({
   children,
-  variant = 'primary',
+  variant = 'solid',
   size = 'md',
+  icon: Icon,
+  iconPosition = 'right',
   className = '',
+  type = 'button',
   disabled = false,
   loading = false,
-  icon: Icon = null,
-  iconPosition = 'right',
-  type = 'button',
-  onClick,
-  ...props
+  ...rest
 }) {
-  const baseClasses =
-    'inline-flex items-center justify-center font-medium transition-all duration-300 active:scale-[0.98] focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100 select-none';
-
-  const variantClass = VARIANTS[variant] || VARIANTS.primary;
+  const variantClass = VARIANTS[variant] || VARIANTS.solid;
   const sizeClass = SIZES[size] || SIZES.md;
+  const iconClass = ICON_SIZES[size] || ICON_SIZES.md;
 
-  const isGradient = variant === 'gradient';
+  const baseClass =
+    'inline-flex items-center justify-center font-bold transition-all duration-200 select-none disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap';
+
+  const iconEl = Icon ? (
+    <Icon className={`${iconClass} shrink-0 stroke-[2]`} aria-hidden="true" />
+  ) : null;
 
   return (
     <button
       type={type}
       disabled={disabled || loading}
-      onClick={onClick}
-      className={`${baseClasses} ${variantClass} ${sizeClass} ${className}`}
-      {...props}
+      className={`${baseClass} ${variantClass} ${sizeClass} ${className}`}
+      {...rest}
     >
-      {/* Spinner حالت loading */}
-      {loading && (
-        <svg
-          className="animate-spin h-4 w-4 text-current shrink-0"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
-          <circle
-            className="opacity-25"
-            cx="12"
-            cy="12"
-            r="10"
-            stroke="currentColor"
-            strokeWidth="4"
-          />
-          <path
-            className="opacity-75"
-            fill="currentColor"
-            d="M4 12a8 8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-          />
-        </svg>
-      )}
-
-      {/* آیکون سمت راست (پیش‌فرض) */}
-      {!loading && Icon && iconPosition === 'right' && (
-        isGradient ? (
-          <div className="w-5 h-5 rounded-full  flex items-center justify-center shrink-0 transition-transform duration-300">
-            <Icon className="w-3.5 h-3.5 stroke-[2.5]" />
-          </div>
-        ) : (
-          <Icon className="w-4 h-4 shrink-0 stroke-[2]" />
-        )
-      )}
-
-      {/* متن دکمه */}
-      {children && <span>{children}</span>}
-
-      {/* آیکون سمت چپ */}
-      {!loading && Icon && iconPosition === 'left' && (
-        isGradient ? (
-          <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-transform duration-300">
-            <Icon className="w-3.5 h-3.5 stroke-[2.5]" />
-          </div>
-        ) : (
-          <Icon className="w-4 h-4 shrink-0 stroke-[2]" />
-        )
+      {loading ? (
+        <span className="inline-block w-3.5 h-3.5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+      ) : (
+        <>
+          {iconPosition === 'left' && iconEl}
+          {children}
+          {iconPosition === 'right' && iconEl}
+        </>
       )}
     </button>
   );

@@ -6,15 +6,21 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   EllipsisHorizontalIcon,
+  HeartIcon as HeartOutlineIcon,
+  ShareIcon,
 } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
 
 export default function ProductGallery({
   product,
   isMobile = false,
   selectedVariant = null,
+  onShare = null,
+  onFavoriteToggle = null,
 }) {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
 
   const dragStartX = useRef(null);
   const dragEndX = useRef(null);
@@ -52,6 +58,37 @@ export default function ProductGallery({
     setSelectedImage(0);
   }, [selectedVariant?.id]);
 
+  // مدیریت تغییر وضعیت علاقه مندی
+  const handleFavoriteClick = (e) => {
+    e.stopPropagation();
+    setIsLiked((prev) => !prev);
+    if (onFavoriteToggle) {
+      onFavoriteToggle(!isLiked);
+    }
+  };
+
+  // مدیریت اشتراک گذاری
+  const handleShareClick = async (e) => {
+    e.stopPropagation();
+    if (onShare) {
+      onShare();
+      return;
+    }
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product?.title || "محصول",
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.log("انصراف از اشتراک‌گذاری", err);
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("لینک محصول کپی شد!");
+    }
+  };
+
   if (images.length === 0) {
     return (
       <div className="w-full h-[480px] rounded-3xl border border-[#E0DCD3] bg-[#FAF8F5] flex items-center justify-center">
@@ -83,6 +120,35 @@ export default function ProductGallery({
     dragStartX.current = null;
     dragEndX.current = null;
   };
+
+  // بج‌های گلس‌مورفیسم روی تصویر اصلی - فقط در سایز lg به بالا نمایش داده می‌شوند
+  const renderActionBadges = () => (
+    <div className="hidden lg:flex flex-col-reverse absolute top-4 right-4 z-10 items-center gap-2">
+      {/* دکمه علاقه مندی */}
+      <button
+        type="button"
+        onClick={handleFavoriteClick}
+        aria-label="افزودن به علاقه‌مندی‌ها"
+        className="w-8 h-8 rounded-md border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer pointer-events-auto shadow-xs outline-none border-white/20 bg-black/30 text-white shadow-black/10"
+      >
+        {isLiked ? (
+          <HeartSolidIcon className="w-3.5 h-3.5 text-primary transition-transform scale-110" />
+        ) : (
+          <HeartOutlineIcon className="w-3.5 h-3.5 text-primary stroke-1.5" />
+        )}
+      </button>
+
+      {/* دکمه اشتراک گذاری */}
+      <button
+        type="button"
+        onClick={handleShareClick}
+        aria-label="اشتراک‌گذاری"
+        className="w-8 h-8 rounded-md border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer pointer-events-auto shadow-xs outline-none border-white/20 bg-black/30 text-white shadow-black/10"
+      >
+        <ShareIcon className="w-3.5 h-3.5 text-primary stroke-1.5" />
+      </button>
+    </div>
+  );
 
   const renderThumbnails = (isMobileLayout = false) => {
     const hasMore = images.length > 4;
@@ -137,6 +203,8 @@ export default function ProductGallery({
   if (isMobile) {
     return (
       <div className="relative w-full h-full select-none overflow-hidden">
+        {renderActionBadges()}
+
         <img
           src={images[selectedImage]}
           alt={product?.title || "تصویر اصلی محصول"}
@@ -155,7 +223,9 @@ export default function ProductGallery({
 
   return (
     <div className="flex flex-col items-center relative select-none">
-      <div className="w-full h-[480px] border border-[#E0DCD3] rounded-3xl p-2 bg-gradient-to-b from-[#FAF8F5] to-[#EAE5DC] overflow-hidden">
+      <div className="relative w-full h-[480px] border border-[#E0DCD3] rounded-3xl p-2 bg-gradient-to-b from-[#FAF8F5] to-[#EAE5DC] overflow-hidden">
+        {renderActionBadges()}
+
         <img
           src={images[selectedImage]}
           alt={product?.title || "تصویر محصول"}

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation"; // اضافه شده برای روتینگ
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { cartApi } from "@/features/cart/api/cartApi";
 import Backdrop from "@/components/ui/Backdrop";
@@ -12,7 +13,8 @@ import { authApi } from "../api/authApi";
 import { useAuthContext } from "../context/AuthContext";
 
 export default function AuthModal({ isOpen, onClose }) {
-  const { login } = useAuthContext(); // ✅ دریافت تابع login اصلی از Context
+  const router = useRouter();
+  const { login } = useAuthContext(); 
 
   const [step, setStep] = useState(1);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -66,7 +68,6 @@ export default function AuthModal({ isOpen, onClose }) {
       }
     }
   };
-
   const handleOtpChange = (index, value) => {
     if (isNaN(value)) return;
     const newOtp = [...otp];
@@ -84,45 +85,49 @@ export default function AuthModal({ isOpen, onClose }) {
     }
   };
 
-const handleVerifyOtp = async (e) => {
-  e.preventDefault();
-  const fullCode = otp.join("");
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    const fullCode = otp.join("");
 
-  if (fullCode.length === 5) {
-    setLoading(true);
-    setError("");
-    try {
-      const guestSessionKey =
-        typeof window !== "undefined"
-          ? localStorage.getItem("guestSessionKey")
-          : null;
+    if (fullCode.length === 5) {
+      setLoading(true);
+      setError("");
+      try {
+        const guestSessionKey =
+          typeof window !== "undefined"
+            ? localStorage.getItem("guestSessionKey")
+            : null;
 
-      const res = await authApi.verifyOtp(phoneNumber, fullCode);
-      const tokens = res?.data || res;
-      await login(tokens);
+        const res = await authApi.verifyOtp(phoneNumber, fullCode);
+        const tokens = res?.data || res;
+        await login(tokens);
 
-      // merge سبد مهمان با کاربر
-      if (guestSessionKey && typeof window !== "undefined") {
-        try {
-          await cartApi.mergeGuestCart(guestSessionKey);
-          localStorage.removeItem("guestSessionKey");
-        } catch (e) {
-          console.error("[MERGE CART]", e);
+        // ادغام سبد خرید مهمان با کاربر
+        if (guestSessionKey && typeof window !== "undefined") {
+          try {
+            await cartApi.mergeGuestCart(guestSessionKey);
+            localStorage.removeItem("guestSessionKey");
+          } catch (e) {
+            console.error("[MERGE CART]", e);
+          }
         }
-      }
 
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("cart:updated"));
-      }
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event("cart:updated"));
+        }
 
-      handleClose();
-    } catch (err) {
-      setError(err?.message || err?.detail || "کد وارد شده اشتباه است");
-    } finally {
-      setLoading(false);
+        handleClose();
+
+        // هدایت کاربر به صفحه پروفایل پس از ورود موفق
+        router.push("/profile");
+      } catch (err) {
+        setError(err?.message || err?.detail || "کد وارد شده اشتباه است");
+      } finally {
+        setLoading(false);
+      }
     }
-  }
-};
+  };
+
   const handleResendCode = async () => {
     setLoading(true);
     setError("");

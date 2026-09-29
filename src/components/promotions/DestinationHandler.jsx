@@ -1,3 +1,4 @@
+// components/promotion/DestinationHandler.jsx
 "use client";
 
 import React from "react";
@@ -10,11 +11,12 @@ export default function DestinationHandler({ destination, children, className = 
 
   const { type, value } = destination;
 
-  // 1. مقصد: لینک خارجی
+  // ۱. لینک خارجی
   if (type === "external") {
+    const url = typeof value === "string" ? value : "#";
     return (
       <a
-        href={typeof value === "string" ? value : "#"}
+        href={url}
         target="_blank"
         rel="noopener noreferrer"
         className={`block cursor-pointer ${className}`}
@@ -24,9 +26,20 @@ export default function DestinationHandler({ destination, children, className = 
     );
   }
 
-  // 2. مقصد: صفحه لندینگ
+  // ۲. صفحه جزئیات محصول (product_detail)
+  if (type === "product_detail" || type === "product") {
+    if (!value) return <div className={className}>{children}</div>;
+    return (
+      <Link href={`/products/${value}`} className={`block cursor-pointer ${className}`}>
+        {children}
+      </Link>
+    );
+  }
+
+  // ۳. صفحه لندینگ
   if (type === "landing") {
-    const href = typeof value === "string" ? value : "#";
+    if (!value) return <div className={className}>{children}</div>;
+    const href = typeof value === "string" && value.startsWith("/") ? value : `/landings/${value}`;
     return (
       <Link href={href} className={`block cursor-pointer ${className}`}>
         {children}
@@ -34,11 +47,23 @@ export default function DestinationHandler({ destination, children, className = 
     );
   }
 
-  // 3. مقصد: محصولات با فیلترها
-  if (type === "products") {
+  // ۴. لیست محصولات همراه با فیلترها
+  if (type === "products" || type === "category" || type === "brand") {
     let queryString = "";
+
     if (typeof value === "object" && value !== null) {
-      queryString = "?" + new URLSearchParams(value).toString();
+      const searchParams = new URLSearchParams();
+      
+      Object.entries(value).forEach(([key, val]) => {
+        if (Array.isArray(val)) {
+          // آرایه‌ها را به صورت مقدار جدا شده با کاما متصل می‌کند (مثلاً colors=1,2,3)
+          searchParams.append(key, val.join(","));
+        } else if (val !== null && val !== undefined) {
+          searchParams.append(key, val);
+        }
+      });
+
+      queryString = searchParams.toString() ? `?${searchParams.toString()}` : "";
     } else if (typeof value === "string") {
       queryString = value.startsWith("?") ? value : `?${value}`;
     }
@@ -49,12 +74,6 @@ export default function DestinationHandler({ destination, children, className = 
       </Link>
     );
   }
-
-  /* 
-    توسعه‌های آینده (قابل اضافه شدن بدون تغییر UI):
-    if (type === "brand") { ... }
-    if (type === "category") { ... }
-  */
 
   return <div className={className}>{children}</div>;
 }

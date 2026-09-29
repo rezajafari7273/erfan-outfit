@@ -6,10 +6,12 @@ import {
   PhoneIcon,
   MapPinIcon,
   EnvelopeIcon,
+  ChevronLeftIcon,
   ChevronUpIcon,
 } from "@heroicons/react/24/solid";
 import SocialLinks from "../SocialLinks";
-import Logo from "@/components/ui/Logo"
+import Logo from "@/components/ui/Logo";
+import Advantages from "@/features/advantages/components/Advantages"; 
 
 export default function Footer() {
   const scrollToTop = () => {
@@ -17,196 +19,271 @@ export default function Footer() {
   };
 
   return (
-    <footer dir="rtl" className="w-full pt-12 pb-12 select-none">
-      <div className="mx-auto w-full px-8 flex flex-col items-center">
+    <footer dir="rtl" className="w-full pt-8 mb-16 lg:mb-0 pb-12 select-none text-slate-800">
+      <div className="mx-auto w-full px-4 sm:px-8 flex flex-col items-center">
         
         {/* کادر اصلی فوتر */}
-        <div className="relative z-10 w-full rounded-[2.5rem] bg-slate-50/90 border border-slate-200/80 p-6 sm:p-10 shadow-sm text-slate-800 backdrop-blur-md">
+        <div className="relative z-10 w-full rounded-[2.5rem] bg-slate-50/90 border border-slate-200/80 p-4 sm:p-8 shadow-sm backdrop-blur-md space-y-6">
           
-          {/* بخش اصلی: لینک‌ها در راست + کارت‌ها، نقشه و شبکه‌های اجتماعی در چپ */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-10 border-b border-slate-200/80 items-start">
-            
-            {/* سمت راست: ۳ ستون لینک (۷ ستون از ۱۲ ستون) */}
-            <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-6">
-              
-              {/* ستون ۱ */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-5 bg-primary rounded-full" />
-                  <h3 className="text-base font-black text-slate-900">
-                    راهنمای خرید
-                  </h3>
+          {/* ================= ردیف اول: لینک‌ها + اطلاعات تماس + درباره ما و نقشه ================= */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+                        
+            {/* سمت راست: ۳ ستون لینک جدا شده با دیوایدر (۵ ستون از ۱۲) */}
+            <div className="lg:col-span-5 mt-2 p-2 flex flex-col justify-between">
+              <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 items-stretch">
+                
+                {/* ستون ۱ */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1 h-4 bg-primary rounded-full" />
+                    <h3 className="text-sm font-black text-slate-900">راهنمای خرید</h3>
+                  </div>
+                  <ul className="space-y-3 text-xs font-bold text-slate-600">
+                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
+                      <span>ثبت سفارش</span>
+                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    </li>
+                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
+                      <span>نحوه ارسال</span>
+                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    </li>
+                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
+                      <span>شیوه‌های پرداخت</span>
+                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    </li>
+                  </ul>
                 </div>
-                <ul className="space-y-2.5 text-xs font-semibold text-slate-600">
-                  <li className="hover:text-primary transition-colors cursor-pointer">ثبت سفارش</li>
-                  <li className="hover:text-primary transition-colors cursor-pointer">نحوه ارسال</li>
-                  <li className="hover:text-primary transition-colors cursor-pointer">شیوه‌های پرداخت</li>
-                </ul>
-              </div>
 
-              {/* ستون ۲ */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-5 bg-primary rounded-full" />
-                  <h3 className="text-base font-black text-slate-900">
-                    دسترسی سریع
-                  </h3>
+                {/* دیوایدر عمودی ۱ */}
+                <div className="hidden sm:flex items-center justify-center">
+                  <div className="w-px h-full min-h-[100px] bg-slate-200 shrink-0" />
                 </div>
-                <ul className="space-y-2.5 text-xs font-semibold text-slate-600">
-                  <li className="hover:text-primary transition-colors cursor-pointer">تماس با ما</li>
-                  <li className="hover:text-primary transition-colors cursor-pointer">فروشگاه</li>
-                  <li className="hover:text-primary transition-colors cursor-pointer">وبلاگ</li>
-                </ul>
-              </div>
 
-              {/* ستون ۳ */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <span className="w-1.5 h-5 bg-primary rounded-full" />
-                  <h3 className="text-base font-black text-slate-900">
-                    خدمات مشتریان
-                  </h3>
+                {/* ستون ۲ */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1 h-4 bg-primary rounded-full" />
+                    <h3 className="text-sm font-black text-slate-900">دسترسی سریع</h3>
+                  </div>
+                  <ul className="space-y-3 text-xs font-bold text-slate-600">
+                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
+                      <span>تماس با ما</span>
+                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    </li>
+                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
+                      <span>فروشگاه</span>
+                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    </li>
+                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
+                      <span>وبلاگ</span>
+                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    </li>
+                  </ul>
                 </div>
-                <ul className="space-y-2.5 text-xs font-semibold text-slate-600">
-                  <li className="hover:text-primary transition-colors cursor-pointer">سوالات متداول</li>
-                  <li className="hover:text-primary transition-colors cursor-pointer">حریم خصوصی</li>
-                  <li className="hover:text-primary transition-colors cursor-pointer">بازگشت وجه</li>
-                </ul>
-              </div>
 
+                {/* دیوایدر عمودی ۲ */}
+                <div className="hidden sm:flex items-center justify-center">
+                  <div className="w-px h-full min-h-[100px] bg-slate-200 shrink-0" />
+                </div>
+
+                {/* ستون ۳ */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-1 h-4 bg-primary rounded-full" />
+                    <h3 className="text-sm font-black text-slate-900">خدمات مشتریان</h3>
+                  </div>
+                  <ul className="space-y-3 text-xs font-bold text-slate-600">
+                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
+                      <span>سوالات متداول</span>
+                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    </li>
+                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
+                      <span>حریم خصوصی</span>
+                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    </li>
+                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
+                      <span>بازگشت وجه</span>
+                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    </li>
+                  </ul>
+                </div>
+
+              </div>
             </div>
 
-            {/* سمت چپ: کارت‌ها + نقشه + شبکه‌های اجتماعی (۵ ستون از ۱۲ ستون) */}
-            <div className="lg:col-span-5 flex flex-col gap-4 w-full mr-auto">
-              
-              {/* گرید کارت‌ها و نقشه */}
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-start w-full">
-                
-                {/* ۳ کارت عمودی اطلاعات */}
-                <div className="md:col-span-5 flex flex-col gap-2.5 w-full">
-                  
-                  {/* کارت ۱: واحد پشتیبانی */}
-                  <div className="bg-white border border-slate-200/80 rounded-[1.25rem] p-3 flex items-center justify-between shadow-sm">
-                    <div className="space-y-0.5 text-right">
-                      <h4 className="text-[11px] font-black text-slate-900">
-                        واحد <span className="text-primary">پشتیبانی</span>
-                      </h4>
-                      <p className="text-[10px] font-bold text-slate-600 tabular-nums">۰۲۱ - ۵۵۶۷۸۹۵</p>
-                      <p className="text-[10px] font-bold text-slate-600 tabular-nums">۰۲۱ - ۵۵۷۸۶۵۴</p>
-                    </div>
-                    <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
-                      <PhoneIcon className="w-4 h-4" />
-                    </div>
-                  </div>
-
-                  {/* کارت ۲: آدرس فروشگاه */}
-                  <div className="bg-white border border-slate-200/80 rounded-[1.25rem] p-3 flex items-center justify-between shadow-sm">
-                    <div className="space-y-0.5 text-right">
-                      <h4 className="text-[11px] font-black text-slate-900">
-                        آدرس <span className="text-primary">فروشگاه</span>
-                      </h4>
-                      <p className="text-[9px] font-semibold text-slate-600 leading-tight">
-                        تهران - سعادت آباد - کوچه ۵ - پلاک ۱۲
-                      </p>
-                    </div>
-                    <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
-                      <MapPinIcon className="w-4 h-4" />
-                    </div>
-                  </div>
-
-                  {/* کارت ۳: ایمیل پشتیبانی */}
-                  <div className="bg-white border border-slate-200/80 rounded-[1.25rem] p-3 flex items-center justify-between shadow-sm">
-                    <div className="space-y-0.5 text-right">
-                      <h4 className="text-[11px] font-black text-slate-900">
-                        ایمیل <span className="text-primary">پشتیبانی</span>
-                      </h4>
-                      <p className="text-[10px] font-bold text-slate-600">info@site.com</p>
-                      <p className="text-[10px] font-bold text-slate-600">support@site.com</p>
-                    </div>
-                    <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary flex-shrink-0">
-                      <EnvelopeIcon className="w-4 h-4" />
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* بخش نقشه */}
-                <div className="md:col-span-7 h-[11.25rem] w-full rounded-[1.5rem] overflow-hidden border border-slate-200/80 shadow-inner relative bg-slate-100">
-                  <img
-                    src="/images/map-placeholder.png"
-                    alt="موقعیت روی نقشه"
-                    className="w-full h-full object-cover"
-                  />
-                  <div className="absolute inset-0 bg-black/5 pointer-events-none" />
-                </div>
-
+            {/* وسط: اطلاعات تماس (۳ ستون از ۱۲) */}
+            <div className="lg:col-span-3 bg-white border border-slate-200/80 rounded-3xl p-5 flex flex-col justify-between shadow-sm space-y-6">
+              <div className="flex items-center justify-start gap-2">
+                <PhoneIcon className="text-secondary w-3.5 h-3.5" />
+                <h3 className="text-sm font-rokh font-black pt-2 text-primary">اطلاعات تماس</h3>
               </div>
 
-              {/* شبکه‌های اجتماعی */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white border border-slate-200/80 rounded-[1.25rem] px-4 py-2.5 shadow-sm">
-                <span className="text-xs font-bold text-slate-700">
-                  ما را در <span className="text-primary font-black">شبکه‌های اجتماعی</span> دنبال کنید:
-                </span>
-                <SocialLinks />
+              <div className="space-y-3 text-right">
+                {/* شماره تماس */}
+                <div className="flex items-center gap-3">  
+                  <div className="w-8 h-8 rounded-xl border border-secondary/8 bg-gray-200/60 backdrop-blur-md shadow-lg shadow-secondary-500/10 flex items-center justify-center font-bold">
+                    <PhoneIcon className="w-4 h-4 text-secondary" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-800 tabular-nums">۰۲۱-۵۵۶۷۸۹۱۰</p>
+                    <p className="text-[10px] text-slate-400 font-semibold">پشتیبانی و تماس با ما</p>
+                  </div>
+                </div>
+
+                {/* آدرس */}
+                <div className="flex items-center gap-3">                
+                  <div className="w-8 h-8 rounded-xl border border-secondary/8 bg-gray-200/60 backdrop-blur-md shadow-lg shadow-secondary-500/10 flex items-center justify-center font-bold">
+                    <MapPinIcon className="w-4 h-4 text-secondary" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-800">تهران، سعادت‌آباد، کوچه ۵</p>
+                    <p className="text-[10px] text-slate-400 font-semibold">آدرس فروشگاه</p>
+                  </div>
+                </div>
+
+                {/* ایمیل */}
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-xl border border-secondary/8 bg-gray-200/60 backdrop-blur-md shadow-lg shadow-secondary-500/10 flex items-center justify-center font-bold">
+                    <EnvelopeIcon className="w-4 h-4 text-secondary" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-800">info@site.com</p>
+                    <p className="text-[10px] text-slate-400 font-semibold">ایمیل پشتیبانی</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* سمت چپ: درباره ما + نقشه (۴ ستون از ۱۲) */}
+            <div className="lg:col-span-4 bg-white border border-slate-200/80 rounded-3xl p-5 flex items-center gap-4 shadow-sm">
+              {/* بخش توضیحات برند */}
+              <div className="flex-1 space-y-2 text-right">
+                <div className="flex items-center gap-2">
+                  <Logo width={110} height={32} />
+                </div>
+                <p className="text-[11px] font-bold text-slate-500 leading-relaxed">
+                  آنلاین مد، مرجع خرید لباس و محصولات مد با تضمین اصالت کالا، کیفیت بالا و ارسال سریع به سراسر کشور.
+                </p>
+                <Link
+                  href="/about"
+                  className="inline-flex items-center gap-1 px-4 py-1.5 rounded-full bg-rose-900 text-white text-[11px] font-bold hover:bg-rose-800 transition-colors"
+                >
+                  درباره ما
+                  <ChevronLeftIcon className="w-3 h-3" />
+                </Link>
               </div>
 
+              {/* کارت نقشه */}
+              <div className="w-36 h-36 rounded-2xl overflow-hidden border border-slate-200 relative shrink-0">
+                <img
+                  src="/images/map-placeholder.png"
+                  alt="موقعیت روی نقشه"
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/10 flex flex-col items-center justify-end p-1.5">
+                  <button className="w-full py-1 bg-white/90 backdrop-blur-md rounded-lg text-[9px] font-bold text-slate-800 shadow-sm flex items-center justify-center gap-1">
+                    <MapPinIcon className="w-3 h-3 text-rose-600" />
+                    مشاهده موقعیت
+                  </button>
+                </div>
+              </div>
             </div>
 
           </div>
 
-          {/* درباره ما، لوگو و نمادها */}
-      
-<div className="pt-8 pb-8 flex flex-col lg:flex-row items-center justify-between gap-6">
-  
-  <div className="flex flex-col sm:flex-row items-center gap-4 bg-white border border-slate-200/80 rounded-[2rem] p-4 flex-1 shadow-sm w-full">
-    <Logo width={140} height={42} className="flex-shrink-0" />
-    
-    <div className="space-y-1 text-center sm:text-right">
-      {/* شعار برند */}
-      <p className="text-xs font-black text-primary">
-        آنلاین مد؛ استایل خاص، انتخاب بی‌دردسر
-      </p>
-      {/* متن معرفی کوتاه بدون لینک مشاهده بیشتر */}
-      <p className="text-xs font-semibold text-slate-600 leading-relaxed">
-        ما با ارائه جدیدترین ترندهای پوشاک و تضمین اصالت و کیفیت، همراه همیشگی استایل شما هستیم.
-      </p>
-    </div>
-  </div>
+          {/* ================= ردیف دوم: جایگزین‌شده با کامپوننت Advantages ================= */}
+          <Advantages className="!py-0" />
 
-  <div className="flex items-center gap-3">
-    {[1, 2, 3].map((item) => (
-      <div
-        key={item}
-        className="w-20 h-20 rounded-[1.5rem] bg-white border border-slate-200 p-2 flex items-center justify-center shadow-sm"
-      >
-        <span className="text-[10px] font-bold text-slate-500">نماد {item}</span>
-      </div>
-    ))}
-  </div>
-
-</div>
-          {/* کپی‌رایت */}
-          <div className="pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-semibold text-slate-500">
-            <div className="flex items-center gap-4">
-              <Link href="#" className="hover:text-slate-900 transition-colors">
-                پیگیری سفارش
-              </Link>
-              <span>|</span>
-              <Link href="#" className="hover:text-slate-900 transition-colors">
-                شرایط و ضوابط
-              </Link>
+          {/* ================= ردیف سوم: شبکه‌های اجتماعی + نمادها + بنر تبلیغاتی ================= */}
+          <div className="bg-white border border-slate-200/80 rounded-3xl p-4 shadow-sm grid grid-cols-1 lg:grid-cols-11 gap-4 lg:gap-0 items-center">
+            
+            {/* بنر تبلیغاتی (۳ ستون) */}
+            <div className="lg:col-span-3 flex items-center justify-between relative overflow-hidden">
+              <div className="space-y-1 text-right z-10">
+                <p className="text-xs font-black text-slate-900">
+                  <span className="text-rose-600">آنلاین مد؛</span> جدیدترین ترندها
+                </p>
+                <p className="text-[10px] text-slate-500 font-semibold">با ما استایل خاص خود را بسازید.</p>
+                <Link
+                  href="/shop"
+                  className="inline-flex items-center gap-1 mt-1 px-3 py-1 rounded-full bg-rose-900 text-white text-[10px] font-bold hover:bg-rose-800 transition-colors"
+                >
+                  مشاهده محصولات
+                  <ChevronLeftIcon className="w-2.5 h-2.5" />
+                </Link>
+              </div>
+              <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0">
+                <img
+                  src="/images/footer-banner.jpg"
+                  alt="ترندهای پوشاک"
+                  className="w-full h-full object-cover"
+                />
+              </div>
             </div>
-            <p>© کلیه حقوق مادی و معنوی برای این سایت محفوظ می‌باشد.</p>
+
+            {/* دیوایدر عمودی ۴ */}
+            <div className="hidden lg:flex items-center justify-center lg:col-span-1">
+              <div className="w-px h-16 bg-slate-200 shrink-0" />
+            </div>
+
+            {/* نماد اعتماد (۳ ستون) */}
+            <div className="lg:col-span-3 flex flex-col items-center justify-center space-y-2">
+              <span className="text-[11px] font-black text-slate-700">نماد اعتماد و مجوزها</span>
+              <div className="flex items-center justify-center gap-2">
+                {[1, 2, 3, 4].map((item) => (
+                  <div
+                    key={item}
+                    className="w-12 h-12 rounded-xl border border-slate-100 bg-slate-50 p-1 flex items-center justify-center"
+                  >
+                    <span className="text-[9px] font-bold text-slate-400">نماد {item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* دیوایدر عمودی ۵ */}
+            <div className="hidden lg:flex items-center justify-center lg:col-span-1">
+              <div className="w-px h-16 bg-slate-200 shrink-0" />
+            </div>
+
+            {/* شبکه‌های اجتماعی (۳ ستون) */}
+            <div className="lg:col-span-3 flex flex-col items-center justify-between gap-y-1.5">
+              <div className="text-center">
+                <h4 className="text-xs font-black text-slate-800">ما را دنبال کنید</h4>
+                <p className="text-[10px] font-medium text-slate-400">در شبکه‌های اجتماعی همراه ما باشید</p>
+              </div>
+              <SocialLinks />
+            </div>
+
+          </div>
+
+          {/* ================= ردیف چهارم: کپی‌رایت با Divider افقی ================= */}
+          <div className="space-y-3">
+            {/* دیوایدر افقی */}
+            <div className="w-full h-px bg-slate-200 my-2" />
+            
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-semibold text-slate-500 px-2">
+              <p>© کلیه حقوق مادی و معنوی برای این سایت محفوظ می‌باشد.</p>
+              <div className="flex items-center gap-3">
+                <Link href="/track-order" className="hover:text-slate-900 transition-colors">
+                  پیگیری سفارش
+                </Link>
+                <span>|</span>
+                <Link href="/terms" className="hover:text-slate-900 transition-colors">
+                  شرایط و ضوابط
+                </Link>
+              </div>
+            </div>
           </div>
 
           {/* دکمه بازگشت به بالا */}
-          <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 z-20">
+          <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 z-20">
             <button
               onClick={scrollToTop}
-              className="flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-slate-900 text-white text-xs font-bold shadow-lg hover:bg-slate-800 transition-all duration-300 hover:scale-105"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-slate-900 text-white text-[11px] font-bold shadow-lg hover:bg-slate-800 transition-all duration-300 hover:scale-105"
             >
               <span>بازگشت به بالا</span>
-              <ChevronUpIcon className="w-4 h-4 stroke-[3]" />
+              <ChevronUpIcon className="w-3.5 h-3.5" />
             </button>
           </div>
 

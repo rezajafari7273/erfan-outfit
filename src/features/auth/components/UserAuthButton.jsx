@@ -16,7 +16,7 @@ import {
   ArrowRightOnRectangleIcon,
 } from "@heroicons/react/24/outline";
 
-export default function UserAuthButton() {
+export default function UserAuthButton({ onOpenAuthModal }) {
   const { user, isAuthenticated, logout } = useAuthContext();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -33,6 +33,14 @@ export default function UserAuthButton() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const handleOpenAuthModal = () => {
+    if (onOpenAuthModal) {
+      onOpenAuthModal();
+    } else {
+      setIsAuthModalOpen(true);
+    }
+  };
+
   return (
     <>
       {isAuthenticated ? (
@@ -43,8 +51,8 @@ export default function UserAuthButton() {
             onClick={() => setIsUserMenuOpen((prev) => !prev)}
             className="flex items-center gap-2 px-3 py-2.5 rounded-full border border-secondary/10 bg-gray-100/80 hover:bg-gray-200/80 transition-all duration-300 shadow-sm cursor-pointer"
           >
-            <div className="w-7 h-7 rounded-full text-secondary flex items-center justify-center text-xs font-bold">
-              {user?.first_name ? user.first_name[0] : <UserIcon className="w-5 h-5" />}
+            <div className="w-7 h-7 rounded-full text-secondary flex items-center justify-center text-xs font-bold shrink-0">
+              <UserIcon className="w-4 h-4 text-secondary stroke-[2]" />
             </div>
             <span className="text-xs font-bold text-primary hidden lg:block max-w-[100px] truncate">
               {user?.first_name ? `${user.first_name} ${user?.last_name || ""}` : user?.phone_number || "حساب کاربری"}
@@ -64,72 +72,78 @@ export default function UserAuthButton() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
                 transition={{ duration: 0.15 }}
-                className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 overflow-hidden"
+                className="absolute left-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-[#E0DCD3] pb-2 z-50 overflow-hidden"
               >
-                <div className="px-4 py-2.5 border-b border-gray-100 bg-gray-50/50">
-                  <p className="text-xs font-bold font-rokh text-primary truncate">
-                    {user?.first_name ? `${user.first_name} ${user?.last_name || ""}` : "کاربر گرامی"}
-                  </p>
-                  <p className="text-[11px] text-gray-400 mt-0.5 dir-ltr text-right truncate">
-                    {user?.phone_number || ""}
-                  </p>
+                {/* هدر دراپ‌داون شامل آیکون و اطلاعات کاربر */}
+                <div className="px-4 py-2 border-b border-[#E0DCD3]/70 bg-[#F8F6F0] flex items-center gap-2.5">
+                  <div className="p-2 rounded-xl bg-amber-500/10 text-amber-700 shrink-0">
+                    <UserIcon className="w-4 h-4 stroke-[2]" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs font-bold font-rokh pt-1 text-primary truncate">
+                      {user?.first_name ? `${user.first_name} ${user?.last_name || ""}` : "کاربر گرامی"}
+                    </p>
+                    <p className="text-[11px] text-amber-900 font-fanum mt-0.5 dir-ltr text-right truncate">
+                      {user?.phone || user?.phone || ""}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="py-1">
                   <Link
-                    href="/profile"
+                    href="/profile?tab=account"
                     onClick={() => setIsUserMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors"
+                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-amber-50/60 hover:text-amber-700 transition-colors"
                   >
-                    <RectangleGroupIcon className="w-4 h-4" />
+                    <RectangleGroupIcon className="w-4 h-4 text-secondary" />
                     داشبورد حساب کاربری
                   </Link>
 
                   <Link
-                    href="/profile/orders"
+                    href="/profile?tab=orders"
                     onClick={() => setIsUserMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors"
+                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-amber-50/60 hover:text-amber-700 transition-colors"
                   >
-                    <ShoppingBagIcon className="w-4 h-4" />
+                    <ShoppingBagIcon className="w-4 h-4 text-secondary" />
                     سفارش‌ها
+                  </Link>
+                  
+                  <Link
+                    href="/profile?tab=addresses"
+                    onClick={() => setIsUserMenuOpen(false)}
+                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-amber-50/60 hover:text-amber-700 transition-colors"
+                  >
+                    <MapIcon className="w-4 h-4 text-secondary" />
+                    آدرس‌های من
                   </Link>
 
                   <Link
-                    href="/profile/lists"
+                    href="/profile?tab=favorites"
                     onClick={() => setIsUserMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors"
+                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-amber-50/60 hover:text-amber-700 transition-colors"
                   >
-                    <BookmarkIcon className="w-4 h-4" />
-                    لیست‌ها
+                    <BookmarkIcon className="w-4 h-4 text-secondary" />
+                    لیست علاقه مندی ها
                   </Link>
 
                   <Link
                     href="/profile/comments"
                     onClick={() => setIsUserMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors"
+                    className="flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-gray-700 hover:bg-amber-50/60 hover:text-amber-700 transition-colors"
                   >
-                    <ChatBubbleLeftRightIcon className="w-4 h-4" />
+                    <ChatBubbleLeftRightIcon className="w-4 h-4 text-secondary" />
                     دیدگاه‌ها و پرسش‌ها
-                  </Link>
-
-                  <Link
-                    href="/profile/addresses"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="flex items-center gap-2.5 px-4 py-2 text-xs text-gray-700 hover:bg-gray-50 hover:text-emerald-600 transition-colors"
-                  >
-                    <MapIcon className="w-4 h-4" />
-                    آدرس‌های من
                   </Link>
                 </div>
 
-                <div className="border-t border-gray-100 pt-1 mt-1">
+                <div className="border-t border-[#E0DCD3]/70 pt-1 mt-1">
                   <button
                     type="button"
                     onClick={() => {
                       setIsUserMenuOpen(false);
                       logout();
                     }}
-                    className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                    className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-red-900 hover:bg-rose-50 transition-colors cursor-pointer"
                   >
                     <ArrowRightOnRectangleIcon className="w-4 h-4" />
                     خروج از حساب
@@ -144,7 +158,7 @@ export default function UserAuthButton() {
         <button
           type="button"
           id="login-btn"
-          onClick={() => setIsAuthModalOpen(true)}
+          onClick={handleOpenAuthModal}
           className="flex items-center gap-2 px-4 py-3 rounded-full border border-secondary/10 bg-gray-200/60 backdrop-blur-md hover:border-secondary/20 hover:bg-gray-200 transition-all duration-300 group shadow-md cursor-pointer"
         >
           <UserIcon className="w-5 h-5 text-secondary group-hover:text-primary-600 transition-colors stroke-[1.8]" />
@@ -155,10 +169,12 @@ export default function UserAuthButton() {
       )}
 
       {/* کامپوننت مودال ثبت‌نام/ورود */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-      />
+      {!onOpenAuthModal && (
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+        />
+      )}
     </>
   );
 }

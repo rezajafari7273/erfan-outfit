@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useState, useCallback, useEffect } from "react";
+import { createContext, useState, useCallback, useEffect, useContext } from "react";
 import { profileApi } from "../api/profileApi";
 
 export const ProfileContext = createContext(null);
@@ -83,7 +83,6 @@ export function ProfileProvider({ children }) {
     setError(null);
     try {
       const data = await profileApi.getAddresses();
-      // پشتیبانی از ساختارهای احتمالی داده ارسالی از Django (آرایه مستقیم یا صفحه بندی)
       const list = Array.isArray(data) ? data : data?.results || [];
       setAddresses(list);
       return list;
@@ -100,7 +99,6 @@ export function ProfileProvider({ children }) {
     setError(null);
     try {
       await profileApi.createAddress(payload);
-      // دریافت مجدد آدرس‌ها جهت همگام‌سازی وضعیت آدرس پیش‌فرض
       const updatedList = await fetchAddresses();
       return updatedList;
     } catch (err) {
@@ -116,7 +114,6 @@ export function ProfileProvider({ children }) {
     setError(null);
     try {
       await profileApi.updateAddress(id, payload);
-      // دریافت مجدد آدرس‌ها جهت همگام‌سازی وضعیت آدرس پیش‌فرض
       const updatedList = await fetchAddresses();
       return updatedList;
     } catch (err) {
@@ -141,10 +138,13 @@ export function ProfileProvider({ children }) {
     }
   };
 
-  // دریافت اولیه اطلاعات به محض لود برنامه‌
+  // دریافت اولیه اطلاعات تنها در صورت وجود توکن معتبر
   useEffect(() => {
-    fetchProfile();
-    fetchAddresses();
+    const token = typeof window !== "undefined" ? localStorage.getItem("accessToken") : null;
+    if (token) {
+      fetchProfile();
+      fetchAddresses();
+    }
   }, [fetchProfile, fetchAddresses]);
 
   return (
@@ -168,4 +168,12 @@ export function ProfileProvider({ children }) {
       {children}
     </ProfileContext.Provider>
   );
+}
+
+export function useProfileContext() {
+  const context = useContext(ProfileContext);
+  if (!context) {
+    throw new Error("useProfileContext must be used within a ProfileProvider");
+  }
+  return context;
 }

@@ -1,22 +1,40 @@
 "use client";
 
-import React, { createContext, useContext } from "react";
-import { mockPromotionsData } from "@/data/mockPromotions";
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { promotionService } from "./services/promotionService";
 
-const PromotionContext = createContext(mockPromotionsData);
+const PromotionContext = createContext({ promotions: null, isLoading: true });
 
-export function PromotionProvider({ children, initialData = mockPromotionsData }) {
+export function PromotionProvider({ children }) {
+  const [promotions, setPromotions] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    promotionService.getPlacements()
+      .then((data) => {
+        if (isMounted) setPromotions(data);
+      })
+      .catch((err) => {
+        console.error("Error updating promotion state:", err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
-    <PromotionContext.Provider value={initialData}>
+    <PromotionContext.Provider value={{ promotions, isLoading }}>
       {children}
     </PromotionContext.Provider>
   );
 }
 
 export function usePromotions() {
-  const context = useContext(PromotionContext);
-  if (!context) {
-    throw new Error("usePromotions must be used within a PromotionProvider");
-  }
-  return context;
+  return useContext(PromotionContext);
 }

@@ -1,6 +1,5 @@
 import Header from "@/components/common/Header/Header";
-import Footer from "@/components/common/Footer/Footer";
-import MobileBottomNav from "@/components/common/MobileBottomNav";
+import ShopFooterWrapper from "@/components/common/ShopFooterWrapper";
 import { PromotionProvider } from "@/components/promotions/PromotionContext";
 import PromotionRenderer from "@/components/promotions/PromotionRenderer";
 import { BreadcrumbProvider } from "@/context/BreadcrumbContext";
@@ -27,8 +26,7 @@ export default function ShopLayout({ children }) {
 
           <main>{children}</main>
 
-          <Footer />
-          <MobileBottomNav />
+          <ShopFooterWrapper />
         </BreadcrumbProvider>
       </ProductProvider>
     </PromotionProvider>

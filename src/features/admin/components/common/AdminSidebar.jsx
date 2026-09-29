@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import {
   Squares2X2Icon,
@@ -13,6 +13,7 @@ import {
   UsersIcon,
   UserGroupIcon,
   TagIcon,
+  TicketIcon,
   GiftIcon,
   DocumentTextIcon,
   CubeIcon,
@@ -22,6 +23,12 @@ import {
   ChevronDownIcon,
   ChevronLeftIcon,
   Cog6ToothIcon,
+  BoltIcon,
+  RectangleStackIcon,
+  FireIcon,
+  PhotoIcon,
+  SparklesIcon,
+  DocumentDuplicateIcon,
 } from '@heroicons/react/24/outline';
 
 const navGroups = [
@@ -51,12 +58,24 @@ const navGroups = [
     ],
   },
   {
-    title: 'بازاریابی',
+    title: 'پروموشن',
     items: [
-      { name: 'پروموشن‌ها', href: '/admin-panel/promotions', icon: TagIcon },
-      { name: 'کوپن‌ها', href: '/admin-panel/coupons', icon: GiftIcon },
+      { name: 'پروموشن‌ها', href: '/admin-panel/promotions', icon: TagIcon, exact: true },
+      { name: 'کوپن‌ها', href: '/admin-panel/promotions?tab=coupons', icon: TicketIcon, tab: 'coupons' },
+      { name: 'فروش فلش', href: '/admin-panel/promotions?tab=flash', icon: BoltIcon, tab: 'flash' },
+      { name: 'بخر یکی ببر یکی', href: '/admin-panel/promotions?tab=bogo', icon: GiftIcon, tab: 'bogo' },
+      { name: 'تاپ بنر', href: '/admin-panel/promotions?tab=top-banners', icon: RectangleStackIcon, tab: 'top-banners' },
+      { name: 'استوری‌ها', href: '/admin-panel/promotions?tab=stories', icon: FireIcon, tab: 'stories' },
+      { name: 'اسلایدر', href: '/admin-panel/promotions?tab=sliders', icon: PhotoIcon, tab: 'sliders' },
+      { name: 'اسمال بنر', href: '/admin-panel/promotions?tab=small-banners', icon: SparklesIcon, tab: 'small-banners' },
+      { name: 'لندینگ‌ها', href: '/admin-panel/promotions?tab=landings', icon: DocumentDuplicateIcon, tab: 'landings' },
+    ],
+  },
+  {
+    title: 'محتوا',
+    items: [
+      { name: 'مقالات', href: '/admin-panel/content', icon: DocumentTextIcon },
       { name: 'باشگاه مشتریان', href: '/admin-panel/loyalty', icon: GiftIcon },
-      { name: 'محتوا', href: '/admin-panel/content', icon: DocumentTextIcon },
     ],
   },
   {
@@ -70,17 +89,31 @@ const navGroups = [
   },
 ];
 
-function isActivePath(pathname, href, exact = false) {
-  if (exact) return pathname === href;
-  return pathname === href || pathname.startsWith(href + '/');
-}
-
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentTab = searchParams.get('tab') || 'promotions';
+
   const [collapsed, setCollapsed] = useState({});
 
   const toggleGroup = (title) => {
     setCollapsed((prev) => ({ ...prev, [title]: !prev[title] }));
+  };
+
+  const isActive = (item) => {
+    const cleanHref = item.href.split('?')[0];
+    // اگر item.tab داره، فقط زمانی active هست که هم pathname و هم tab مطابقت داشته باشن
+    if (item.tab) {
+      return pathname === cleanHref && currentTab === item.tab;
+    }
+    // برای آیتم‌های بدون tab توی /promotions
+    if (cleanHref === '/admin-panel/promotions') {
+      if (item.exact) {
+        return pathname === cleanHref && currentTab === 'promotions';
+      }
+    }
+    if (item.exact) return pathname === cleanHref;
+    return pathname === cleanHref || pathname.startsWith(cleanHref + '/');
   };
 
   return (
@@ -97,16 +130,16 @@ export default function AdminSidebar() {
       <nav className="flex-1 p-4 space-y-4 overflow-y-auto">
         {navGroups.map((group) => {
           const isCollapsed = collapsed[group.title];
-          const groupHasActive = group.items.some((it) =>
-            isActivePath(pathname, it.href, it.exact)
-          );
+          const groupHasActive = group.items.some(isActive);
 
           return (
             <div key={group.title}>
               <button
                 type="button"
                 onClick={() => toggleGroup(group.title)}
-                className="w-full flex items-center justify-between px-2 mb-1.5 text-[10px] font-black tracking-wide text-slate-500 hover:text-slate-300 transition"
+                className={`w-full flex items-center justify-between px-2 mb-1.5 text-[10px] font-black tracking-wide transition ${
+                  groupHasActive ? 'text-amber-400' : 'text-slate-500 hover:text-slate-300'
+                }`}
               >
                 <span className="uppercase">{group.title}</span>
                 {isCollapsed ? (
@@ -119,7 +152,7 @@ export default function AdminSidebar() {
               {!isCollapsed && (
                 <div className="space-y-0.5">
                   {group.items.map((item) => {
-                    const active = isActivePath(pathname, item.href, item.exact);
+                    const active = isActive(item);
                     const Icon = item.icon;
 
                     return (
