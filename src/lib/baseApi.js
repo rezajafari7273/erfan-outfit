@@ -1,6 +1,95 @@
 import axios from "axios";
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+const BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || "https://online-mod.com/api/v1";
+
+// دامنه اصلی سایت برای عکس‌ها (بدون /api/v1)
+const MEDIA_BASE_URL = BASE_URL.replace(/\/api\/v1\/?$/, "");
+
+// لیست فیلدهایی که احتمال دارد حاوی آدرس عکس باشند
+const IMAGE_KEYS = [
+  "image",
+  "img",
+  "banner",
+  "icon",
+  "avatar",
+  "cover",
+  "thumbnail",
+  "file",
+  "src",
+  "photo",
+];
+
+// تشخیص اینکه آیا یک رشته آدرس تصویر است یا خیر
+function isImagePath(str) {
+  if (typeof str !== "string" || !str.trim()) return false;
+  
+  // اگر آدرس از قبل کامل باشد نیاز به تغییر ندارد
+  if (str.startsWith("http://") || str.startsWith("https://") || str.startsWith("data:")) {
+    return false;
+  }
+
+  // پسوندهای متداول عکس
+  const hasImageExtension = /\.(jpg|jpeg|png|webp|gif|svg|avif)$/i.test(str);
+  
+  // مسیرهای متداول ذخیره‌سازی فایل
+  const hasMediaPath =
+    str.includes("media/") ||
+    str.includes("static/") ||
+    str.includes("uploads/") ||
+    str.includes("images/");
+
+  return hasImageExtension || hasMediaPath;
+}
+
+// تابع جایگزین کردن و کامل‌سازی آدرس تصویر
+function processUrl(url) {
+  if (!url || typeof url !== "string") return url;
+  if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
+    return url;
+  }
+
+  const cleanPath = url.startsWith("/") ? url : `/${url}`;
+  return `${MEDIA_BASE_URL}${cleanPath}`;
+}
+
+// تابع پیمایش عمیق در داده‌های خروجی API
+function fixImageUrls(data) {
+  if (!data) return data;
+
+  if (typeof data === "string") {
+    if (isImagePath(data)) {
+      return processUrl(data);
+    }
+    return data;
+  }
+
+  if (Array.isArray(data)) {
+    return data.map((item) => fixImageUrls(item));
+  }
+
+  if (typeof data === "object") {
+    const updated = {};
+    for (const key in data) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
+        const value = data[key];
+        
+        // اگر نام کلید جزو کلیدهای تصویر باشد یا مقدارش آدرس عکس باشد
+        if (
+          (IMAGE_KEYS.includes(key.toLowerCase()) && typeof value === "string") ||
+          isImagePath(value)
+        ) {
+          updated[key] = processUrl(value);
+        } else {
+          updated[key] = fixImageUrls(value);
+        }
+      }
+    }
+    return updated;
+  }
+
+  return data;
+}
 
 const baseApi = axios.create({
   baseURL: BASE_URL,
@@ -12,11 +101,12 @@ const baseApi = axios.create({
   },
 });
 
-// ارسال توکن Access همراه با درخواست‌ها
 baseApi.interceptors.request.use(
   (config) => {
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("accessToken");
+      const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("accessToken");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -26,9 +116,15 @@ baseApi.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// مدیریت خودکار 401 و Refresh کردن توکن
 baseApi.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    let responseData = response.data !== undefined ? response.data : response;
+    
+    // اصلاح خودکار تمامی آدرس‌های عکس در پکیج دریافتی
+    responseData = fixImageUrls(responseData);
+
+    return responseData;
+  },
   async (error) => {
     const originalRequest = error.config;
 
@@ -36,27 +132,30 @@ baseApi.interceptors.response.use(
       originalRequest._retry = true;
 
       if (typeof window !== "undefined") {
-        const refreshToken = localStorage.getItem("refreshToken");
+        const refreshToken =
+          localStorage.getItem("refresh_token") ||
+          localStorage.getItem("refreshToken");
 
         if (refreshToken) {
           try {
-            // درخواست توکن جدید از بکند
             const res = await axios.post(`${BASE_URL}/auth/refresh/`, {
               refresh: refreshToken,
             });
 
             const newAccessToken = res.data.access;
+            localStorage.setItem("access_token", newAccessToken);
             localStorage.setItem("accessToken", newAccessToken);
 
-            // اجرای مجدد درخواست قبلی با توکن جدید
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
             return baseApi(originalRequest);
           } catch (refreshError) {
-            // اگر توکن Refresh هم منقضی شده بود، خروج کامل
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
             localStorage.removeItem("accessToken");
             localStorage.removeItem("refreshToken");
+
             if (typeof window !== "undefined") {
-              window.location.href = "/";
+              window.location.href = "/admin-panel/login";
             }
             return Promise.reject(refreshError);
           }
@@ -64,9 +163,16 @@ baseApi.interceptors.response.use(
       }
     }
 
-    return Promise.reject(
-      error.response?.data || { message: "خطایی در برقراری ارتباط رخ داد." }
-    );
+    const errorMessage =
+      error.response?.data?.message ||
+      error.response?.data?.detail ||
+      "خطایی در برقراری ارتباط رخ داد.";
+
+    return Promise.reject({
+      status: error.response?.status,
+      message: errorMessage,
+      data: error.response?.data,
+    });
   }
 );
 

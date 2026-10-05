@@ -9,7 +9,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="fa" dir="rtl" suppressHydrationWarning>
+    <html lang="fa" dir="rtl" data-scroll-behavior="smooth" suppressHydrationWarning>
       <body
         suppressHydrationWarning
         className={`${mainFont.variable} ${faNumFont.variable} ${rokhFont.variable} antialiased`}

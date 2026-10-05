@@ -11,8 +11,36 @@ const CACHE_KEYS = {
   COLLECTIONS: "app_cache_collections",
 };
 
-// مدت زمان اعتبار کَش (مثلاً ۱ ساعت)
+// مدت زمان اعتبار کَش (۱ ساعت)
 const CACHE_TTL = 60 * 60 * 1000; 
+
+// تابع کمکی برای استخراج متنی و امن پیام خطا
+function getErrorMessage(err, fallbackMessage) {
+  if (typeof err === "string") return err;
+  if (!err) return fallbackMessage;
+
+  // اگر خطا از سمت Axios/baseApi باشد
+  if (err.message && err.message !== 'خطایی در برقراری ارتباط رخ داد.') {
+    return err.message;
+  }
+  
+  if (err.response?.data?.detail) {
+    return err.response.data.detail;
+  }
+
+  // در صورت قطعی شبکه یا عدم دریافت status
+  if (err.status === undefined && (!err.response || err.code === "ERR_NETWORK")) {
+    return "ارتباط با سرور برقرار نشد. لطفاً از اتصال اینترنت یا فعال بودن سرور مطمئن شوید.";
+  }
+
+  return fallbackMessage;
+}
+
+// تابع کمکی برای استخراج امن داده پاسخ API
+function extractData(res) {
+  if (!res) return null;
+  return res.data !== undefined ? res.data : res;
+}
 
 export function ProductProvider({ children }) {
   const [categories, setCategories] = useState([]);
@@ -36,7 +64,6 @@ export function ProductProvider({ children }) {
     featured: false,
   });
 
-  // اگر داده در کش باشد، loading ابتدایی false است تا اسکلتون نشان داده نشود
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -46,26 +73,23 @@ export function ProductProvider({ children }) {
   // --- دریافت دسته‌بندی‌ها با مکانیزم Caching ---
   const fetchCategories = useCallback(async (forceRefresh = false) => {
     try {
-      // ۱. بررسی کش مرورگر
       const cachedData = localStorage.getItem(CACHE_KEYS.CATEGORIES);
       if (cachedData && !forceRefresh) {
         const { data, timestamp } = JSON.parse(cachedData);
         setCategories(data);
-        setCategoriesLoading(false); // داده قبلی بلافاصله نمایش داده می‌شود
+        setCategoriesLoading(false);
 
-        // اگر مدت اعتبار کش تمام نشده باشد، درخواست شبکه هم نمی‌زنیم
         if (Date.now() - timestamp < CACHE_TTL) {
           return data;
         }
       }
 
-      // ۲. دریافت داده تازه از بک‌اند
-      const data = await productApi.getCategories();
+      const res = await productApi.getCategories();
+      const data = extractData(res);
       const list = Array.isArray(data) ? data : data?.results || [];
 
       if (list.length > 0) {
         setCategories(list);
-        // ذخیره در LocalStorage همراه با زمان ثبت
         localStorage.setItem(
           CACHE_KEYS.CATEGORIES,
           JSON.stringify({ data: list, timestamp: Date.now() })
@@ -82,7 +106,6 @@ export function ProductProvider({ children }) {
   // --- دریافت کالکشن‌ها با مکانیزم Caching ---
   const fetchCollections = useCallback(async (forceRefresh = false) => {
     try {
-      // ۱. بررسی کش مرورگر
       const cachedData = localStorage.getItem(CACHE_KEYS.COLLECTIONS);
       if (cachedData && !forceRefresh) {
         const { data, timestamp } = JSON.parse(cachedData);
@@ -93,8 +116,8 @@ export function ProductProvider({ children }) {
         }
       }
 
-      // ۲. دریافت داده تازه از بک‌اند
-      const data = await productApi.getMegamenuCollections();
+      const res = await productApi.getMegamenuCollections();
+      const data = extractData(res);
       const list = Array.isArray(data) ? data : data?.results || [];
 
       if (list.length > 0) {
@@ -110,7 +133,7 @@ export function ProductProvider({ children }) {
     }
   }, []);
 
-  // --- سایر متدها بدون تغییر ---
+  // --- دریافت محصولات با مدیریت خطا و داده ---
   const fetchProducts = useCallback(async (targetFilters) => {
     const isFirstPage = !targetFilters.page || Number(targetFilters.page) === 1;
 
@@ -130,15 +153,16 @@ export function ProductProvider({ children }) {
         }
       });
 
-      const data = await productApi.getProducts(cleanParams);
+      const res = await productApi.getProducts(cleanParams);
+      const data = extractData(res);
 
       if (Array.isArray(data)) {
         setProducts(data);
         setProductsCount(data.length);
         setHasMore(false);
-      } else {
-        const results = data?.results || [];
-        const count = data?.count || 0;
+      } else if (data && typeof data === "object") {
+        const results = data.results || [];
+        const count = data.count || 0;
         setProductsCount(count);
 
         if (isFirstPage) {
@@ -147,11 +171,15 @@ export function ProductProvider({ children }) {
           setProducts((prev) => [...prev, ...results]);
         }
 
-        setHasMore(Boolean(data?.next));
+        setHasMore(Boolean(data.next));
+      } else {
+        if (isFirstPage) setProducts([]);
+        setHasMore(false);
       }
     } catch (err) {
       console.error("خطا در دریافت لیست محصولات:", err);
-      setError(err || "خطا در دریافت لیست محصولات");
+      const msg = getErrorMessage(err, "خطا در دریافت لیست محصولات");
+      setError(msg);
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -203,11 +231,13 @@ export function ProductProvider({ children }) {
     setLoading(true);
     setError(null);
     try {
-      const data = await productApi.getProductBySlug(slug);
+      const res = await productApi.getProductBySlug(slug);
+      const data = extractData(res);
       setSelectedProduct(data);
       return data;
     } catch (err) {
-      setError(err || "خطا در دریافت جزئیات محصول");
+      const msg = getErrorMessage(err, "خطا در دریافت جزئیات محصول");
+      setError(msg);
       throw err;
     } finally {
       setLoading(false);
@@ -238,7 +268,7 @@ export function ProductProvider({ children }) {
         selectedProduct,
         filters,
         loading,
-        categoriesLoading, // برای کنترل اسکلتون مگامنو
+        categoriesLoading,
         loadingMore,
         hasMore,
         error,

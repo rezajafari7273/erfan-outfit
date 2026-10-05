@@ -42,8 +42,16 @@ export default function CategorySidebar({
       {/* لیست دسته‌بندی‌ها با استایل مدرن */}
       <div className="flex flex-col gap-2">
         {safeCategories.map((category) => {
-          const Icon = category.icon;
+          const rawIcon = category.icon;
           const active = category.id === activeCategory;
+
+          // تشخیص نوع آیکون (آیا کامپوننت React است یا لینک/مسیر تصویر)
+          const isReactComponent =
+            typeof rawIcon === "function" ||
+            (typeof rawIcon === "object" && rawIcon !== null && "$$typeof" in rawIcon);
+          const isImageUrl = typeof rawIcon === "string" && (rawIcon.startsWith("http") || rawIcon.includes("/"));
+
+          const IconComponent = isReactComponent ? rawIcon : null;
 
           return (
             <button
@@ -60,7 +68,7 @@ export default function CategorySidebar({
               }`}
             >
               {/* بخش راست: آیکون */}
-              {Icon && (
+              {(IconComponent || isImageUrl) && (
                 <div
                   className={`flex items-center justify-center w-10 h-10 rounded-xl transition-colors duration-300 border border-transparent shrink-0 z-10 ${
                     active
@@ -68,11 +76,19 @@ export default function CategorySidebar({
                       : "bg-white/80 text-gray-500 shadow-sm shadow-gray-200/50 group-hover:bg-primary/10 group-hover:text-primary group-hover:shadow-primary/20"
                   }`}
                 >
-                  <Icon className="h-4.5 w-4.5 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3" />
+                  {IconComponent ? (
+                    <IconComponent className="h-4.5 w-4.5 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3" />
+                  ) : (
+                    <img
+                      src={rawIcon}
+                      alt={category.title || "icon"}
+                      className="h-5 w-5 object-contain transition-transform duration-500 group-hover:scale-110"
+                    />
+                  )}
                 </div>
               )}
 
-              {/* عنوان: استفاده از flex-1 به جای absolute برای جلوگیری از تداخل */}
+              {/* عنوان */}
               <span className="flex-1 text-right font-medium text-sm tracking-wide z-10 truncate px-1">
                 {category.title}
               </span>
@@ -100,7 +116,7 @@ export default function CategorySidebar({
                 />
               </div>
 
-              {/* افکت‌های پس‌زمینه مدرن */}
+              {/* افکت‌های پس‌زمینه */}
               {!active && (
                 <>
                   <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
@@ -108,7 +124,7 @@ export default function CategorySidebar({
                 </>
               )}
 
-              {/* هایلایت اکتیو به صورت یک نوار سمت راست */}
+              {/* هایلایت اکتیو */}
               {active && (
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-8 bg-white/60 rounded-l-full blur-[2px] shadow-lg shadow-white/50" />
               )}

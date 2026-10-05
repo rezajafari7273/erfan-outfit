@@ -6,6 +6,12 @@ import {
   getLatestProducts,
 } from "../api/homeApi";
 
+// تابع کمکی برای استخراج امن داده‌ها با توجه به Response Interceptor در baseApi
+function extractData(res) {
+  if (!res) return null;
+  return res.data !== undefined ? res.data : res;
+}
+
 export function useHomeData() {
   const [amazingData, setAmazingData] = useState({ targetDate: null, products: [] });
   const [bestSellingData, setBestSellingData] = useState([]);
@@ -19,22 +25,45 @@ export function useHomeData() {
   const [isLatestLoading, setIsLatestLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // دریافت اولیه کلیه داده‌های صفحه اصلی
+  // دریافت اولیه کلیه داده‌های صفحه اصلی به صورت مقاوم در برابر خطای مجزا
   useEffect(() => {
     const fetchInitialData = async () => {
       try {
         setIsLoading(true);
-        const [amazingRes, bestSellingRes, instantRes, latestRes] = await Promise.all([
+        const results = await Promise.allSettled([
           getAmazingProducts(),
           getBestSellingProducts(),
           getInstantOffers(),
           getLatestProducts({ category: "all", page: 1 }),
         ]);
 
-        setAmazingData(amazingRes.data || { targetDate: null, products: [] });
-        setBestSellingData(bestSellingRes.data?.products || []);
-        setInstantOffersData(instantRes.data || { targetDate: null, offers: [], quickAccess: [] });
-        setLatestData(latestRes.data || { categories: [], products: [], pagination: {} });
+        const [amazingRes, bestSellingRes, instantRes, latestRes] = results;
+
+        if (amazingRes.status === "fulfilled") {
+          const data = extractData(amazingRes.value);
+          setAmazingData(data || { targetDate: null, products: [] });
+        }
+
+        if (bestSellingRes.status === "fulfilled") {
+          const data = extractData(bestSellingRes.value);
+          setBestSellingData(data?.products || (Array.isArray(data) ? data : []));
+        }
+
+        if (instantRes.status === "fulfilled") {
+          const data = extractData(instantRes.value);
+          setInstantOffersData(data || { targetDate: null, offers: [], quickAccess: [] });
+        }
+
+        if (latestRes.status === "fulfilled") {
+          const data = extractData(latestRes.value);
+          setLatestData(data || { categories: [], products: [], pagination: {} });
+        }
+
+        // اگر همگی ریجکت شدند، خطا ثبت شود
+        const allRejected = results.every((r) => r.status === "rejected");
+        if (allRejected) {
+          setError(results[0].reason);
+        }
       } catch (err) {
         console.error("خطا در دریافت اطلاعات صفحه اصلی:", err);
         setError(err);
@@ -51,10 +80,11 @@ export function useHomeData() {
     try {
       setIsLatestLoading(true);
       const res = await getLatestProducts({ category, page });
+      const data = extractData(res);
       setLatestData((prev) => ({
         ...prev,
-        products: res.data?.products || [],
-        pagination: res.data?.pagination || {},
+        products: data?.products || [],
+        pagination: data?.pagination || {},
       }));
     } catch (err) {
       console.error("خطا در فیلتر جدیدترین محصولات:", err);

@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import baseApi from '@/lib/baseApi'; // ایمپورت نمونه baseApi پروژه
 import PromotionRenderer from "@/components/promotions/PromotionRenderer";
 import Input from '@/components/ui/Input';
 import Backdrop from '@/components/ui/Backdrop';
@@ -21,9 +22,7 @@ import {
   ArrowPathIcon,
 } from '@heroicons/react/24/outline';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
-
-// لیست جستجوهای ترند برگرفته دقیقاً از مگامنو
+// لیست جستجوهای ترند برگرفته از مگامنو
 const MEGAMENU_TRENDING_ITEMS = [
   'پوشاک مردانه',
   'پوشاک زنانه',
@@ -32,18 +31,15 @@ const MEGAMENU_TRENDING_ITEMS = [
   'اکسسوری و زیورآلات',
 ];
 
-async function safeFetch(url, options = {}) {
-  try {
-    const res = await fetch(url, {
-      ...options,
-      headers: { Accept: 'application/json', ...(options.headers || {}) },
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch (err) {
-    console.error('[SEARCH FETCH]', url, err);
-    return null;
+// تابع کمکی برای اطمینان از سلامت لینک تصویر
+function getFullImageUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
   }
+  const baseUrl = baseApi.defaults.baseURL || '';
+  const domainBase = baseUrl.replace(/\/api\/v1\/?$/, '');
+  return `${domainBase}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
 function formatPrice(v) {
@@ -59,7 +55,6 @@ export default function ClothingSearch() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopFocused, setIsDesktopFocused] = useState(false);
 
-  // ست کردن آیتم‌های مگامنو به عنوان مقدار اولیه
   const [trendingSearches, setTrendingSearches] = useState(MEGAMENU_TRENDING_ITEMS);
   const [recentSearches, setRecentSearches] = useState([]);
   const [popularProducts, setPopularProducts] = useState([]);
@@ -67,35 +62,46 @@ export default function ClothingSearch() {
 
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [colors, setColors] = useState([]);
-  const [isColorMenuOpen, setIsColorMenuOpen] = useState(false); // استیت باز/بسته بودن آکاردئون رنگ‌ها
+  const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
 
   const recognitionRef = useRef(null);
   const mobileInputRef = useRef(null);
   const suggestTimerRef = useRef(null);
   const imageInputRef = useRef(null);
 
-  // mount: recent + popular + colors
+  // دریافت داده‌های اولیه با baseApi
   useEffect(() => {
     (async () => {
-      const [trending, recent, popular, colorsData] = await Promise.all([
-        safeFetch(`${API_BASE}/search/trending/`),
-        safeFetch(`${API_BASE}/search/recent/`),
-        safeFetch(`${API_BASE}/search/products/?page_size=2`),
-        safeFetch(`${API_BASE}/search/colors/`),
-      ]);
+      try {
+        const [trendingRes, recentRes, popularRes, colorsRes] = await Promise.allSettled([
+          baseApi.get('/search/trending/'),
+          baseApi.get('/search/recent/'),
+          baseApi.get('/search/products/?page_size=2'),
+          baseApi.get('/search/colors/'),
+        ]);
 
-      if (Array.isArray(trending) && trending.length > 0) {
-        setTrendingSearches(trending.map((t) => t.term));
+        if (trendingRes.status === 'fulfilled' && Array.isArray(trendingRes.value.data) && trendingRes.value.data.length > 0) {
+          setTrendingSearches(trendingRes.value.data.map((t) => t.term));
+        }
+
+        if (recentRes.status === 'fulfilled' && Array.isArray(recentRes.value.data)) {
+          setRecentSearches(recentRes.value.data.map((r) => r.query));
+        }
+
+        if (popularRes.status === 'fulfilled' && popularRes.value.data?.results) {
+          setPopularProducts(popularRes.value.data.results.slice(0, 2));
+        }
+
+        if (colorsRes.status === 'fulfilled' && Array.isArray(colorsRes.value.data)) {
+          setColors(colorsRes.value.data);
+        }
+      } catch (err) {
+        console.error('[SEARCH INIT ERROR]', err);
       }
-      if (Array.isArray(recent)) setRecentSearches(recent.map((r) => r.query));
-      if (popular && Array.isArray(popular.results)) {
-        setPopularProducts(popular.results.slice(0, 2));
-      }
-      if (Array.isArray(colorsData)) setColors(colorsData);
     })();
   }, []);
 
-  // autocomplete debounce
+  // Autocomplete با Debounce از طریق baseApi
   useEffect(() => {
     if (suggestTimerRef.current) clearTimeout(suggestTimerRef.current);
 
@@ -106,10 +112,14 @@ export default function ClothingSearch() {
     }
 
     suggestTimerRef.current = setTimeout(async () => {
-      const data = await safeFetch(
-        `${API_BASE}/search/suggest/?q=${encodeURIComponent(q)}`
-      );
-      if (Array.isArray(data)) setSuggestions(data);
+      try {
+        const res = await baseApi.get(`/search/suggest/?q=${encodeURIComponent(q)}`);
+        if (Array.isArray(res.data)) {
+          setSuggestions(res.data);
+        }
+      } catch (err) {
+        console.error('[SEARCH SUGGEST ERROR]', err);
+      }
     }, 300);
 
     return () => clearTimeout(suggestTimerRef.current);
@@ -210,18 +220,11 @@ export default function ClothingSearch() {
       const formData = new FormData();
       formData.append('image', file);
 
-      const res = await fetch(`${API_BASE}/search/image/`, {
-        method: 'POST',
-        body: formData,
+      const res = await baseApi.post('/search/image/', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
-      if (!res.ok) {
-        alert('خطا در جستجوی تصویر');
-        return;
-      }
-
-      const data = await res.json();
-      const results = data?.results || [];
+      const results = res.data?.results || [];
       const ids = results.map((p) => p.id).join(',');
 
       if (!ids) {
@@ -232,7 +235,7 @@ export default function ClothingSearch() {
       setIsMobileOpen(false);
       router.push(`/products?ids=${ids}`);
     } catch (err) {
-      console.error('[IMAGE SEARCH]', err);
+      console.error('[IMAGE SEARCH ERROR]', err);
       alert('خطا در جستجوی تصویر');
     } finally {
       setIsImageUploading(false);
@@ -240,14 +243,12 @@ export default function ClothingSearch() {
     }
   };
 
-  // انتخاب تک‌رنگ و هدایت آنی به صفحه محصولات
   const handleColorClick = (colorId) => {
     setIsDesktopFocused(false);
     setIsMobileOpen(false);
     router.push(`/products?colors=${colorId}&color_ids=${colorId}`);
   };
 
-  // منوی باز شونده رنگ‌ها
   const renderColorPanel = () => (
     <div className="bg-secondary/5 border border-secondary/15 rounded-2xl mb-6 overflow-hidden transition-all duration-300">
       <button
@@ -283,7 +284,7 @@ export default function ClothingSearch() {
                 <div className="w-[28px] h-[28px] rounded-lg overflow-hidden border border-black/10 shrink-0 relative bg-gray-100 flex items-center justify-center">
                   {c.image ? (
                     <img
-                      src={c.image.startsWith('http') ? c.image : `http://127.0.0.1:8000${c.image}`}
+                      src={getFullImageUrl(c.image)}
                       alt={c.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {
@@ -437,7 +438,7 @@ export default function ClothingSearch() {
                         <div className="relative w-20 h-20 bg-gray-100 rounded-[1.5rem] p-2 flex-shrink-0">
                           {p.thumbnail ? (
                             <Image
-                              src={p.thumbnail}
+                              src={getFullImageUrl(p.thumbnail)}
                               alt={p.title}
                               width={80}
                               height={80}
@@ -649,7 +650,7 @@ export default function ClothingSearch() {
                         <div className="relative w-16 h-16 bg-white rounded-xl p-1 flex-shrink-0">
                           {p.thumbnail ? (
                             <Image
-                              src={p.thumbnail}
+                              src={getFullImageUrl(p.thumbnail)}
                               alt={p.title}
                               width={64}
                               height={64}
