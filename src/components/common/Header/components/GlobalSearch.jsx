@@ -10,6 +10,7 @@ import Backdrop from '@/components/ui/Backdrop';
 import {
   MagnifyingGlassIcon,
   ChevronLeftIcon,
+  ChevronDownIcon,
   EyeIcon,
   ClockIcon,
   MicrophoneIcon,
@@ -21,6 +22,15 @@ import {
 } from '@heroicons/react/24/outline';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+
+// لیست جستجوهای ترند برگرفته دقیقاً از مگامنو
+const MEGAMENU_TRENDING_ITEMS = [
+  'پوشاک مردانه',
+  'پوشاک زنانه',
+  'کیف و کفش',
+  'پوشاک بچگانه',
+  'اکسسوری و زیورآلات',
+];
 
 async function safeFetch(url, options = {}) {
   try {
@@ -49,21 +59,22 @@ export default function ClothingSearch() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopFocused, setIsDesktopFocused] = useState(false);
 
-  const [trendingSearches, setTrendingSearches] = useState([]);
+  // ست کردن آیتم‌های مگامنو به عنوان مقدار اولیه
+  const [trendingSearches, setTrendingSearches] = useState(MEGAMENU_TRENDING_ITEMS);
   const [recentSearches, setRecentSearches] = useState([]);
   const [popularProducts, setPopularProducts] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
 
   const [isImageUploading, setIsImageUploading] = useState(false);
   const [colors, setColors] = useState([]);
-  const [selectedColorIds, setSelectedColorIds] = useState([]);
+  const [isColorMenuOpen, setIsColorMenuOpen] = useState(false); // استیت باز/بسته بودن آکاردئون رنگ‌ها
 
   const recognitionRef = useRef(null);
   const mobileInputRef = useRef(null);
   const suggestTimerRef = useRef(null);
   const imageInputRef = useRef(null);
 
-  // mount: trending + recent + popular + colors
+  // mount: recent + popular + colors
   useEffect(() => {
     (async () => {
       const [trending, recent, popular, colorsData] = await Promise.all([
@@ -73,7 +84,9 @@ export default function ClothingSearch() {
         safeFetch(`${API_BASE}/search/colors/`),
       ]);
 
-      if (Array.isArray(trending)) setTrendingSearches(trending.map((t) => t.term));
+      if (Array.isArray(trending) && trending.length > 0) {
+        setTrendingSearches(trending.map((t) => t.term));
+      }
       if (Array.isArray(recent)) setRecentSearches(recent.map((r) => r.query));
       if (popular && Array.isArray(popular.results)) {
         setPopularProducts(popular.results.slice(0, 2));
@@ -171,7 +184,7 @@ export default function ClothingSearch() {
       if (!term) return;
       setIsMobileOpen(false);
       setIsDesktopFocused(false);
-      router.push(`/search?q=${encodeURIComponent(term)}`);
+      router.push(`/products?q=${encodeURIComponent(term)}`);
     },
     [router, searchTerm]
   );
@@ -217,7 +230,7 @@ export default function ClothingSearch() {
       }
 
       setIsMobileOpen(false);
-      router.push(`/search?ids=${ids}`);
+      router.push(`/products?ids=${ids}`);
     } catch (err) {
       console.error('[IMAGE SEARCH]', err);
       alert('خطا در جستجوی تصویر');
@@ -227,80 +240,66 @@ export default function ClothingSearch() {
     }
   };
 
-  // انتخاب رنگ و اجرای خودکار جستجو
-  const handleColorClick = (id) => {
-    const nextIds = selectedColorIds.includes(id)
-      ? selectedColorIds.filter((c) => c !== id)
-      : [...selectedColorIds, id];
-
-    setSelectedColorIds(nextIds);
-
-    if (nextIds.length > 0) {
-      setIsDesktopFocused(false);
-      setIsMobileOpen(false);
-      router.push(`/search?color_ids=${nextIds.join(',')}`);
-    }
+  // انتخاب تک‌رنگ و هدایت آنی به صفحه محصولات
+  const handleColorClick = (colorId) => {
+    setIsDesktopFocused(false);
+    setIsMobileOpen(false);
+    router.push(`/products?colors=${colorId}&color_ids=${colorId}`);
   };
 
-  const clearColorFilter = () => setSelectedColorIds([]);
-
-// بخش پالت رنگ‌ها با قابلیت انکود امن آدرس‌های فارسی
+  // منوی باز شونده رنگ‌ها
   const renderColorPanel = () => (
-    <div className="p-5 bg-secondary/5 border border-secondary/15 rounded-2xl mb-6">
-      <div className="flex items-center justify-between mb-4">
+    <div className="bg-secondary/5 border border-secondary/15 rounded-2xl mb-6 overflow-hidden transition-all duration-300">
+      <button
+        type="button"
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => setIsColorMenuOpen(!isColorMenuOpen)}
+        className="w-full p-4 flex items-center justify-between hover:bg-secondary/10 transition-colors cursor-pointer"
+      >
         <div className="flex items-center gap-2">
           <SwatchIcon className="w-4 h-4 text-secondary stroke-[2]" />
-          <span className="text-xs font-rokh font-black text-primary uppercase">جستجو با رنگ مورد نظر</span>
+          <span className="text-xs font-rokh font-black text-primary uppercase">
+            جستجو بر اساس رنگ
+          </span>
         </div>
-        {selectedColorIds.length > 0 && (
-          <button
-            type="button"
-            onClick={clearColorFilter}
-            className="text-[11px] font-bold text-rose-600 hover:underline cursor-pointer"
-          >
-            حذف همه
-          </button>
-        )}
-      </div>
+        <ChevronDownIcon
+          className={`w-4 h-4 text-secondary transition-transform duration-300 ${
+            isColorMenuOpen ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
 
-      <div className="flex flex-wrap gap-2.5">
-        {colors.map((c) => {
-          const isSelected = selectedColorIds.includes(c.id);
-          // انکود کردن امن آدرس تصویر برای جلوگیری از خطای کاراکترهای فارسی
-          const safeImageUrl = c.image ? encodeURI(c.image) : '';
-
-          return (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => handleColorClick(c.id)}
-              className={`flex items-center gap-2.5 px-3 py-2 text-[11px] font-bold rounded-xl border transition-all cursor-pointer ${
-                isSelected
-                  ? 'border-secondary/60 bg-white text-secondary shadow-sm ring-2 ring-secondary/20'
-                  : 'border-secondary/10 bg-white/60 text-gray-600 hover:bg-white'
-              }`}
-            >
-              {/* باکس تصویر رنگ با ابعاد دقیق 40 در 40 پیکسل */}
-              <div className="w-[40px] h-[40px] rounded-lg overflow-hidden border border-black/10 shrink-0 relative bg-gray-100 flex items-center justify-center">
-                {c.image ? (
-                  <img
-                    // اگر آدرس سرور است، آن را چک کنید؛ یا اگر نسبی است مابقی را اضافه کنید
-                    src={c.image.startsWith('http') ? c.image : `http://127.0.0.1:8000${c.image}`}
-                    alt={c.name}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      console.error(`خطا در بارگذاری تصویر رنگ (${c.name}):`, e.currentTarget.src);
-                    }}
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gray-200" />
-                )}
-              </div>
-              <span>{c.name}</span>
-            </button>
-          );
-        })}
-      </div>
+      {isColorMenuOpen && (
+        <div className="p-4 pt-0 border-t border-secondary/10 mt-2">
+          <div className="flex flex-wrap gap-2.5 pt-2">
+            {colors.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => handleColorClick(c.id)}
+                className="flex items-center gap-2 px-3 py-2 text-[11px] font-bold rounded-xl border border-secondary/10 bg-white/80 text-gray-700 hover:bg-white hover:border-secondary/40 hover:shadow-sm transition-all cursor-pointer"
+              >
+                <div className="w-[28px] h-[28px] rounded-lg overflow-hidden border border-black/10 shrink-0 relative bg-gray-100 flex items-center justify-center">
+                  {c.image ? (
+                    <img
+                      src={c.image.startsWith('http') ? c.image : `http://127.0.0.1:8000${c.image}`}
+                      alt={c.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        console.error(`خطا در بارگذاری تصویر رنگ (${c.name}):`, e.currentTarget.src);
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-200" />
+                  )}
+                </div>
+                <span>{c.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 
@@ -317,7 +316,14 @@ export default function ClothingSearch() {
           className="top-31.25"
         />
 
-        <div className="relative w-full z-[10000]">
+        <div
+          className="relative w-full z-[10000]"
+          onBlur={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+              setIsDesktopFocused(false);
+            }
+          }}
+        >
           <form onSubmit={handleSearchSubmit} className="relative w-full z-[10000]">
             <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10 text-gray-400 pointer-events-none">
               <MagnifyingGlassIcon className="w-5 h-5 stroke-[2.5]" />
@@ -328,11 +334,6 @@ export default function ClothingSearch() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onFocus={() => setIsDesktopFocused(true)}
-              onBlur={(e) => {
-                if (!e.currentTarget.contains(e.relatedTarget)) {
-                  setIsDesktopFocused(false);
-                }
-              }}
               autoComplete="off"
               placeholder="جستجوی پوشاک ..."
               className="py-3 bg-gray-200/60 backdrop-blur-md border-secondary/10 rounded-full pr-12 pl-44 text-sm font-bold ring-primary/40 shadow-md"
@@ -342,6 +343,7 @@ export default function ClothingSearch() {
               <div className="h-full w-px bg-secondary/20 ml-1"></div>
               <button
                 type="button"
+                onMouseDown={(e) => e.preventDefault()}
                 onClick={handleVoiceSearch}
                 title="جستجوی صوتی"
                 className={`p-2.5 px-5.5 rounded-xl transition-all duration-300 group/archive bg-white shadow-sm cursor-pointer ${
@@ -390,6 +392,7 @@ export default function ClothingSearch() {
               <div className="mb-6">
                 <button
                   type="button"
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={() => imageInputRef.current?.click()}
                   disabled={isImageUploading}
                   className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border border-dashed border-primary/40 bg-primary/5 text-primary text-xs font-bold hover:bg-primary/10 transition-all cursor-pointer disabled:opacity-50"
@@ -408,7 +411,7 @@ export default function ClothingSearch() {
                 </button>
               </div>
 
-              {/* پالت رنگ‌ها */}
+              {/* منوی باز شونده رنگ‌ها */}
               {colors.length > 0 && renderColorPanel()}
 
               {/* محصولات پربازدید */}
@@ -477,8 +480,9 @@ export default function ClothingSearch() {
                       <button
                         key={index}
                         type="button"
+                        onMouseDown={(e) => e.preventDefault()}
                         onClick={() => handleTrendingClick(item)}
-                        className="px-4 py-2 bg-gray-100 text-[11px] font-bold text-gray-500 rounded-full hover:border-primary hover:text-primary border border-transparent transition-all cursor-pointer"
+                        className="px-4 py-2 bg-gray-100 text-[11px] font-bold text-gray-600 hover:border-primary hover:text-primary border border-transparent transition-all cursor-pointer rounded-full"
                       >
                         {item}
                       </button>
@@ -498,6 +502,7 @@ export default function ClothingSearch() {
                           <button
                             key={index}
                             type="button"
+                            onMouseDown={(e) => e.preventDefault()}
                             onClick={() => handleTrendingClick(item)}
                             className="px-3 py-1.5 bg-gray-50 text-[11px] font-bold text-gray-500 rounded-full hover:text-primary transition-all cursor-pointer"
                           >
@@ -622,7 +627,7 @@ export default function ClothingSearch() {
                 </button>
               </div>
 
-              {/* پالت رنگ‌ها در موبایل */}
+              {/* منوی باز شونده رنگ‌ها در موبایل */}
               {colors.length > 0 && renderColorPanel()}
 
               {popularProducts.length > 0 && (

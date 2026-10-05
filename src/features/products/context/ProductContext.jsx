@@ -5,8 +5,18 @@ import { productApi } from "../api/productApi";
 
 export const ProductContext = createContext(null);
 
+// کلیدهای ذخیره‌سازی در LocalStorage
+const CACHE_KEYS = {
+  CATEGORIES: "app_cache_categories",
+  COLLECTIONS: "app_cache_collections",
+};
+
+// مدت زمان اعتبار کَش (مثلاً ۱ ساعت)
+const CACHE_TTL = 60 * 60 * 1000; 
+
 export function ProductProvider({ children }) {
   const [categories, setCategories] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [products, setProducts] = useState([]);
   const [productsCount, setProductsCount] = useState(0);
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -26,22 +36,81 @@ export function ProductProvider({ children }) {
     featured: false,
   });
 
+  // اگر داده در کش باشد، loading ابتدایی false است تا اسکلتون نشان داده نشود
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchCategories = useCallback(async () => {
+  // --- دریافت دسته‌بندی‌ها با مکانیزم Caching ---
+  const fetchCategories = useCallback(async (forceRefresh = false) => {
     try {
+      // ۱. بررسی کش مرورگر
+      const cachedData = localStorage.getItem(CACHE_KEYS.CATEGORIES);
+      if (cachedData && !forceRefresh) {
+        const { data, timestamp } = JSON.parse(cachedData);
+        setCategories(data);
+        setCategoriesLoading(false); // داده قبلی بلافاصله نمایش داده می‌شود
+
+        // اگر مدت اعتبار کش تمام نشده باشد، درخواست شبکه هم نمی‌زنیم
+        if (Date.now() - timestamp < CACHE_TTL) {
+          return data;
+        }
+      }
+
+      // ۲. دریافت داده تازه از بک‌اند
       const data = await productApi.getCategories();
       const list = Array.isArray(data) ? data : data?.results || [];
-      setCategories(list);
+
+      if (list.length > 0) {
+        setCategories(list);
+        // ذخیره در LocalStorage همراه با زمان ثبت
+        localStorage.setItem(
+          CACHE_KEYS.CATEGORIES,
+          JSON.stringify({ data: list, timestamp: Date.now() })
+        );
+      }
       return list;
     } catch (err) {
       console.error("خطا در دریافت دسته‌بندی‌ها:", err);
+    } finally {
+      setCategoriesLoading(false);
     }
   }, []);
 
+  // --- دریافت کالکشن‌ها با مکانیزم Caching ---
+  const fetchCollections = useCallback(async (forceRefresh = false) => {
+    try {
+      // ۱. بررسی کش مرورگر
+      const cachedData = localStorage.getItem(CACHE_KEYS.COLLECTIONS);
+      if (cachedData && !forceRefresh) {
+        const { data, timestamp } = JSON.parse(cachedData);
+        setCollections(data);
+
+        if (Date.now() - timestamp < CACHE_TTL) {
+          return data;
+        }
+      }
+
+      // ۲. دریافت داده تازه از بک‌اند
+      const data = await productApi.getMegamenuCollections();
+      const list = Array.isArray(data) ? data : data?.results || [];
+
+      if (list.length > 0) {
+        setCollections(list);
+        localStorage.setItem(
+          CACHE_KEYS.COLLECTIONS,
+          JSON.stringify({ data: list, timestamp: Date.now() })
+        );
+      }
+      return list;
+    } catch (err) {
+      console.error("خطا در دریافت کالکشن‌ها:", err);
+    }
+  }, []);
+
+  // --- سایر متدها بدون تغییر ---
   const fetchProducts = useCallback(async (targetFilters) => {
     const isFirstPage = !targetFilters.page || Number(targetFilters.page) === 1;
 
@@ -155,6 +224,7 @@ export function ProductProvider({ children }) {
 
   useEffect(() => {
     fetchCategories();
+    fetchCollections();
     fetchProducts(filters);
   }, []);
 
@@ -162,15 +232,18 @@ export function ProductProvider({ children }) {
     <ProductContext.Provider
       value={{
         categories,
+        collections,
         products,
         productsCount,
         selectedProduct,
         filters,
         loading,
+        categoriesLoading, // برای کنترل اسکلتون مگامنو
         loadingMore,
         hasMore,
         error,
         fetchCategories,
+        fetchCollections,
         fetchProducts,
         fetchProductDetail,
         updateFilters,

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,8 +14,11 @@ import AuthModal from '@/features/auth/components/AuthModal';
 // ایمپورت کامپوننت دکمه کاربر
 import UserAuthButton from '@/features/auth/components/UserAuthButton';
 
-// ایمپورت کامپوننت انتخاب آدرس/موقعیت مکانی (مطابق با دسکتاپ)
+// ایمپورت کامپوننت انتخاب آدرس/موقعیت مکانی
 import LocationSelector from './components/LocationSelector'; 
+
+// استفاده از هوک محصولات جهت دریافت کالکشن‌ها و وضعیت بارگذاری
+import { useProductContext } from '@/features/products/hooks/useProductContext';
 
 import {
   UserIcon,
@@ -24,6 +28,8 @@ import {
   ChevronLeftIcon,
   ChevronDownIcon,
   BoltIcon,
+  ClockIcon,
+  ChartBarIcon,
   ArrowLeftIcon,
   Squares2X2Icon,
   EllipsisHorizontalIcon,
@@ -42,6 +48,21 @@ import {
   ShoppingBagIcon,
   ArrowLeftStartOnRectangleIcon,
 } from '@heroicons/react/24/outline';
+
+// کامپوننت اسکلتون پایه
+function Skeleton({ className = '', variant = 'rectangular', ...props }) {
+  const variantClasses = variant === 'circular' ? 'rounded-full' : 'rounded-2xl';
+
+  return (
+    <div
+      className={`relative overflow-hidden bg-slate-200/80 ${variantClasses} ${className}`}
+      {...props}
+    >
+      {/* لایه موج نوری متحرک (Shimmer Effect) */}
+      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent" />
+    </div>
+  );
+}
 
 const SOCIAL_NETWORKS = {
   primary: [
@@ -268,6 +289,9 @@ export default function MobileHeader() {
   const [isAccordionOpen, setIsAccordionOpen] = useState(false);
   const [isCustomerServicesOpen, setIsCustomerServicesOpen] = useState(false);
 
+  // دریافت کالکشن‌های متصل به بک‌اند و وضعیت بارگذاری
+  const { collections = [], isLoading } = useProductContext();
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -283,39 +307,32 @@ export default function MobileHeader() {
     { title: 'شگفت‌انگیزها', icon: SparklesIcon, href: '/promotions', color: 'text-rose-500', bg: 'bg-rose-50' },
     { title: 'پرفروش‌ترین‌ها', icon: FireIcon, href: '/best-sellers', color: 'text-amber-500', bg: 'bg-amber-50' },
     { title: 'وبلاگ', icon: BookOpenIcon, href: '/blog', color: 'text-blue-500', bg: 'bg-blue-50' },
-    { title: 'درباره ما', icon: InformationCircleIcon, href: '/about-us', color: 'text-emerald-500', bg: 'bg-emerald-50' },
-    { title: 'تماس باما', icon: PhoneIcon, href: '/contact-us', color: 'text-purple-500', bg: 'bg-purple-50' },
-    { title: 'همکاری', icon: UserPlusIcon, href: '/cooperation', color: 'text-cyan-500', bg: 'bg-cyan-50' },
+    { title: 'درباره ما', icon: InformationCircleIcon, href: '/about', color: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { title: 'تماس باما', icon: PhoneIcon, href: '/contact', color: 'text-purple-500', bg: 'bg-purple-50' },
+    { title: 'همکاری', icon: UserPlusIcon, href: '/careers', color: 'text-cyan-500', bg: 'bg-cyan-50' },
   ];
 
   const customerServiceItems = [
     { title: 'سوالات متداول', icon: QuestionMarkCircleIcon, href: '/faq', color: 'text-blue-500', bg: 'bg-blue-50' },
     { title: 'شرایط و ضوابط', icon: DocumentTextIcon, href: '/terms', color: 'text-purple-500', bg: 'bg-purple-50' },
-    { title: 'پیگیری سفارشات', icon: TruckIcon, href: '/track-order', color: 'text-amber-500', bg: 'bg-amber-50' },
-    { title: 'راهنمای خرید', icon: ShoppingBagIcon, href: '/buying-guide', color: 'text-emerald-500', bg: 'bg-emerald-50' },
+    { title: 'پیگیری سفارشات', icon: TruckIcon, href: '/profile?tab=orders', color: 'text-amber-500', bg: 'bg-amber-50' },
+    { title: 'راهنمای خرید', icon: ShoppingBagIcon, href: '/faq?category=orders', color: 'text-emerald-500', bg: 'bg-emerald-50' },
   ];
 
-  const collections = [
-    { code: 'WIN', title: 'کالکشن زمستانه', desc: 'جدیدترین مدل‌های فصل', href: '#' },
-    { code: 'CAS', title: 'استایل کژوال', desc: 'راحت و کاربردی', href: '#' },
-    { code: 'OFF', title: 'استایل رسمی', desc: 'شیک و منحصر‌به‌فرد', href: '#' },
-    { code: 'BIG', title: 'سایز بزرگ', desc: 'تنوع بالا و سایزبندی کامل', href: '#' },
-  ];
-
+  // ۵ دسته محبوب درخواستی
   const popularCategories = [
-    'کتانی مردانه',
-    'مانتو تابستانی',
-    'هودی اسپرت',
-    'کیف چرم زنانه',
-    'عینک آفتابی',
-    'کاپشن دخترانه',
+    'پوشاک مردانه',
+    'پوشاک زنانه',
+    'پوشاک بچه گانه',
+    'کیف و کفش',
+    'اکسسوری و زیور آلات',
   ];
 
-  const popularStyles = [
-    { title: 'استایل خیابانی (Streetwear)', href: '#' },
-    { title: 'استایل مینیمال (Minimalist)', href: '#' },
-    { title: 'استایل رسمی و اداری', href: '#' },
-    { title: 'استایل ورزشی (Athleisure)', href: '#' },
+  // بخش برترین‌ها دقیقاً مطابق مگامنو
+  const topSections = [
+    { title: 'پرطرفدارترین استایل‌ها', href: '/products?sort=popular', icon: BoltIcon, color: 'text-amber-500' },
+    { title: 'کالکشن‌های جدید', href: '/products?sort=newest', icon: ClockIcon, color: 'text-cyan-500' },
+    { title: 'پرفروش‌ترین‌های فصل', href: '/products?sort=bestselling', icon: ChartBarIcon, color: 'text-indigo-500' },
   ];
 
   return (
@@ -371,7 +388,9 @@ export default function MobileHeader() {
           <div className="flex-1 overflow-y-auto p-4 space-y-6">
             
             {/* موقعیت مکانی / انتخاب آدرس با منطق یکسان دسکتاپ */}
-            <LocationSelector />
+            <div className="p-3 rounded-lg border border-secondary/10 bg-gray-200/60 backdrop-blur-md hover:border-secondary/20 hover:bg-gray-200 hover:text-white transition-all duration-300 group shadow-lg shadow-secondary-500/10">
+              <LocationSelector />
+            </div>
 
             {/* دسترسی سریع */}
             <section className="bg-surface rounded-2xl p-3 border border-[#E0DCD3] shadow-sm space-y-2">
@@ -429,7 +448,7 @@ export default function MobileHeader() {
                   >
                     <div className="p-3.5 space-y-5 bg-gray-50/40">
                       
-                      {/* کالکشن‌ها */}
+                      {/* ۱. کالکشن‌ها (ارسال شده از بک‌اند و با پشتیبانی از اسکلتون) */}
                       <div className="space-y-2.5">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5">
@@ -443,27 +462,68 @@ export default function MobileHeader() {
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2">
-                          {collections.map((item, index) => (
-                            <Link
-                              key={index}
-                              href={item.href}
-                              onClick={() => setIsOpen(false)}
-                              className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-gray-200/80 hover:border-amber-400/80 hover:bg-amber-50/40 transition-all duration-200 active:scale-95 shadow-2xs"
-                            >
-                              <div className="w-8 h-8 rounded-lg bg-amber-100/70 text-amber-700 font-black text-[10px] flex items-center justify-center shrink-0">
-                                {item.code}
+                        {isLoading ? (
+                          <div className="grid grid-cols-2 gap-2">
+                            {Array.from({ length: 4 }).map((_, index) => (
+                              <div
+                                key={index}
+                                className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-gray-100 shadow-2xs"
+                              >
+                                <Skeleton className="w-8 h-8 rounded-lg shrink-0" />
+                                <div className="space-y-1.5 flex-1">
+                                  <Skeleton className="h-3 w-3/4 rounded-md" />
+                                  <Skeleton className="h-2 w-1/2 rounded-md" />
+                                </div>
                               </div>
-                              <div className="truncate">
-                                <span className="text-xs font-bold text-gray-800 block truncate">{item.title}</span>
-                                <span className="text-[9px] text-gray-400 block truncate">{item.desc}</span>
-                              </div>
-                            </Link>
-                          ))}
-                        </div>
+                            ))}
+                          </div>
+                        ) : collections && collections.length > 0 ? (
+                          <div className="grid grid-cols-2 gap-2">
+                            {collections.map((item) => {
+                              const href = item.destination_type === 'landing'
+                                ? `/landings/${item.slug}`
+                                : `/products?collection=${item.slug}`;
+
+                              const badgeText = item.badge_text || item.title?.slice(0, 2) || 'COL';
+                              const imageUrl = item.image_url || item.image;
+
+                              return (
+                                <Link
+                                  key={item.id}
+                                  href={href}
+                                  onClick={() => setIsOpen(false)}
+                                  className="flex items-center gap-2.5 p-2 rounded-xl bg-white border border-gray-200/80 hover:border-amber-400/80 hover:bg-amber-50/40 transition-all duration-200 active:scale-95 shadow-2xs"
+                                >
+                                  {imageUrl ? (
+                                    <div className="w-8 h-8 rounded-lg overflow-hidden relative shrink-0 border border-gray-100">
+                                      <Image
+                                        src={imageUrl}
+                                        alt={item.title}
+                                        fill
+                                        className="object-cover"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <div className="w-8 h-8 rounded-lg bg-amber-100/70 text-amber-700 font-black text-[10px] flex items-center justify-center shrink-0">
+                                      {badgeText}
+                                    </div>
+                                  )}
+                                  <div className="truncate">
+                                    <span className="text-xs font-bold text-gray-800 block truncate">{item.title}</span>
+                                    {item.description && (
+                                      <span className="text-[9px] text-gray-400 block truncate">{item.description}</span>
+                                    )}
+                                  </div>
+                                </Link>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          <p className="text-[11px] text-gray-400 py-1">کالکشنی یافت نشد.</p>
+                        )}
                       </div>
 
-                      {/* محبوب‌ترین دسته‌ها */}
+                      {/* ۲. محبوب‌ترین دسته‌ها */}
                       <div className="space-y-2.5 pt-3 border-t border-gray-200/60">
                         <div className="flex items-center gap-1.5">
                           <Squares2X2Icon className="w-4 h-4 text-amber-500" />
@@ -475,7 +535,7 @@ export default function MobileHeader() {
                           {popularCategories.map((cat, index) => (
                             <Link
                               key={index}
-                              href="#"
+                              href={`/products?search=${encodeURIComponent(cat)}`}
                               onClick={() => setIsOpen(false)}
                               className="px-2.5 py-1 text-[11px] font-bold rounded-full border border-gray-200 text-gray-600 bg-white hover:bg-amber-50 hover:border-amber-300 hover:text-amber-700 active:scale-95 transition-all shadow-2xs"
                             >
@@ -485,33 +545,39 @@ export default function MobileHeader() {
                         </div>
                       </div>
 
-                      {/* پرطرفدارترین استایل‌ها */}
+                      {/* ۳. برترین‌ها */}
                       <div className="space-y-2 pt-3 border-t border-gray-200/60">
                         <div className="flex items-center gap-1.5 mb-1">
                           <BoltIcon className="w-4 h-4 text-amber-500" />
                           <span className="text-[11px] font-black text-gray-600 uppercase tracking-wider">
-                            پرطرفدارترین استایل‌ها
+                            برترین‌ها
                           </span>
                         </div>
                         <div className="grid grid-cols-1 gap-1.5">
-                          {popularStyles.map((style, idx) => (
-                            <Link
-                              key={idx}
-                              href={style.href}
-                              onClick={() => setIsOpen(false)}
-                              className="text-xs font-medium text-gray-700 hover:text-amber-600 flex items-center justify-between p-2 rounded-xl bg-white border border-gray-100 hover:border-amber-200 transition-colors shadow-2xs"
-                            >
-                              <span>{style.title}</span>
-                              <ChevronLeftIcon className="w-3.5 h-3.5 text-gray-400" />
-                            </Link>
-                          ))}
+                          {topSections.map((sec, idx) => {
+                            const IconComponent = sec.icon;
+                            return (
+                              <Link
+                                key={idx}
+                                href={sec.href}
+                                onClick={() => setIsOpen(false)}
+                                className="text-xs font-medium text-gray-700 hover:text-amber-600 flex items-center justify-between p-2 rounded-xl bg-white border border-gray-100 hover:border-amber-200 transition-colors shadow-2xs"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <IconComponent className={`w-4 h-4 ${sec.color}`} />
+                                  <span>{sec.title}</span>
+                                </div>
+                                <ChevronLeftIcon className="w-3.5 h-3.5 text-gray-400" />
+                              </Link>
+                            );
+                          })}
                         </div>
                       </div>
 
-                      {/* مشاهده همه */}
+                      {/* ۴. لینک مشاهده همه محصولات پوشاک */}
                       <div className="pt-2 border-t border-gray-200/60">
                         <Link
-                          href="#"
+                          href="/products"
                           onClick={() => setIsOpen(false)}
                           className="text-xs font-black text-primary flex items-center justify-between p-2 rounded-xl hover:bg-primary/5 transition-colors"
                         >
@@ -582,13 +648,20 @@ export default function MobileHeader() {
               </AnimatePresence>
             </section>
 
-            {/* بنرهای داینامیک پروموشن */}
+            {/* بنرهای داینامیک پروموشن همراه با پشتیبانی اسکلتون در زمان بارگذاری */}
             <section className="my-15">
-              <PromotionRenderer
-                type="smallBanner"
-                slotKey="megaMenu"
-                className="grid-cols-2 gap-2.5"
-              />
+              {isLoading ? (
+                <div className="grid grid-cols-2 gap-2.5">
+                  <Skeleton className="h-28 w-full rounded-2xl" />
+                  <Skeleton className="h-28 w-full rounded-2xl" />
+                </div>
+              ) : (
+                <PromotionRenderer
+                  type="smallBanner"
+                  slotKey="megaMenu"
+                  className="grid-cols-2 gap-2.5"
+                />
+              )}
             </section>
 
             {/* اطلاعات ارتباطی (پشتیبانی و ایمیل) */}
@@ -618,7 +691,7 @@ export default function MobileHeader() {
                   href="mailto:info@digikala.com"
                   className="flex items-center gap-3 text-xs font-bold text-gray-700 hover:text-primary transition-colors"
                 >
-                  <div className="p-1.5 bg-white rounded-xl border border-[#E0DCD3]/50 shadow-2xs shrink-0">
+                  <div className="p-1.5 bg-[#ffffff] rounded-xl border border-[#E0DCD3]/50 shadow-2xs shrink-0">
                     <svg
                       className="w-4 h-4 text-gray-600"
                       fill="none"

@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { VideoCameraIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import Sidebar from "@/features/products/components/sidebar/Sidebar";
 import ProductCard from "@/features/products/components/ProductCard";
 import SortBar from "@/features/products/components/SortBar";
@@ -26,24 +28,41 @@ function ProductsContent() {
 
   const observerRef = useRef(null);
 
-  // سینک کردن پارامترهای URL با Context
+  const getVideoUrl = (url) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+      return url;
+    }
+    return `http://localhost:8000${url}`;
+  };
+
+  // سینک کردن تمام پارامترهای URL با Context (با پشتیبانی کامل از q و search)
   useEffect(() => {
+    const queryParam = searchParams.get("q") || searchParams.get("search") || "";
+    const idsParam = searchParams.get("ids") || "";
     const categoryParam = searchParams.get("category") || "";
     const sortParam = searchParams.get("ordering") || searchParams.get("sort") || "";
     const minPriceParam = searchParams.get("price_min") || "";
     const maxPriceParam = searchParams.get("price_max") || "";
-    const colorsParam = searchParams.get("colors") || "";
+    const colorsParam = searchParams.get("colors") || searchParams.get("color_ids") || "";
     const sizesParam = searchParams.get("sizes") || "";
 
+    const currentQ = filters.q ?? filters.search ?? "";
+
     if (
-      filters.category !== categoryParam ||
-      filters.ordering !== sortParam ||
-      filters.price_min !== minPriceParam ||
-      filters.price_max !== maxPriceParam ||
-      filters.colors !== colorsParam ||
-      filters.sizes !== sizesParam
+      currentQ !== queryParam ||
+      (filters.ids || "") !== idsParam ||
+      (filters.category || "") !== categoryParam ||
+      (filters.ordering || "") !== sortParam ||
+      (filters.price_min || "") !== minPriceParam ||
+      (filters.price_max || "") !== maxPriceParam ||
+      (filters.colors || "") !== colorsParam ||
+      (filters.sizes || "") !== sizesParam
     ) {
       updateFilters({
+        q: queryParam,
+        search: queryParam,
+        ids: idsParam,
         category: categoryParam,
         ordering: sortParam,
         price_min: minPriceParam,
@@ -75,28 +94,18 @@ function ProductsContent() {
     };
   }, [hasMore, loading, loadingMore, loadMore]);
 
-  const handleSortChange = (newSort) => {
-    updateFilters({ ordering: newSort });
-  };
-
-  const handleCategoryChange = (slug) => {
-    updateFilters({ category: slug || "" });
-  };
-
-  const handleColorChange = (colorIds) => {
-    updateFilters({ colors: colorIds || "" });
-  };
-
-  const handleSizeChange = (sizeIds) => {
-    updateFilters({ sizes: sizeIds || "" });
-  };
-
+  const handleSortChange = (newSort) => updateFilters({ ordering: newSort });
+  const handleCategoryChange = (slug) => updateFilters({ category: slug || "" });
+  const handleColorChange = (colorIds) => updateFilters({ colors: colorIds || "" });
+  const handleSizeChange = (sizeIds) => updateFilters({ sizes: sizeIds || "" });
   const handlePriceChange = (price) => {
     updateFilters({
       price_min: price?.min ?? "",
       price_max: price?.max ?? "",
     });
   };
+
+  const searchQuery = searchParams.get("q") || searchParams.get("search");
 
   return (
     <div className="min-h-screen bg-stone-100 mt-4 sm:mt-8">
@@ -119,7 +128,22 @@ function ProductsContent() {
 
         {/* ستون اصلی */}
         <div className="flex-1 w-full">
-          {/* هدر دسکتاپ - یکپارچه و مدرن */}
+          {searchQuery && (
+            <div className="mb-4 p-4 bg-white rounded-2xl border border-stone-200 shadow-sm text-sm font-bold text-stone-700 flex items-center justify-between">
+              <div>
+                نتایج جستجو برای: <span className="text-primary font-black">«{searchQuery}»</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => updateFilters({ q: "", search: "" })}
+                className="text-xs text-rose-500 hover:underline font-normal cursor-pointer"
+              >
+                پاک کردن جستجو
+              </button>
+            </div>
+          )}
+
+          {/* هدر دسکتاپ */}
           <div className="hidden lg:flex items-center justify-between mb-6">
             <div className="flex-1">
               <SortBar
@@ -139,11 +163,12 @@ function ProductsContent() {
           {/* هدر موبایل */}
           <div className="lg:hidden flex items-center justify-between text-xs text-secondary mb-4 px-1">
             <span className="font-rokh font-bold pt-1">تعداد محصولات:</span>
-            
-            <span className="font-fanum font-bold text-primary text-xs">{productsCount || 0} محصول</span>
+            <span className="font-fanum font-bold text-primary text-xs">
+              {productsCount || 0} محصول
+            </span>
           </div>
 
-          {/* لودینگ اولیه */}
+          {/* لودینگ اولیه یا گرید اصلی */}
           {loading ? (
             <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 items-start">
               {Array.from({ length: 8 }).map((_, index) => (
@@ -152,7 +177,6 @@ function ProductsContent() {
             </main>
           ) : products && products.length > 0 ? (
             <>
-              {/* گرید اصلی محصولات */}
               <main className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 items-start">
                 {products.map((product, idx) => (
                   <ProductCard
@@ -162,7 +186,6 @@ function ProductsContent() {
                   />
                 ))}
 
-                {/* اسکلتون‌های لودینگ اسکرول */}
                 {loadingMore &&
                   Array.from({ length: 4 }).map((_, index) => (
                     <ProductCardSkeleton key={`skeleton-more-${index}`} />
@@ -173,18 +196,85 @@ function ProductsContent() {
             </>
           ) : (
             <div className="w-full bg-white p-12 rounded-2xl border border-stone-200 text-center text-stone-500 font-medium">
-              محصولی برای نمایش وجود ندارد.
+              {searchQuery ? (
+                <>هیچ محصولی مطابق با عبارت «{searchQuery}» یافت نشد.</>
+              ) : (
+                <>محصولی برای نمایش وجود ندارد.</>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {/* ========================================== */}
+      {/* مودال ویدیو مخصوص حالت موبایل */}
+      {/* ========================================== */}
+      <AnimatePresence>
+        {activeVideo && (
+          <div className="lg:hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActiveVideo(null)}
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm cursor-pointer"
+            />
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="relative w-full max-w-xs bg-stone-900 rounded-3xl p-4 shadow-2xl z-10 border border-stone-800 text-right overflow-hidden"
+            >
+              <div className="flex items-center justify-between mb-3 pb-2 border-b border-stone-800">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-md bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+                    <VideoCameraIcon className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="text-xs font-bold text-stone-200 truncate max-w-[180px]">
+                    {activeVideo.title || "ویدیوی معرفی محصول"}
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveVideo(null)}
+                  className="p-1.5 rounded-full bg-stone-800 text-stone-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  <XMarkIcon className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="relative aspect-[9/16] w-full rounded-2xl overflow-hidden bg-black flex items-center justify-center border border-stone-800">
+                {activeVideo.videoUrl && (
+                  <video
+                    key={activeVideo.id || activeVideo.videoUrl}
+                    src={getVideoUrl(activeVideo.videoUrl)}
+                    controls
+                    autoPlay
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
 export default function ProductsPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-stone-100 p-8 text-center text-stone-500">در حال بارگذاری...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-stone-100 p-8 text-center text-stone-500">
+          در حال بارگذاری...
+        </div>
+      }
+    >
       <ProductsContent />
     </Suspense>
   );

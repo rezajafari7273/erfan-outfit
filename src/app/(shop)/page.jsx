@@ -91,6 +91,14 @@ export default function Home() {
         />
       </section>
 
+    <section className="container mx-auto">
+  <PromotionRenderer
+    type="smallBanner"
+    slotKey="homeBottom"
+    className="w-full"
+  />
+</section>
+
       {/* 8. Magazine Section */}
       <section className="container mx-auto">
         <MagazineSection />

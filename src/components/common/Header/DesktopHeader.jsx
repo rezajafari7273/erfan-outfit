@@ -181,7 +181,7 @@ export default function DesktopHeader() {
               onMouseEnter={() => setHoveredIndex(99)}
             >
               <Link
-                href="/partnership"
+                href="/careers"
                 className="text-sm font-medium text-gray-600 flex items-center gap-1.5 transition-colors"
               >
                 <BriefcaseIcon className="w-4 h-4 text-gray-400 stroke-[1.8]" />

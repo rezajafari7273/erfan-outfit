@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Bars3Icon,
   FolderIcon,
@@ -12,10 +13,18 @@ import {
 } from '@heroicons/react/24/outline';
 import PromotionRenderer from '@/components/promotions/PromotionRenderer';
 import { useProductContext } from '@/features/products/hooks/useProductContext';
+import Skeleton from '@/components/ui/Skeleton';
 
 export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
-  // دریافت دسته‌بندی‌ها و لودینگ از Context متمرکز به جای Axios مستقیم
-  const { categories, loading: categoriesLoading } = useProductContext();
+  // دریافت دسته‌‌بندی‌ها، کالکشن‌ها و وضعیت لودینگ از Context
+  const { 
+    categories = [], 
+    collections = [], 
+    categoriesLoading = false 
+  } = useProductContext();
+
+  // اگر لودینگ فعال است و هیچ داده کَش‌شده‌ای از قبل وجود ندارد، اسکلتون را نشان می‌دهیم
+  const showSkeleton = categoriesLoading && (!categories || categories.length === 0);
 
   return (
     <li 
@@ -40,13 +49,60 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
       <div className="fixed top-[60px] right-0 left-0 w-full bg-white border-b border-gray-200 shadow-2xl z-40 overflow-x-auto overflow-y-auto max-h-[80vh] opacity-0 invisible -translate-y-3 group-hover/megalist:opacity-100 group-hover/megalist:visible group-hover/megalist:translate-y-0 transition-all duration-300 ease-out">
         <div className="container mx-auto px-8 py-10 min-w-[720px]">
           
-          {categoriesLoading && (!categories || categories.length === 0) ? (
-            /* حالت لودینگ */
-            <div className="flex items-center justify-center py-12">
-              <div className="w-8 h-8 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
-              <span className="mr-3 text-sm text-gray-500 font-medium">در حال دریافت دسته‌بندی‌ها...</span>
+          {showSkeleton ? (
+            /* حالت لودینگ اولیه (فقط بار اول که کَش خالی است) */
+            <div className="grid grid-cols-5 gap-8">
+              
+              {/* اسکلتون ستون دسته‌بندی‌ها (۳ ستون) */}
+              <div className="col-span-3 grid grid-cols-3 gap-x-6 gap-y-8 pr-3">
+                {[1, 2, 3, 4, 5, 6].map((idx) => (
+                  <div key={idx} className="space-y-4">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Skeleton variant="circular" className="w-4 h-4 shrink-0" />
+                      <Skeleton className="h-5 w-24 rounded-md" />
+                    </div>
+                    <div className="space-y-3">
+                      <Skeleton className="h-3.5 w-20 rounded-md" />
+                      <Skeleton className="h-3.5 w-28 rounded-md" />
+                      <Skeleton className="h-3.5 w-16 rounded-md" />
+                      <Skeleton className="h-3.5 w-24 rounded-md" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* اسکلتون ستون پروموشن و کالکشن‌ها */}
+              <div className="col-span-2 space-y-6">
+                <Skeleton className="h-28 w-full rounded-2xl" />
+
+                <div className="space-y-4">
+                  <Skeleton className="h-5 w-28 rounded-md" />
+                  <div className="grid grid-cols-2 gap-3">
+                    {[1, 2, 3, 4].map((idx) => (
+                      <div key={idx} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100">
+                        <Skeleton className="w-10 h-10 rounded-lg shrink-0" />
+                        <div className="space-y-2 flex-1">
+                          <Skeleton className="h-3.5 w-20 rounded-md" />
+                          <Skeleton className="h-2.5 w-28 rounded-md" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-gray-100 space-y-4">
+                  <Skeleton className="h-5 w-32 rounded-md" />
+                  <div className="flex flex-wrap gap-2">
+                    {[1, 2, 3, 4, 5].map((idx) => (
+                      <Skeleton key={idx} className="h-7 w-20 rounded-full" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
             </div>
           ) : (
+            /* حالت اصلی با داده‌های داینامیک (آنی از کش یا داده تازه) */
             <div className="grid grid-cols-5 gap-8">
               
               {/* ستون ۱ تا ۳: رندر داینامیک دسته‌بندی‌های اصلی و زیردسته‌ها */}
@@ -113,7 +169,7 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
                 })}
               </div>
 
-              {/* ستون ۴ و ۵: پروموشن‌ها و کالکشن‌ها (بدون تغییر) */}
+              {/* ستون ۴ و ۵: پروموشن‌ها و کالکشن‌های متصل به بک‌اند */}
               <div className="col-span-2">
                 <div className="mb-6">
                   <PromotionRenderer
@@ -123,37 +179,60 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
                   />
                 </div>
 
-                {/* کالکشن‌های ویژه (کاملاً دست‌نخورده) */}
+                {/* کالکشن‌های ویژه داینامیک */}
                 <div className="space-y-4">
                   <h4 className="font-rokh font-black text-sm mb-4 text-gray-900">
                     کالکشن‌های ما
                   </h4>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { code: 'WIN', title: 'کالکشن زمستانه', desc: 'جدیدترین مدل‌های فصل', filter: 'winter' },
-                      { code: 'CAS', title: 'استایل کژوال و روزمره', desc: 'راحت و کاربردی', filter: 'casual' },
-                      { code: 'OFF', title: 'استایل رسمی و اداری', desc: 'شیک و منحصر‌به‌فرد', filter: 'formal' },
-                      { code: 'BIG', title: 'پوشاک سایز بزرگ', desc: 'تنوع بالا و سایزبندی کامل', filter: 'plus-size' },
-                    ].map((item, index) => (
-                      <Link
-                        key={index}
-                        href={`/products?collection=${item.filter}`}
-                        className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-amber-400/80 hover:bg-gradient-to-r hover:from-amber-50/60 hover:to-orange-50/40 transition-all duration-300 group/item hover:shadow-sm"
-                      >
-                        <div className="w-10 h-10 rounded-lg bg-amber-100/60 group-hover/item:bg-gradient-to-tr group-hover/item:from-amber-500 group-hover/item:to-orange-400 flex items-center justify-center shrink-0 transition-all duration-300">
-                          <span className="text-amber-700 group-hover/item:text-white font-bold text-xs transition-colors duration-300">
-                            {item.code}
-                          </span>
-                        </div>
-                        <div className="overflow-hidden">
-                          <span className="text-xs font-semibold text-gray-800 group-hover/item:text-amber-600 transition-colors duration-300 block truncate">
-                            {item.title}
-                          </span>
-                          <p className="text-[11px] text-gray-500 truncate">{item.desc}</p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+                  
+                  {collections && collections.length > 0 ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      {collections.map((item) => {
+                        const href = item.destination_type === 'landing'
+                          ? `/landings/${item.slug}`
+                          : `/products?collection=${item.slug}`;
+
+                        const badgeText = item.badge_text || item.title?.slice(0, 2) || 'COL';
+                        const imageUrl = item.image_url || item.image;
+
+                        return (
+                          <Link
+                            key={item.id}
+                            href={href}
+                            className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 hover:border-amber-400/80 hover:bg-gradient-to-r hover:from-amber-50/60 hover:to-orange-50/40 transition-all duration-300 group/item hover:shadow-sm"
+                          >
+                            {imageUrl ? (
+                              <div className="w-10 h-10 rounded-lg overflow-hidden relative shrink-0 border border-gray-100">
+                                <Image
+                                  src={imageUrl}
+                                  alt={item.title}
+                                  fill
+                                  className="object-cover group-hover/item:scale-110 transition-transform duration-300"
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-10 h-10 rounded-lg bg-amber-100/60 group-hover/item:bg-gradient-to-tr group-hover/item:from-amber-500 group-hover/item:to-orange-400 flex items-center justify-center shrink-0 transition-all duration-300">
+                                <span className="text-amber-700 group-hover/item:text-white font-bold text-xs transition-colors duration-300">
+                                  {badgeText}
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="overflow-hidden">
+                              <span className="text-xs font-semibold text-gray-800 group-hover/item:text-amber-600 transition-colors duration-300 block truncate">
+                                {item.title}
+                              </span>
+                              {item.description && (
+                                <p className="text-[11px] text-gray-500 truncate">{item.description}</p>
+                              )}
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-400 py-2">کالکشنی یافت نشد.</p>
+                  )}
                 </div>
 
                 {/* محبوب‌ترین دسته‌ها */}
@@ -189,7 +268,7 @@ export default function MegaMenu({ isHovered, onMouseEnter, onMouseLeave }) {
             </div>
           )}
 
-          {/* نوار پایین مگامنو (کاملاً دست‌نخورده) */}
+          {/* نوار پایین مگامنو */}
           <div className="mt-8 pt-6 border-t border-gray-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-6">

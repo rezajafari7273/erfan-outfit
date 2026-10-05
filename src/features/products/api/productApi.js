@@ -10,6 +10,19 @@ export const productApi = {
     return await baseApi.get(`/catalog/categories/${slug}/`);
   },
 
+  // --- Collections (اضافه شده برای مگامنو و لندینگ‌ها) ---
+  getCollections: async () => {
+    return await baseApi.get("/catalog/collections/");
+  },
+
+  getMegamenuCollections: async () => {
+    return await baseApi.get("/catalog/collections/megamenu/");
+  },
+
+  getCollectionBySlug: async (slug) => {
+    return await baseApi.get(`/catalog/collections/${slug}/`);
+  },
+
   // --- Colors / Sizes (فیلترهای داینامیک) ---
   getColors: async () => {
     return await baseApi.get("/catalog/colors/");
@@ -20,15 +33,15 @@ export const productApi = {
   },
 
   // --- Products ---
-getProducts: async (params = {}) => {
-  const cleanParams = Object.fromEntries(
-    Object.entries(params).filter(
-      ([_, v]) => v !== null && v !== undefined && v !== "" && v !== false
-    )
-  );
-  console.log("[API getProducts] params:", cleanParams);
-  return await baseApi.get("/catalog/products/", { params: cleanParams });
-},
+  getProducts: async (params = {}) => {
+    const cleanParams = Object.fromEntries(
+      Object.entries(params).filter(
+        ([_, v]) => v !== null && v !== undefined && v !== "" && v !== false
+      )
+    );
+    console.log("[API getProducts] params:", cleanParams);
+    return await baseApi.get("/catalog/products/", { params: cleanParams });
+  },
 
   getProductBySlug: async (slug) => {
     return await baseApi.get(`/catalog/products/${slug}/`);

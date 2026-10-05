@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { PlayIcon } from "@heroicons/react/24/solid";
 
@@ -33,6 +34,7 @@ export default function InteractiveProductCard({ product, onPlayVideo }) {
   };
 
   const handlePlayVideoClick = (e) => {
+    e.preventDefault();
     e.stopPropagation();
     if (onPlayVideo) {
       onPlayVideo({
@@ -43,8 +45,14 @@ export default function InteractiveProductCard({ product, onPlayVideo }) {
     }
   };
 
+  // آدرس صفحه جزئیات — اول slug بعد id
+  const productHref = `/products/${product.slug || product.id}`;
+
   return (
-    <div className="group/card relative w-full lg:w-[275px] flex flex-row lg:flex-col items-center gap-3 lg:gap-0 rounded-[2rem] bg-primary/5 p-2.5 lg:p-2 text-secondary border border-cart-boarder shadow-xl transition-all duration-500 ease-out hover:-translate-y-1 lg:hover:-translate-y-2 hover:bg-primary/10 hover:border-[#e5c158] hover:shadow-[0_20px_35px_-15px_rgba(229,193,88,0.25)] hover:shadow-primary/20 cursor-pointer">
+    <Link
+      href={productHref}
+      className="group/card relative w-full lg:w-[275px] flex flex-row lg:flex-col items-center gap-3 lg:gap-0 rounded-[2rem] bg-primary/5 p-2.5 lg:p-2 text-secondary border border-cart-boarder shadow-xl transition-all duration-500 ease-out hover:-translate-y-1 lg:hover:-translate-y-2 hover:bg-primary/10 hover:border-[#e5c158] hover:shadow-[0_20px_35px_-15px_rgba(229,193,88,0.25)] hover:shadow-primary/20 cursor-pointer"
+    >
       
       {/* ۱. بخش تصویر */}
       <div className="relative h-32 w-32 sm:h-36 sm:w-36 lg:h-70 lg:w-full flex-shrink-0 overflow-hidden rounded-[1.5rem] bg-black/20 shadow-[0_12px_28px_-8px_rgba(0,0,0,0.4),0_8px_16px_-6px_rgba(229,193,88,0.15)]">
@@ -91,6 +99,7 @@ export default function InteractiveProductCard({ product, onPlayVideo }) {
                 <button
                   key={item.id}
                   onClick={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
                     setSelectedVariant(item);
                   }}
@@ -164,6 +173,6 @@ export default function InteractiveProductCard({ product, onPlayVideo }) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

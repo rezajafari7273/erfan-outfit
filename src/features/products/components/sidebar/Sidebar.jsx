@@ -11,7 +11,6 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 
-// ایمپورت کامپوننت‌های پایه
 import FilterAccordion from "./FilterAccordion";
 import BottomSheet from "./BottomSheet";
 import CategoryFilter from "./filters/CategoryFilter";
@@ -20,38 +19,37 @@ import PriceFilter from "./filters/PriceFilter";
 import SizeFilter from "./filters/SizeFilter";
 import VideoPlayerWidget from "./VideoPlayerWidget";
 
+const SORT_OPTIONS = [
+  { id: "newest", label: "جدیدترین" },
+  { id: "cheapest", label: "ارزان‌ترین" },
+  { id: "expensive", label: "گران‌ترین" },
+  { id: "bestselling", label: "پرفروش‌ترین" },
+];
+
 export default function Sidebar({
   filters = {},
   activeVideo,
   onCloseVideo,
+  currentSort = "newest",
+  onSortChange,
   onCategoryChange,
   onColorChange,
   onPriceChange,
   onSizeChange,
-  currentSort = "newest",
-  onSortChange,
   onResetFilters,
 }) {
   const [activeSheet, setActiveSheet] = useState(null);
 
   const sheetTitles = {
     all: "همه فیلترها",
-    sort: "مرتب‌سازی محصولات",
+    sort: "مرتب‌‌سازی محصولات",
     category: "انتخاب دسته‌بندی",
     color: "انتخاب رنگ",
     price: "محدوده قیمت",
     size: "انتخاب سایز",
   };
 
-  const sortOptions = [
-    { id: "newest", label: "جدیدترین" },
-    { id: "popular", label: "محبوب‌ترین" },
-    { id: "bestselling", label: "پرفروش‌ترین" },
-    { id: "cheapest", label: "ارزان‌ترین" },
-    { id: "expensive", label: "گران‌ترین" },
-  ];
-
-  // بررسی فعال بودن حداقل یک فیلتر
+  // بررسی فعال بودن حداقل یک فیلتر بر اساس منطق دقیق نمونه داده‌شده
   const hasActiveFilters = Boolean(
     filters.category ||
       filters.colors ||
@@ -63,12 +61,12 @@ export default function Sidebar({
   return (
     <>
       {/* ========================================== */}
-      {/* ۱. حالت دسکتاپ */}
+      {/* ۱. سایدبار دسکتاپ (حفظ کامل ظاهر اولیه) */}
       {/* ========================================== */}
       <aside className="hidden lg:flex flex-col gap-4 w-72 shrink-0">
         <VideoPlayerWidget activeVideo={activeVideo} onCloseVideo={onCloseVideo} />
 
-        {/* دکمه پاک‌سازی فیلترها در دسکتاپ */}
+        {/* دکمه پاک‌سازی فیلترها */}
         {hasActiveFilters && (
           <button
             type="button"
@@ -110,11 +108,11 @@ export default function Sidebar({
       </aside>
 
       {/* ========================================== */}
-      {/* ۲. حالت موبایل */}
+      {/* ۲. بخش موبایل (حفظ کامل نوار دکمه‌ها و BottomSheet) */}
       {/* ========================================== */}
       <div className="lg:hidden w-full">
         <div className="flex items-center gap-2 overflow-x-auto pb-2 px-1 no-scrollbar scroll-smooth">
-          {/* دکمه فیلترها */}
+          {/* دکمه همه فیلترها */}
           <button
             type="button"
             onClick={() => setActiveSheet("all")}
@@ -137,7 +135,7 @@ export default function Sidebar({
             <span>مرتب‌سازی</span>
           </button>
 
-          {/* دکمه پاک‌سازی سریع در نوار موبایل */}
+          {/* دکمه حذف فیلترها در صورت وجود فیلتر فعال */}
           {hasActiveFilters && (
             <button
               type="button"
@@ -183,21 +181,21 @@ export default function Sidebar({
         </div>
 
         {/* ========================================== */}
-        {/* ۳. باتن‌شیت کشویی موبایل */}
+        {/* ۳. کشوی BottomSheet موبایل */}
         {/* ========================================== */}
         <BottomSheet
           isOpen={activeSheet !== null}
           onClose={() => setActiveSheet(null)}
           title={sheetTitles[activeSheet] || ""}
         >
-          {/* حالت ۱: همه فیلترها */}
+          {/* حالت ۱: نمایش همه فیلترها */}
           {activeSheet === "all" && (
             <div className="space-y-4">
               {hasActiveFilters && (
                 <button
                   type="button"
                   onClick={() => {
-                    onResetFilters();
+                    if (onResetFilters) onResetFilters();
                     setActiveSheet(null);
                   }}
                   className="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-rose-50 text-rose-600 rounded-2xl text-xs font-bold transition-colors cursor-pointer"
@@ -240,7 +238,7 @@ export default function Sidebar({
           {/* حالت ۲: انتخاب مرتب‌سازی */}
           {activeSheet === "sort" && (
             <div className="space-y-1">
-              {sortOptions.map((option) => (
+              {SORT_OPTIONS.map((option) => (
                 <button
                   key={option.id}
                   type="button"
@@ -250,7 +248,7 @@ export default function Sidebar({
                   }}
                   className={`w-full text-right py-3 px-4 rounded-2xl text-xs font-bold transition-colors ${
                     currentSort === option.id
-                      ? "bg-rose-50 text-rose-600"
+                      ? "bg-stone-900 text-white"
                       : "text-stone-700 hover:bg-stone-50"
                   }`}
                 >
@@ -281,6 +279,7 @@ export default function Sidebar({
               onPriceChange={onPriceChange}
             />
           )}
+
           {activeSheet === "size" && (
             <SizeFilter
               selectedSizes={filters.sizes}

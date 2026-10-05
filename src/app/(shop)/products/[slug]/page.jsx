@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import {
   XMarkIcon,
@@ -8,6 +8,9 @@ import {
   EllipsisVerticalIcon,
   HeartIcon,
   ShareIcon,
+  PlusIcon,
+  MinusIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 
 import Button from "@/components/ui/Button";
@@ -47,8 +50,12 @@ export default function ProductPage() {
   const [isScrolledToCard, setIsScrolledToCard] = useState(false);
   const mobileScrollContainerRef = useRef(null);
 
+  // ---- Add to cart state ----
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
+  const [cartItem, setCartItem] = useState(null);
+  const [loadingCart, setLoadingCart] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
   // گرفتن محصول از API
   useEffect(() => {
@@ -89,46 +96,115 @@ export default function ProductPage() {
     container.addEventListener("scroll", handleScroll, { passive: true });
     return () => container.removeEventListener("scroll", handleScroll);
   }, [product]);
-  // افزودن به سبد خرید
+
+  // ---------- Check cart status ----------
+  const checkCartStatus = useCallback(async () => {
+    if (!product) return;
+    try {
+      const cartData = await cartApi.getCart();
+      const items = Array.isArray(cartData?.items)
+        ? cartData.items
+        : Array.isArray(cartData)
+        ? cartData
+        : [];
+
+      const targetProductId = Number(product.id);
+      const targetVariantId = selectedVariant?.id ? Number(selectedVariant.id) : null;
+
+      const found = items.find((item) => {
+        const itemProductId = Number(item.product_id || item.product?.id || item.product);
+        const itemVariantId = item.variant_id || item.variant?.id || item.variant
+          ? Number(item.variant_id || item.variant?.id || item.variant)
+          : null;
+
+        if (targetVariantId) {
+          return itemProductId === targetProductId && itemVariantId === targetVariantId;
+        }
+        return itemProductId === targetProductId;
+      });
+
+      setCartItem(found || null);
+
+      const totalQty = items.reduce(
+        (sum, it) => sum + Number(it.quantity || 0),
+        0
+      );
+      setCartCount(totalQty);
+    } catch (err) {
+      console.error("[CHECK CART]", err);
+    }
+  }, [product, selectedVariant?.id]);
+
+  useEffect(() => {
+    checkCartStatus();
+    const onCartUpdated = () => checkCartStatus();
+    window.addEventListener("cart:updated", onCartUpdated);
+    return () => window.removeEventListener("cart:updated", onCartUpdated);
+  }, [checkCartStatus]);
+
+  // ---------- Add to cart ----------
   const handleAddToCart = async () => {
     if (!product || adding) return;
     setAdding(true);
     try {
-      await cartApi.addItem({
+      const res = await cartApi.addItem({
         product_id: product.id,
         variant_id: selectedVariant?.id || null,
         quantity: 1,
       });
-      const res = await cartApi.addItem({
-  product_id: product.id,
-  variant_id: selectedVariant?.id || null,
-  quantity: 1,
-});
 
-if (typeof window !== "undefined" && res?.session_key) {
-  localStorage.setItem("guestSessionKey", res.session_key);
-}
-
-setAdded(true);
-setTimeout(() => setAdded(false), 2000);
-
-if (typeof window !== "undefined") {
-  window.dispatchEvent(
-    new CustomEvent("cart:updated", { detail: { delta: 1 } })
-  );
-}
-      setAdded(true);
-      setTimeout(() => setAdded(false), 2000);
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(
-          new CustomEvent("cart:updated", { detail: { delta: 1 } })
-        );
+      if (typeof window !== "undefined" && res?.session_key) {
+        localStorage.setItem("guestSessionKey", res.session_key);
       }
+
+      setAdded(true);
+
+      setTimeout(async () => {
+        await checkCartStatus();
+        setAdded(false);
+
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("cart:updated"));
+        }
+      }, 1200);
     } catch (err) {
       console.error("[ADD TO CART]", err);
       alert("خطا در افزودن به سبد خرید");
     } finally {
       setAdding(false);
+    }
+  };
+
+  // ---------- Update quantity ----------
+  const handleUpdateQuantity = async (newQuantity) => {
+    if (!cartItem || loadingCart) return;
+
+    const itemId = cartItem.id || cartItem.cart_item_id;
+    if (!itemId) {
+      await checkCartStatus();
+      return;
+    }
+
+    setLoadingCart(true);
+
+    try {
+      if (newQuantity <= 0) {
+        await cartApi.removeItem(itemId);
+        setCartItem(null);
+      } else {
+        await cartApi.updateItem(itemId, Number(newQuantity));
+        setCartItem((prev) => (prev ? { ...prev, quantity: newQuantity } : null));
+      }
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("cart:updated"));
+      }
+    } catch (err) {
+      console.error("[UPDATE QUANTITY]", err);
+      alert("خطا در تغییر تعداد محصول");
+      await checkCartStatus();
+    } finally {
+      setLoadingCart(false);
     }
   };
 
@@ -145,7 +221,6 @@ if (typeof window !== "undefined") {
     }, 100);
   };
 
-  // بردکرامپ داینامیک
   const breadcrumbItems = product?.breadcrumb?.length
     ? product.breadcrumb.map((item, i, arr) => ({
         label: item.name,
@@ -161,7 +236,13 @@ if (typeof window !== "undefined") {
     <div className="flex items-center justify-between w-full transition-all duration-300">
       <button
         type="button"
-        onClick={() => router.back()}
+        onClick={() => {
+          if (typeof window !== "undefined" && window.history.length > 1) {
+            router.back();
+          } else {
+            router.push("/");
+          }
+        }}
         className={`w-10 h-10 rounded-2xl border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer pointer-events-auto shadow-xs outline-none ${
           isPinned
             ? "border-gray-200 bg-gray-100 text-gray-800 hover:bg-gray-200"
@@ -175,14 +256,21 @@ if (typeof window !== "undefined") {
         <button
           type="button"
           onClick={() => router.push("/cart")}
-          className={`w-10 h-10 rounded-2xl border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer shadow-xs outline-none ${
+          className={`relative w-10 h-10 rounded-2xl border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer shadow-xs outline-none ${
             isPinned
               ? "border-gray-200 bg-gray-100 text-gray-800 hover:bg-gray-200"
               : "border-white/20 bg-black/50 text-white shadow-black/10"
           }`}
         >
           <ShoppingBagIcon className="w-5 h-5 stroke-1.5" />
+
+          {cartCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 bg-primary text-white text-[8px] font-black min-w-4 h-4 px-1 flex items-center justify-center rounded-lg">
+              {cartCount.toLocaleString("fa-IR")}
+            </span>
+          )}
         </button>
+
         <button
           type="button"
           onClick={() => setIsBottomSheetOpen(true)}
@@ -375,45 +463,90 @@ if (typeof window !== "undefined") {
           </div>
         )}
 
+        {/* ---------- Sticky Bottom Action Bar (Mobile) ---------- */}
         <div className="fixed bottom-0 left-3 right-3 z-40 max-w-md mx-auto">
           <div className="relative overflow-hidden rounded-3xl bg-white/95 border border-gray-200/80 p-3.5 shadow-xl ring-1 ring-black/5 mb-2">
-            <div className="flex items-center justify-between gap-3">
+            {adding || added ? (
               <Button
                 variant="gradient"
                 size="md"
-                icon={ShoppingBagIcon}
-                iconPosition="right"
-                className="flex-1 !py-3.5 text-xs"
+                className="w-full !py-3.5 text-xs"
                 disabled={adding}
-                onClick={handleAddToCart}
               >
-                {adding ? "در حال افزودن..." : added ? "✓ افزوده شد" : "افزودن به سبد خرید"}
+                {adding ? "در حال افزودن..." : "✓ افزوده شد"}
               </Button>
-
-              <div className="flex flex-col items-end justify-center shrink-0 pl-1">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  {Number(product.discount_percent) > 0 && (
-                    <span className="relative flex items-center justify-center">
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-30 animate-ping" />
-                      <span className="relative text-[10px] font-black bg-rose-500/10 text-rose-600 border border-rose-500/20 px-2 py-0.5 rounded-full">
-                        ٪{Number(product.discount_percent).toLocaleString("fa-IR")}
-                      </span>
-                    </span>
-                  )}
-                  {Number(product.discount_percent) > 0 && (
-                    <span className="text-[11px] font-medium text-gray-400 line-through decoration-rose-500/50">
-                      {Number(product.base_price).toLocaleString("fa-IR")}
-                    </span>
-                  )}
+            ) : cartItem ? (
+              <div className="space-y-2">
+                <div className="text-center text-[10px] font-bold text-emerald-600 bg-emerald-50 py-1 px-3 rounded-lg border border-emerald-100">
+                  این محصول در سبد شما موجود می‌باشد
                 </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-base font-black tracking-tight text-gray-900">
-                    {Number(product.final_price).toLocaleString("fa-IR")}
+
+                <div className="flex items-center justify-between border border-secondary/20 rounded-2xl p-1 bg-white">
+                  <button
+                    type="button"
+                    disabled={loadingCart}
+                    onClick={() => handleUpdateQuantity(cartItem.quantity + 1)}
+                    className="w-10 h-10 flex items-center justify-center bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    <PlusIcon className="w-4 h-4 stroke-2" />
+                  </button>
+
+                  <span className="font-extrabold text-sm text-gray-800 tabular-nums">
+                    {cartItem.quantity.toLocaleString("fa-IR")}
                   </span>
-                  <span className="text-[10px] font-bold text-gray-500">تومان</span>
+
+                  <button
+                    type="button"
+                    disabled={loadingCart}
+                    onClick={() => handleUpdateQuantity(cartItem.quantity - 1)}
+                    className="w-10 h-10 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {cartItem.quantity === 1 ? (
+                      <TrashIcon className="w-4 h-4 stroke-2" />
+                    ) : (
+                      <MinusIcon className="w-4 h-4 stroke-2" />
+                    )}
+                  </button>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="flex items-center justify-between gap-3">
+                <Button
+                  variant="gradient"
+                  size="md"
+                  icon={ShoppingBagIcon}
+                  iconPosition="right"
+                  className="flex-1 !py-3.5 text-xs"
+                  onClick={handleAddToCart}
+                >
+                  افزودن به سبد خرید
+                </Button>
+
+                <div className="flex flex-col items-end justify-center shrink-0 pl-1">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    {Number(product.discount_percent) > 0 && (
+                      <span className="relative flex items-center justify-center">
+                        <span className="absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-30 animate-ping" />
+                        <span className="relative text-[10px] font-black bg-rose-500/10 text-rose-600 border border-rose-500/20 px-2 py-0.5 rounded-full">
+                          ٪{Number(product.discount_percent).toLocaleString("fa-IR")}
+                        </span>
+                      </span>
+                    )}
+                    {Number(product.discount_percent) > 0 && (
+                      <span className="text-[11px] font-medium text-gray-400 line-through decoration-rose-500/50">
+                        {Number(product.base_price).toLocaleString("fa-IR")}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-base font-black tracking-tight text-gray-900">
+                      {Number(product.final_price).toLocaleString("fa-IR")}
+                    </span>
+                    <span className="text-[10px] font-bold text-gray-500">تومان</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

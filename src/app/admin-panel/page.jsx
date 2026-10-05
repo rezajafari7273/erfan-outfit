@@ -15,7 +15,6 @@ import {
   UserGroupIcon,
   BanknotesIcon,
   ChartBarIcon,
-  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 
 export default function AdminDashboardPage() {
@@ -35,8 +34,11 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div className="p-12 text-center text-xs text-slate-500 dir-rtl">
-        در حال بارگذاری داشبورد...
+      <div className="flex items-center justify-center min-h-[60vh] text-xs font-bold text-admin-text-muted dir-rtl">
+        <div className="flex items-center gap-3">
+          <div className="w-5 h-5 border-2 border-admin-primary border-t-transparent rounded-full animate-spin" />
+          <span>در حال بارگذاری اطلاعات داشبورد...</span>
+        </div>
       </div>
     );
   }
@@ -44,14 +46,26 @@ export default function AdminDashboardPage() {
   const s = stats || {};
 
   return (
-    <div className="p-6 space-y-6 dir-rtl">
+    <div className="space-y-6 dir-rtl">
       {/* Header */}
-      <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-        <h1 className="text-xl font-black text-slate-800 dark:text-slate-100">داشبورد مدیریت</h1>
-        <p className="text-xs text-slate-500 mt-1">خلاصه وضعیت فروشگاه</p>
+      <div className="bg-admin-surface p-4 sm:p-6 rounded-2xl border border-admin-border shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-rokh font-black text-admin-text">
+              داشبورد مدیریت
+            </h1>
+            <p className="text-xs text-admin-text-muted font-bold mt-1.5">
+              خلاصه وضعیت کلی و آمار لحظه‌ای فروشگاه
+            </p>
+          </div>
+          <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-admin-success/10 border border-admin-success/20 text-admin-success text-xs font-bold w-fit">
+            <span className="w-2 h-2 rounded-full bg-admin-success animate-ping" />
+            سیستم آنلاین است
+          </div>
+        </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* Main Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="کل محصولات"
@@ -83,7 +97,7 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      {/* Revenue Cards */}
+      {/* Revenue */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard
           title="درآمد کل"
@@ -108,7 +122,6 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      {/* Chart */}
       <SalesChart
         data={salesChart}
         range={chartRange}
@@ -116,19 +129,16 @@ export default function AdminDashboardPage() {
         loading={chartLoading}
       />
 
-      {/* Grid: Orders + Transactions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <RecentOrders orders={recentOrders} />
         <RecentTransactions transactions={recentTransactions} />
       </div>
 
-      {/* Grid: Top + Low Stock */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <TopProducts products={topProducts} />
         <LowStock products={lowStock} />
       </div>
 
-      {/* Recent Users */}
       <RecentUsers users={recentUsers} />
     </div>
   );

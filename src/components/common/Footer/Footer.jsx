@@ -12,6 +12,7 @@ import {
 import SocialLinks from "../SocialLinks";
 import Logo from "@/components/ui/Logo";
 import Advantages from "@/features/advantages/components/Advantages"; 
+import PromotionRenderer from "@/components/promotions/PromotionRenderer";
 
 export default function Footer() {
   const scrollToTop = () => {
@@ -21,17 +22,17 @@ export default function Footer() {
   return (
     <footer dir="rtl" className="w-full pt-8 mb-16 lg:mb-0 pb-12 select-none text-slate-800">
       <div className="mx-auto w-full px-4 sm:px-8 flex flex-col items-center">
-        
+
         {/* کادر اصلی فوتر */}
         <div className="relative z-10 w-full rounded-[2.5rem] bg-slate-50/90 border border-slate-200/80 p-4 sm:p-8 shadow-sm backdrop-blur-md space-y-6">
-          
+
           {/* ================= ردیف اول: لینک‌ها + اطلاعات تماس + درباره ما و نقشه ================= */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-                        
+
             {/* سمت راست: ۳ ستون لینک جدا شده با دیوایدر (۵ ستون از ۱۲) */}
             <div className="lg:col-span-5 mt-2 p-2 flex flex-col justify-between">
               <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 items-stretch">
-                
+
                 {/* ستون ۱ */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
@@ -131,7 +132,7 @@ export default function Footer() {
                 </div>
 
                 {/* آدرس */}
-                <div className="flex items-center gap-3">                
+                <div className="flex items-center gap-3">        
                   <div className="w-8 h-8 rounded-xl border border-secondary/8 bg-gray-200/60 backdrop-blur-md shadow-lg shadow-secondary-500/10 flex items-center justify-center font-bold">
                     <MapPinIcon className="w-4 h-4 text-secondary" />
                   </div>
@@ -196,28 +197,11 @@ export default function Footer() {
 
           {/* ================= ردیف سوم: شبکه‌های اجتماعی + نمادها + بنر تبلیغاتی ================= */}
           <div className="bg-white border border-slate-200/80 rounded-3xl p-4 shadow-sm grid grid-cols-1 lg:grid-cols-11 gap-4 lg:gap-0 items-center">
-            
-            {/* بنر تبلیغاتی (۳ ستون) */}
-            <div className="lg:col-span-3 flex items-center justify-between relative overflow-hidden">
-              <div className="space-y-1 text-right z-10">
-                <p className="text-xs font-black text-slate-900">
-                  <span className="text-rose-600">آنلاین مد؛</span> جدیدترین ترندها
-                </p>
-                <p className="text-[10px] text-slate-500 font-semibold">با ما استایل خاص خود را بسازید.</p>
-                <Link
-                  href="/shop"
-                  className="inline-flex items-center gap-1 mt-1 px-3 py-1 rounded-full bg-rose-900 text-white text-[10px] font-bold hover:bg-rose-800 transition-colors"
-                >
-                  مشاهده محصولات
-                  <ChevronLeftIcon className="w-2.5 h-2.5" />
-                </Link>
-              </div>
-              <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0">
-                <img
-                  src="/images/footer-banner.jpg"
-                  alt="ترندهای پوشاک"
-                  className="w-full h-full object-cover"
-                />
+
+            {/* بنر تبلیغاتی پویا (۳ ستون) */}
+            <div className="lg:col-span-4 flex items-center justify-between relative overflow-hidden">
+              <div className="w-full h-full rounded-xl overflow-hidden shrink-0 relative">
+                <PromotionRenderer type="footerBanners" />
               </div>
             </div>
 
@@ -227,7 +211,7 @@ export default function Footer() {
             </div>
 
             {/* نماد اعتماد (۳ ستون) */}
-            <div className="lg:col-span-3 flex flex-col items-center justify-center space-y-2">
+            <div className="lg:col-span-2 flex flex-col items-center justify-center space-y-2">
               <span className="text-[11px] font-black text-slate-700">نماد اعتماد و مجوزها</span>
               <div className="flex items-center justify-center gap-2">
                 {[1, 2, 3, 4].map((item) => (
@@ -257,11 +241,11 @@ export default function Footer() {
 
           </div>
 
-          {/* ================= ردیف چهارم: کپی‌رایت با Divider افقی ================= */}
+          {/* ================= ردیف چهارم: کپی‌‌رایت با Divider افقی ================= */}
           <div className="space-y-3">
             {/* دیوایدر افقی */}
             <div className="w-full h-px bg-slate-200 my-2" />
-            
+
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] font-semibold text-slate-500 px-2">
               <p>© کلیه حقوق مادی و معنوی برای این سایت محفوظ می‌باشد.</p>
               <div className="flex items-center gap-3">

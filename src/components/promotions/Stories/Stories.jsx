@@ -15,7 +15,7 @@ export default function Stories({ items = [] }) {
         <div className="flex items-center gap-4">
           {Array.from({ length: 6 }).map((_, index) => (
             <div key={index} className="flex flex-col items-center gap-2 min-w-[76px]">
-              <Skeleton variant="circular" className="w-16 h-16 md:w-20 md:h-20" />
+              <Skeleton variant="circular" className="w-16 h-16 md:w-20 md:h-20 rounded-full" />
               <Skeleton variant="text" className="w-12 h-3" />
             </div>
           ))}

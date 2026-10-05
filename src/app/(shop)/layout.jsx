@@ -5,12 +5,16 @@ import PromotionRenderer from "@/components/promotions/PromotionRenderer";
 import { BreadcrumbProvider } from "@/context/BreadcrumbContext";
 import GlobalBreadcrumb from "@/components/common/Breadcrumb/GlobalBreadcrumb";
 import { ProductProvider } from "@/features/products/context/ProductContext";
+import ScrollRestoration from "@/components/common/ScrollRestoration";
 
 export default function ShopLayout({ children }) {
   return (
     <PromotionProvider>
       <ProductProvider>
         <BreadcrumbProvider>
+          {/* بازگردانی اسکرول بین صفحات */}
+          <ScrollRestoration />
+
           {/* Header & Top Banner */}
           <div className="contents lg:block lg:header-wrapper lg:sticky lg:top-0 lg:z-50">
             <div className="relative z-30">
