@@ -1,6 +1,7 @@
 "use client";
 
-import { useDashboard } from "@/features/admin/hooks/useDashboard";
+import Skeleton from "@/components/ui/Skeleton";
+import { useDashboardSearch } from "@/features/admin/hooks/useDashboardSearch";
 import StatCard from "@/features/admin/components/dashboard/StatCard";
 import SalesChart from "@/features/admin/components/dashboard/SalesChart";
 import RecentOrders from "@/features/admin/components/dashboard/RecentOrders";
@@ -30,14 +31,19 @@ export default function AdminDashboardPage() {
     setChartRange,
     loading,
     chartLoading,
-  } = useDashboard();
+  } = useDashboardSearch({ mode: "client" });
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] text-xs font-bold text-admin-text-muted dir-rtl">
-        <div className="flex items-center gap-3">
-          <div className="w-5 h-5 border-2 border-admin-primary border-t-transparent rounded-full animate-spin" />
-          <span>در حال بارگذاری اطلاعات داشبورد...</span>
+      <div className="space-y-6 dir-rtl p-1 sm:p-2 select-none">
+        <div className="bg-admin-surface p-5 sm:p-6 rounded-2xl border border-admin-border/70 flex justify-between">
+          <Skeleton className="h-8 w-48 bg-admin-border/40" />
+          <Skeleton className="h-8 w-32 bg-admin-border/30" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Skeleton key={i} className="h-32 bg-admin-surface border border-admin-border/70" />
+          ))}
         </div>
       </div>
     );
@@ -46,26 +52,22 @@ export default function AdminDashboardPage() {
   const s = stats || {};
 
   return (
-    <div className="space-y-6 dir-rtl">
-      {/* Header */}
-      <div className="bg-admin-surface p-4 sm:p-6 rounded-2xl border border-admin-border shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-rokh font-black text-admin-text">
+    <div className="space-y-6 dir-rtl select-none pb-8">
+      {/* 1. هدر عنوان صفحه */}
+      <div className="bg-admin-surface p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-admin-border/70 shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-xl sm:text-2xl font-black text-admin-text tracking-tight">
               داشبورد مدیریت
             </h1>
-            <p className="text-xs text-admin-text-muted font-bold mt-1.5">
+            <p className="text-xs text-admin-text-muted font-bold">
               خلاصه وضعیت کلی و آمار لحظه‌ای فروشگاه
             </p>
-          </div>
-          <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-admin-success/10 border border-admin-success/20 text-admin-success text-xs font-bold w-fit">
-            <span className="w-2 h-2 rounded-full bg-admin-success animate-ping" />
-            سیستم آنلاین است
           </div>
         </div>
       </div>
 
-      {/* Main Stats */}
+      {/* 2. کارت‌های آمار اصلی */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="کل محصولات"
@@ -97,7 +99,7 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      {/* Revenue */}
+      {/* 3. کارت‌های آمار درآمد */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <StatCard
           title="درآمد کل"
@@ -122,24 +124,40 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      <SalesChart
-        data={salesChart}
-        range={chartRange}
-        onRangeChange={setChartRange}
-        loading={chartLoading}
-      />
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <RecentOrders orders={recentOrders} />
-        <RecentTransactions transactions={recentTransactions} />
+      {/* 4. نمودار فروش */}
+      <div className="bg-admin-surface rounded-2xl sm:rounded-3xl border border-admin-border/70 shadow-sm p-4 sm:p-6 overflow-hidden">
+        <SalesChart
+          data={salesChart}
+          range={chartRange}
+          onRangeChange={setChartRange}
+          loading={chartLoading}
+        />
       </div>
 
+      {/* 5. جداول سفارش‌ها و تراکنش‌ها */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        <TopProducts products={topProducts} />
-        <LowStock products={lowStock} />
+        <div className="bg-admin-surface rounded-2xl sm:rounded-3xl border border-admin-border/70 shadow-sm p-4 sm:p-5">
+          <RecentOrders orders={recentOrders} />
+        </div>
+        <div className="bg-admin-surface rounded-2xl sm:rounded-3xl border border-admin-border/70 shadow-sm p-4 sm:p-5">
+          <RecentTransactions transactions={recentTransactions} />
+        </div>
       </div>
 
-      <RecentUsers users={recentUsers} />
+      {/* 6. جداول محصولات برتر و کم‌موجودی */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="bg-admin-surface rounded-2xl sm:rounded-3xl border border-admin-border/70 shadow-sm p-4 sm:p-5">
+          <TopProducts products={topProducts} />
+        </div>
+        <div className="bg-admin-surface rounded-2xl sm:rounded-3xl border border-admin-border/70 shadow-sm p-4 sm:p-5">
+          <LowStock products={lowStock} />
+        </div>
+      </div>
+
+      {/* 7. لیست آخرین کاربران */}
+      <div className="bg-admin-surface rounded-2xl sm:rounded-3xl border border-admin-border/70 shadow-sm p-4 sm:p-5">
+        <RecentUsers users={recentUsers} />
+      </div>
     </div>
   );
 }

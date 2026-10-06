@@ -12,10 +12,11 @@ export default function CategoryTree({
   onAddChild,
   onToggleActive,
 }) {
-  // ساخت ساختار درختی
   const tree = useMemo(() => {
     const map = {};
-    categories.forEach((c) => { map[c.id] = { ...c, children: [] }; });
+    categories.forEach((c) => {
+      map[c.id] = { ...c, children: [] };
+    });
     const roots = [];
     categories.forEach((c) => {
       if (c.parent && map[c.parent]) map[c.parent].children.push(map[c.id]);
@@ -50,7 +51,7 @@ export default function CategoryTree({
           onToggleActive={onToggleActive}
         />
         {hasChildren && isExpanded && (
-          <div className="space-y-0.5">
+          <div className="space-y-1 mt-1">
             {node.children.map((child) => renderNode(child, depth + 1))}
           </div>
         )}
@@ -60,11 +61,11 @@ export default function CategoryTree({
 
   if (tree.length === 0) {
     return (
-      <div className="p-12 text-center text-xs text-slate-500">
-        دسته‌بندی‌ای ثبت نشده است
+      <div className="p-12 text-center text-xs font-bold text-admin-text-muted">
+        هیچ دسته‌بندی‌ای یافت نشد.
       </div>
     );
   }
 
-  return <div className="space-y-0.5">{tree.map((n) => renderNode(n))}</div>;
+  return <div className="space-y-1">{tree.map((n) => renderNode(n))}</div>;
 }

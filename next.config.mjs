@@ -13,6 +13,11 @@ const nextConfig = {
         hostname: 'online-mod.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
     ],
   },
 };

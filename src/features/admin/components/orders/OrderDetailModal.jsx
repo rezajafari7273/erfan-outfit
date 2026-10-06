@@ -2,8 +2,31 @@
 
 import { useState, useEffect } from "react";
 import { adminApi } from "@/features/admin/api/adminApi";
-import { XMarkIcon, MapPinIcon, UserIcon, PhoneIcon } from "@heroicons/react/24/outline";
+import {
+  XMarkIcon,
+  MapPinIcon,
+  UserIcon,
+  PhoneIcon,
+} from "@heroicons/react/24/outline";
 import { statusInfo } from "./OrderStatusSelect";
+
+function OrderDetailSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse select-none">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="h-20 bg-admin-border/40 rounded-2xl" />
+        <div className="h-20 bg-admin-border/40 rounded-2xl" />
+        <div className="h-20 bg-admin-border/40 rounded-2xl" />
+      </div>
+      <div className="h-16 bg-admin-border/40 rounded-2xl" />
+      <div className="space-y-2">
+        <div className="h-14 bg-admin-border/40 rounded-2xl" />
+        <div className="h-14 bg-admin-border/40 rounded-2xl" />
+      </div>
+      <div className="h-28 bg-admin-border/40 rounded-2xl" />
+    </div>
+  );
+}
 
 export default function OrderDetailModal({ isOpen, onClose, order, onUpdated }) {
   const [data, setData] = useState(null);
@@ -41,7 +64,8 @@ export default function OrderDetailModal({ isOpen, onClose, order, onUpdated }) 
   };
 
   const handleCancel = async () => {
-    if (!confirm("لغو این سفارش و بازگشت موجودی؟")) return;
+    if (!confirm("آیا از لغو این سفارش و بازگشت موجودی به انبار اطمینان دارید؟"))
+      return;
     try {
       await adminApi.cancelOrder(order.id);
       onUpdated?.();
@@ -52,166 +76,226 @@ export default function OrderDetailModal({ isOpen, onClose, order, onUpdated }) 
     }
   };
 
+  const formatNum = (v) => Number(v || 0).toLocaleString("fa-IR");
   const st = data ? statusInfo(data.status) : null;
   const addr = data?.address_snapshot || {};
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 dir-rtl">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-3xl p-6 relative max-h-[92vh] flex flex-col border border-slate-200 dark:border-slate-800">
-        <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 dir-rtl animate-fadeIn select-none">
+      <div className="bg-admin-surface rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-3xl p-6 relative border border-admin-border/70 max-h-[92vh] flex flex-col">
+        {/* هدر مدال */}
+        <div className="flex justify-between items-center pb-4 mb-4 border-b border-admin-border/70">
           <div className="flex items-center gap-3">
-            <h2 className="text-lg font-black text-slate-800 dark:text-slate-100">
-              سفارش {data?.order_number}
+            <h2 className="text-base font-black text-admin-text tracking-tight">
+              سفارش <span className="font-mono">{data?.order_number || order.order_number}</span>
             </h2>
-            {st && <span className={`text-[11px] px-2 py-1 rounded-lg font-bold ${st.color}`}>{st.label}</span>}
+            {st && (
+              <span
+                className={`text-[11px] px-2.5 py-1 rounded-xl font-bold border ${st.color}`}
+              >
+                {st.label}
+              </span>
+            )}
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-xl text-admin-text-muted hover:text-admin-text hover:bg-admin-background transition"
+          >
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
         {loading ? (
-          <div className="p-12 text-center text-xs text-slate-500">در حال بارگذاری...</div>
+          <OrderDetailSkeleton />
         ) : data ? (
           <div className="flex-1 overflow-y-auto space-y-4 text-xs pr-1">
-            {/* Info Cards */}
+            {/* کارت‌های اطلاعات کلیدی */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                <div className="flex items-center gap-2 text-slate-500 mb-1">
+              <div className="p-3.5 bg-admin-background/60 rounded-2xl border border-admin-border/60">
+                <div className="flex items-center gap-2 text-admin-text-muted mb-1">
                   <UserIcon className="w-3.5 h-3.5" />
                   <span className="text-[10px] font-bold">مشتری</span>
                 </div>
-                <div className="font-bold text-slate-800 dark:text-slate-100">{data.user_name || "—"}</div>
-                <div className="text-[10px] text-slate-500 mt-0.5 flex items-center gap-1">
+                <div className="font-bold text-admin-text">
+                  {data.user_name || "—"}
+                </div>
+                <div className="text-[10px] text-admin-text-muted mt-1 flex items-center gap-1 dir-ltr justify-end font-mono">
+                  <span>{data.user_phone}</span>
                   <PhoneIcon className="w-3 h-3" />
-                  {data.user_phone}
                 </div>
               </div>
 
-              <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                <div className="text-[10px] font-bold text-slate-500 mb-1">روش پرداخت</div>
-                <div className="font-bold text-slate-800 dark:text-slate-100">{data.payment_method_display}</div>
-                <div className="text-[10px] text-slate-500 mt-0.5">
-                  {data.paid_at ? `پرداخت: ${new Date(data.paid_at).toLocaleDateString("fa-IR")}` : "پرداخت نشده"}
+              <div className="p-3.5 bg-admin-background/60 rounded-2xl border border-admin-border/60">
+                <div className="text-[10px] font-bold text-admin-text-muted mb-1">
+                  روش پرداخت
+                </div>
+                <div className="font-bold text-admin-text">
+                  {data.payment_method_display}
+                </div>
+                <div className="text-[10px] text-admin-text-muted mt-1">
+                  {data.paid_at
+                    ? `پرداخت: ${new Date(data.paid_at).toLocaleDateString("fa-IR")}`
+                    : "پرداخت نشده"}
                 </div>
               </div>
 
-              <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                <div className="text-[10px] font-bold text-slate-500 mb-1">تاریخ ثبت</div>
-                <div className="font-bold text-slate-800 dark:text-slate-100">
+              <div className="p-3.5 bg-admin-background/60 rounded-2xl border border-admin-border/60">
+                <div className="text-[10px] font-bold text-admin-text-muted mb-1">
+                  تاریخ ثبت
+                </div>
+                <div className="font-bold text-admin-text">
                   {new Date(data.created_at).toLocaleDateString("fa-IR")}
                 </div>
-                <div className="text-[10px] text-slate-500 mt-0.5">
-                  {new Date(data.created_at).toLocaleTimeString("fa-IR", { hour: "2-digit", minute: "2-digit" })}
+                <div className="text-[10px] text-admin-text-muted mt-1">
+                  ساعت:{" "}
+                  {new Date(data.created_at).toLocaleTimeString("fa-IR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </div>
               </div>
             </div>
 
-            {/* Address */}
+            {/* آدرس تحویل */}
             {addr && Object.keys(addr).length > 0 && (
-              <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-                <div className="flex items-center gap-2 text-slate-500 mb-2">
+              <div className="p-3.5 bg-admin-background/60 rounded-2xl border border-admin-border/60">
+                <div className="flex items-center gap-2 text-admin-text-muted mb-1.5">
                   <MapPinIcon className="w-3.5 h-3.5" />
-                  <span className="text-[10px] font-bold">آدرس</span>
+                  <span className="text-[10px] font-bold">آدرس تحویل گیرنده</span>
                 </div>
-                <div className="text-slate-700 dark:text-slate-300 leading-relaxed">
-                  {[addr.province, addr.city, addr.address, addr.postal_code].filter(Boolean).join(" - ")}
+                <div className="text-admin-text leading-relaxed font-bold">
+                  {[addr.province, addr.city, addr.address, addr.postal_code]
+                    .filter(Boolean)
+                    .join(" - ")}
                 </div>
               </div>
             )}
 
-            {/* Items */}
+            {/* لیست اقلام */}
             <div>
-              <h3 className="font-black text-slate-800 dark:text-slate-100 mb-2 text-sm">اقلام سفارش</h3>
+              <h3 className="font-black text-admin-text mb-2 text-xs">
+                اقلام سفارش ({formatNum(data.items?.length)} مورد)
+              </h3>
               <div className="space-y-2">
-                {data.items.map((item) => (
-                  <div key={item.id} className="flex items-center gap-3 p-3 border border-slate-200 dark:border-slate-700 rounded-xl">
+                {data.items?.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-3 p-3 border border-admin-border/60 rounded-2xl bg-admin-background/30"
+                  >
                     {item.image ? (
-                      <img src={item.image} alt="" className="w-12 h-12 rounded-lg object-cover border" />
+                      <img
+                        src={item.image}
+                        alt=""
+                        className="w-12 h-12 rounded-xl object-cover border border-admin-border/60 shrink-0"
+                      />
                     ) : (
-                      <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-800" />
+                      <div className="w-12 h-12 rounded-xl bg-admin-background border border-admin-border/50 shrink-0" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="font-bold text-slate-800 dark:text-slate-100 truncate">{item.product_title}</div>
-                      <div className="text-[10px] text-slate-500 mt-0.5">
-                        {item.color_name && <span>{item.color_name}</span>}
+                      <div className="font-bold text-admin-text truncate">
+                        {item.product_title}
+                      </div>
+                      <div className="text-[10px] text-admin-text-muted mt-1">
+                        {item.color_name && <span>رنگ: {item.color_name}</span>}
                         {item.size_names && item.size_names.length > 0 && (
-                          <span> · {item.size_names.join("، ")}</span>
+                          <span> · سایز: {item.size_names.join("، ")}</span>
                         )}
-                        <span> · × {item.quantity}</span>
+                        <span className="font-bold text-admin-text">
+                          {" "}
+                          · {formatNum(item.quantity)} عدد
+                        </span>
                       </div>
                     </div>
-                    <div className="text-xs font-bold text-slate-800 dark:text-slate-200 whitespace-nowrap">
-                      {Number(item.final_price).toLocaleString("fa-IR")} ریال
+                    <div className="text-xs font-black text-admin-text whitespace-nowrap">
+                      {formatNum(item.final_price)}{" "}
+                      <span className="text-[10px] font-normal text-admin-text-muted">
+                        تومان
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Transactions */}
+            {/* تراکنش‌های مالی */}
             {data.transactions && data.transactions.length > 0 && (
               <div>
-                <h3 className="font-black text-slate-800 dark:text-slate-100 mb-2 text-sm">تراکنش‌ها</h3>
-                <div className="space-y-1">
+                <h3 className="font-black text-admin-text mb-2 text-xs">
+                  تراکنش‌ها
+                </h3>
+                <div className="space-y-1.5">
                   {data.transactions.map((t) => (
-                    <div key={t.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
-                      <div className="text-[10px] text-slate-600 dark:text-slate-300">
-                        {t.order_id} · {t.gateway}
+                    <div
+                      key={t.id}
+                      className="flex items-center justify-between p-2.5 bg-admin-background/50 rounded-xl border border-admin-border/50"
+                    >
+                      <div className="text-[10px] font-bold text-admin-text-muted">
+                        درگاه {t.gateway} · کد پیگیری: {t.order_id || "—"}
                       </div>
-                      <div className="text-[11px] font-bold">{Number(t.amount).toLocaleString("fa-IR")} ریال</div>
+                      <div className="text-xs font-black text-admin-text">
+                        {formatNum(t.amount)} تومان
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Summary */}
-            <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-xl space-y-1.5">
-              <div className="flex justify-between text-[11px]">
-                <span className="text-slate-500">جمع اقلام:</span>
-                <span className="font-bold">{Number(data.subtotal).toLocaleString("fa-IR")} ریال</span>
+            {/* خلاصه صورت‌حساب */}
+            <div className="p-4 bg-admin-background/80 rounded-2xl border border-admin-border/70 space-y-2">
+              <div className="flex justify-between text-xs font-bold text-admin-text-muted">
+                <span>جمع اقلام:</span>
+                <span className="text-admin-text">{formatNum(data.subtotal)} تومان</span>
               </div>
               {data.discount_amount > 0 && (
-                <div className="flex justify-between text-[11px] text-rose-600">
-                  <span>تخفیف {data.coupon_code && `(${data.coupon_code})`}:</span>
-                  <span className="font-bold">- {Number(data.discount_amount).toLocaleString("fa-IR")} ریال</span>
+                <div className="flex justify-between text-xs font-bold text-rose-500">
+                  <span>
+                    تخفیف {data.coupon_code && `(${data.coupon_code})`}:
+                  </span>
+                  <span>- {formatNum(data.discount_amount)} تومان</span>
                 </div>
               )}
-              <div className="flex justify-between text-[11px]">
-                <span className="text-slate-500">هزینه ارسال:</span>
-                <span className="font-bold">{Number(data.shipping_cost).toLocaleString("fa-IR")} ریال</span>
+              <div className="flex justify-between text-xs font-bold text-admin-text-muted">
+                <span>هزینه ارسال:</span>
+                <span className="text-admin-text">
+                  {formatNum(data.shipping_cost)} تومان
+                </span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-slate-200 dark:border-slate-700">
-                <span className="font-black text-slate-800 dark:text-slate-100">مبلغ نهایی:</span>
-                <span className="font-black text-rose-600">{Number(data.total_price).toLocaleString("fa-IR")} ریال</span>
+              <div className="flex justify-between pt-2.5 border-t border-admin-border/70 text-xs">
+                <span className="font-black text-admin-text">مبلغ نهایی:</span>
+                <span className="font-black text-admin-primary text-sm">
+                  {formatNum(data.total_price)} تومان
+                </span>
               </div>
             </div>
 
-            {/* Admin Note */}
-            <div>
-              <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">یادداشت ادمین</label>
+            {/* یادداشت ادمین */}
+            <div className="pt-2">
+              <label className="block font-bold text-admin-text mb-1.5 text-xs">
+                یادداشت اختصاصی ادمین
+              </label>
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 rows="2"
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-rose-500"
+                placeholder="توضیحات مربوط به پیگیری یا ارسال سفارش..."
+                className="w-full p-3 border border-admin-border/70 rounded-xl bg-admin-background text-admin-text text-xs focus:outline-none focus:ring-2 focus:ring-admin-primary/50 transition-all placeholder:text-admin-text-muted/50"
               />
               <button
                 onClick={handleSaveNote}
                 disabled={savingNote}
-                className="mt-2 px-3 py-1.5 bg-blue-600 text-white text-[11px] font-bold rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                className="mt-2 px-4 py-2 bg-admin-primary text-white text-xs font-bold rounded-xl hover:opacity-90 disabled:opacity-50 transition shadow-md shadow-admin-primary/20"
               >
-                {savingNote ? "..." : "ذخیره یادداشت"}
+                {savingNote ? "در حال ذخیره..." : "ذخیره یادداشت"}
               </button>
             </div>
 
-            {/* Actions */}
+            {/* دکمه لغو */}
             {!["delivered", "cancelled", "refunded"].includes(data.status) && (
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+              <div className="pt-3 border-t border-admin-border/70">
                 <button
                   onClick={handleCancel}
-                  className="px-4 py-2 bg-rose-600 text-white text-xs font-bold rounded-xl hover:bg-rose-700"
+                  className="px-4 py-2 bg-rose-500/10 text-rose-500 border border-rose-500/20 text-xs font-bold rounded-xl hover:bg-rose-500/20 transition"
                 >
                   لغو سفارش
                 </button>

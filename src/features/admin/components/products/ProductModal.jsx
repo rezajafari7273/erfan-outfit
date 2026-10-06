@@ -42,15 +42,33 @@ const emptyForm = {
 };
 
 const fieldClass =
-  "w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-rose-500";
+  "w-full px-3.5 py-2.5 border border-admin-border/70 rounded-xl bg-admin-background text-admin-text text-xs focus:outline-none focus:ring-2 focus:ring-admin-primary/50 transition-all placeholder:text-admin-text-muted/50";
 
 function Field({ label, children }) {
   return (
     <div>
-      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">
+      <label className="block font-bold text-admin-text mb-1.5 text-xs">
         {label}
       </label>
       {children}
+    </div>
+  );
+}
+
+// اسکلتون بارگذاری محتوای مدال
+function ModalSkeleton() {
+  return (
+    <div className="space-y-4 p-4 animate-pulse select-none">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="h-10 bg-admin-border/50 rounded-xl"></div>
+        <div className="h-10 bg-admin-border/50 rounded-xl"></div>
+      </div>
+      <div className="grid grid-cols-3 gap-4">
+        <div className="h-10 bg-admin-border/40 rounded-xl"></div>
+        <div className="h-10 bg-admin-border/40 rounded-xl"></div>
+        <div className="h-10 bg-admin-border/40 rounded-xl"></div>
+      </div>
+      <div className="h-24 bg-admin-border/40 rounded-xl"></div>
     </div>
   );
 }
@@ -144,7 +162,7 @@ export default function ProductModal({
         })
         .catch((err) => {
           console.error(err);
-          setError("خطا در بارگذاری محصول");
+          setError("خطا در بارگذاری اطلاعات محصول");
         })
         .finally(() => setFetching(false));
     } else {
@@ -299,35 +317,42 @@ export default function ProductModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 dir-rtl">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-5xl p-6 relative max-h-[92vh] flex flex-col border border-slate-200 dark:border-slate-800">
-        <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="text-lg font-black text-slate-800 dark:text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 dir-rtl animate-fadeIn">
+      <div className="bg-admin-surface rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-5xl p-6 relative max-h-[92vh] flex flex-col border border-admin-border/70">
+        {/* هدر مدال */}
+        <div className="flex justify-between items-center pb-4 mb-4 border-b border-admin-border/70">
+          <h2 className="text-base sm:text-lg font-black text-admin-text tracking-tight">
             {editingProduct ? "ویرایش محصول" : "افزودن محصول جدید"}
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-xl text-admin-text-muted hover:text-admin-text hover:bg-admin-background transition"
+          >
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-rose-100 text-rose-700 text-xs font-bold rounded-xl">{error}</div>
+          <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-bold rounded-xl">
+            {error}
+          </div>
         )}
 
         {fetching ? (
-          <div className="p-12 text-center text-xs text-slate-500">در حال بارگذاری...</div>
+          <ModalSkeleton />
         ) : (
           <>
-            <div className="flex gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 mb-4 text-xs font-bold overflow-x-auto">
+            {/* تب‌ها */}
+            <div className="flex gap-2 border-b border-admin-border/70 pb-3 mb-4 text-xs font-bold overflow-x-auto">
               {TABS.map((t) => (
                 <button
                   key={t.key}
                   type="button"
                   onClick={() => setActiveTab(t.key)}
-                  className={`px-3 py-1.5 rounded-lg whitespace-nowrap transition-all ${
+                  className={`px-3.5 py-2 rounded-xl whitespace-nowrap transition-all ${
                     activeTab === t.key
-                      ? "bg-rose-600 text-white"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                      ? "bg-admin-primary text-white shadow-md shadow-admin-primary/20"
+                      : "bg-admin-background text-admin-text-muted hover:text-admin-text"
                   }`}
                 >
                   {t.label}
@@ -340,24 +365,51 @@ export default function ProductModal({
                 <div className="space-y-3">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Field label="عنوان محصول *">
-                      <input type="text" name="title" value={formData.title} onChange={handleChange} required className={fieldClass} />
+                      <input
+                        type="text"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleChange}
+                        required
+                        className={fieldClass}
+                      />
                     </Field>
                     <Field label="اسلاگ (اختیاری)">
-                      <input type="text" name="slug" value={formData.slug} onChange={handleChange} className={fieldClass} />
+                      <input
+                        type="text"
+                        name="slug"
+                        value={formData.slug}
+                        onChange={handleChange}
+                        className={fieldClass}
+                      />
                     </Field>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <Field label="دسته‌بندی *">
-                      <select name="category" value={formData.category} onChange={handleChange} required className={fieldClass}>
+                      <select
+                        name="category"
+                        value={formData.category}
+                        onChange={handleChange}
+                        required
+                        className={fieldClass}
+                      >
                         <option value="">انتخاب کنید...</option>
                         {categories.map((c) => (
-                          <option key={c.id} value={c.id}>{c.name}</option>
+                          <option key={c.id} value={c.id}>
+                            {c.name}
+                          </option>
                         ))}
                       </select>
                     </Field>
                     <Field label="فروشنده *">
-                      <select name="vendor" value={formData.vendor} onChange={handleChange} required className={fieldClass}>
+                      <select
+                        name="vendor"
+                        value={formData.vendor}
+                        onChange={handleChange}
+                        required
+                        className={fieldClass}
+                      >
                         <option value="">انتخاب کنید...</option>
                         {vendors.map((v) => (
                           <option key={v.id} value={v.user || v.id}>
@@ -367,13 +419,24 @@ export default function ProductModal({
                       </select>
                     </Field>
                     <Field label="برند">
-                      <input type="text" name="brand" value={formData.brand} onChange={handleChange} className={fieldClass} />
+                      <input
+                        type="text"
+                        name="brand"
+                        value={formData.brand}
+                        onChange={handleChange}
+                        className={fieldClass}
+                      />
                     </Field>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Field label="جنسیت">
-                      <select name="gender_label" value={formData.gender_label} onChange={handleChange} className={fieldClass}>
+                      <select
+                        name="gender_label"
+                        value={formData.gender_label}
+                        onChange={handleChange}
+                        className={fieldClass}
+                      >
                         <option value="unisex">مشترک</option>
                         <option value="male">مردانه</option>
                         <option value="female">زنانه</option>
@@ -381,7 +444,12 @@ export default function ProductModal({
                       </select>
                     </Field>
                     <Field label="نوع محصول">
-                      <select name="type" value={formData.type} onChange={handleChange} className={fieldClass}>
+                      <select
+                        name="type"
+                        value={formData.type}
+                        onChange={handleChange}
+                        className={fieldClass}
+                      >
                         <option value="simple">ساده</option>
                         <option value="variable">دارای متغیر</option>
                         <option value="set_package">پک / ست</option>
@@ -395,47 +463,98 @@ export default function ProductModal({
                   </div>
 
                   <Field label="توضیح کوتاه">
-                    <textarea name="short_description" rows="2" value={formData.short_description} onChange={handleChange} className={fieldClass} />
+                    <textarea
+                      name="short_description"
+                      rows="2"
+                      value={formData.short_description}
+                      onChange={handleChange}
+                      className={fieldClass}
+                    />
                   </Field>
                   <Field label="توضیح کامل">
-                    <textarea name="description" rows="4" value={formData.description} onChange={handleChange} className={fieldClass} />
+                    <textarea
+                      name="description"
+                      rows="4"
+                      value={formData.description}
+                      onChange={handleChange}
+                      className={fieldClass}
+                    />
                   </Field>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Field label="متن گارانتی">
-                      <input type="text" name="warranty_text" value={formData.warranty_text} onChange={handleChange} className={fieldClass} />
+                      <input
+                        type="text"
+                        name="warranty_text"
+                        value={formData.warranty_text}
+                        onChange={handleChange}
+                        className={fieldClass}
+                      />
                     </Field>
                     <Field label="متن نحوه ارسال">
-                      <input type="text" name="delivery_text" value={formData.delivery_text} onChange={handleChange} className={fieldClass} />
+                      <input
+                        type="text"
+                        name="delivery_text"
+                        value={formData.delivery_text}
+                        onChange={handleChange}
+                        className={fieldClass}
+                      />
                     </Field>
                   </div>
 
                   <div className="flex items-center gap-6 pt-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" name="is_active" checked={formData.is_active} onChange={handleChange} className="w-4 h-4 rounded text-rose-600" />
-                      <span className="font-bold">فعال</span>
+                    <label className="flex items-center gap-2 cursor-pointer font-bold text-admin-text">
+                      <input
+                        type="checkbox"
+                        name="is_active"
+                        checked={formData.is_active}
+                        onChange={handleChange}
+                        className="w-4 h-4 rounded border-admin-border/70 text-admin-primary focus:ring-admin-primary/50"
+                      />
+                      <span>فعال</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <input type="checkbox" name="is_featured" checked={formData.is_featured} onChange={handleChange} className="w-4 h-4 rounded text-amber-500" />
-                      <span className="font-bold">پیشنهاد ویژه</span>
+                    <label className="flex items-center gap-2 cursor-pointer font-bold text-admin-text">
+                      <input
+                        type="checkbox"
+                        name="is_featured"
+                        checked={formData.is_featured}
+                        onChange={handleChange}
+                        className="w-4 h-4 rounded border-admin-border/70 text-amber-500 focus:ring-amber-500/50"
+                      />
+                      <span>پیشنهاد ویژه</span>
                     </label>
                   </div>
                 </div>
               )}
 
               {activeTab === "pricing" && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field label="قیمت پایه (تومان) *">
-                    <input type="number" name="base_price" value={formData.base_price} onChange={handleChange} required className={fieldClass} />
+                    <input
+                      type="number"
+                      name="base_price"
+                      value={formData.base_price}
+                      onChange={handleChange}
+                      required
+                      className={fieldClass}
+                    />
                   </Field>
                   <Field label="درصد تخفیف (0-100)">
-                    <input type="number" name="discount_percent" min="0" max="100" value={formData.discount_percent} onChange={handleChange} className={fieldClass} />
+                    <input
+                      type="number"
+                      name="discount_percent"
+                      min="0"
+                      max="100"
+                      value={formData.discount_percent}
+                      onChange={handleChange}
+                      className={fieldClass}
+                    />
                   </Field>
                 </div>
               )}
 
               {activeTab === "services" && (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {Object.entries({
                     express_delivery: "تحویل اکسپرس",
                     support_24_7: "پشتیبانی ۲۴/۷",
@@ -443,14 +562,17 @@ export default function ProductModal({
                     return_7_days: "۷ روز ضمانت بازگشت",
                     authenticity_guarantee: "ضمانت اصالت",
                   }).map(([key, label]) => (
-                    <label key={key} className="flex items-center gap-2 p-3 border rounded-xl cursor-pointer">
+                    <label
+                      key={key}
+                      className="flex items-center gap-2.5 p-3.5 border border-admin-border/70 rounded-xl cursor-pointer bg-admin-background/50 hover:bg-admin-background transition"
+                    >
                       <input
                         type="checkbox"
                         checked={formData.services?.[key] ?? false}
                         onChange={(e) => handleServiceChange(key, e.target.checked)}
-                        className="w-4 h-4 rounded text-rose-600"
+                        className="w-4 h-4 rounded border-admin-border/70 text-admin-primary focus:ring-admin-primary/50"
                       />
-                      <span className="font-bold">{label}</span>
+                      <span className="font-bold text-admin-text">{label}</span>
                     </label>
                   ))}
                 </div>
@@ -458,18 +580,22 @@ export default function ProductModal({
 
               {activeTab === "variants" && (
                 <div className="space-y-4">
-                  <div className="p-4 border rounded-xl space-y-3 bg-slate-50 dark:bg-slate-800/50">
-                    <h3 className="font-black">افزودن واریانت (رنگ + سایز)</h3>
+                  <div className="p-4 border border-admin-border/70 rounded-xl space-y-3 bg-admin-background/40">
+                    <h3 className="font-black text-admin-text">افزودن واریانت (رنگ + سایز)</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <Field label="رنگ">
                         <select
                           value={newVariant.color_id}
-                          onChange={(e) => setNewVariant({ ...newVariant, color_id: e.target.value })}
+                          onChange={(e) =>
+                            setNewVariant({ ...newVariant, color_id: e.target.value })
+                          }
                           className={fieldClass}
                         >
                           <option value="">—</option>
                           {colors.map((c) => (
-                            <option key={c.id} value={c.id}>{c.name} ({c.hex_code})</option>
+                            <option key={c.id} value={c.id}>
+                              {c.name} ({c.hex_code})
+                            </option>
                           ))}
                         </select>
                       </Field>
@@ -477,7 +603,9 @@ export default function ProductModal({
                         <input
                           type="number"
                           value={newVariant.stock_quantity}
-                          onChange={(e) => setNewVariant({ ...newVariant, stock_quantity: e.target.value })}
+                          onChange={(e) =>
+                            setNewVariant({ ...newVariant, stock_quantity: e.target.value })
+                          }
                           className={fieldClass}
                         />
                       </Field>
@@ -487,7 +615,12 @@ export default function ProductModal({
                           accept="image/*"
                           onChange={(e) => {
                             const f = e.target.files?.[0];
-                            if (f) setNewVariant({ ...newVariant, image: f, preview: URL.createObjectURL(f) });
+                            if (f)
+                              setNewVariant({
+                                ...newVariant,
+                                image: f,
+                                preview: URL.createObjectURL(f),
+                              });
                           }}
                           className={fieldClass}
                         />
@@ -500,8 +633,10 @@ export default function ProductModal({
                           return (
                             <label
                               key={s.id}
-                              className={`px-3 py-1.5 rounded-lg border cursor-pointer ${
-                                checked ? "bg-rose-600 text-white border-rose-600" : "bg-white dark:bg-slate-800"
+                              className={`px-3 py-1.5 rounded-xl border cursor-pointer font-bold transition ${
+                                checked
+                                  ? "bg-admin-primary text-white border-admin-primary"
+                                  : "bg-admin-surface border-admin-border/70 text-admin-text-muted"
                               }`}
                             >
                               <input
@@ -521,7 +656,11 @@ export default function ProductModal({
                         })}
                       </div>
                     </Field>
-                    <button type="button" onClick={addVariant} className="flex items-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-xl font-bold">
+                    <button
+                      type="button"
+                      onClick={addVariant}
+                      className="flex items-center gap-2 px-4 py-2 bg-admin-primary text-white rounded-xl font-bold hover:opacity-90 transition"
+                    >
                       <PlusIcon className="w-4 h-4" /> افزودن واریانت
                     </button>
                   </div>
@@ -529,22 +668,36 @@ export default function ProductModal({
                   {formData.variants.length > 0 && (
                     <div className="space-y-2">
                       {formData.variants.map((v, i) => (
-                        <div key={v.id || v.tempId} className="flex items-center gap-3 p-3 border rounded-xl bg-white dark:bg-slate-800">
+                        <div
+                          key={v.id || v.tempId}
+                          className="flex items-center gap-3 p-3 border border-admin-border/70 rounded-xl bg-admin-surface"
+                        >
                           {v.preview || v.image_url ? (
-                            <img src={v.preview || v.image_url} alt="" className="w-12 h-12 rounded-lg object-cover" />
+                            <img
+                              src={v.preview || v.image_url}
+                              alt=""
+                              className="w-12 h-12 rounded-xl object-cover border border-admin-border/50"
+                            />
                           ) : (
-                            <div className="w-12 h-12 rounded-lg bg-slate-100 dark:bg-slate-700" />
+                            <div className="w-12 h-12 rounded-xl bg-admin-border/40" />
                           )}
                           <div className="flex-1">
-                            <div className="font-bold">
+                            <div className="font-bold text-admin-text">
                               {v.color_obj?.name || "—"}
-                              {v.sku && <span className="text-slate-400 mr-2">[{v.sku}]</span>}
+                              {v.sku && (
+                                <span className="text-admin-text-muted mr-2">[{v.sku}]</span>
+                              )}
                             </div>
-                            <div className="text-slate-500 mt-1">
-                              {(v.size_objs?.map((s) => s.name) || []).join("، ") || "—"} · موجودی: {v.stock_quantity}
+                            <div className="text-admin-text-muted mt-1">
+                              {(v.size_objs?.map((s) => s.name) || []).join("، ") || "—"} ·
+                              موجودی: {v.stock_quantity}
                             </div>
                           </div>
-                          <button type="button" onClick={() => removeVariant(i)} className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg">
+                          <button
+                            type="button"
+                            onClick={() => removeVariant(i)}
+                            className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-xl transition"
+                          >
                             <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>
@@ -556,23 +709,55 @@ export default function ProductModal({
 
               {activeTab === "attributes" && (
                 <div className="space-y-4">
-                  <div className="p-4 border rounded-xl space-y-3 bg-slate-50 dark:bg-slate-800/50">
+                  <div className="p-4 border border-admin-border/70 rounded-xl space-y-3 bg-admin-background/40">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <Field label="عنوان ویژگی">
-                        <input type="text" value={newAttribute.key} onChange={(e) => setNewAttribute({ ...newAttribute, key: e.target.value })} className={fieldClass} />
+                        <input
+                          type="text"
+                          value={newAttribute.key}
+                          onChange={(e) =>
+                            setNewAttribute({ ...newAttribute, key: e.target.value })
+                          }
+                          className={fieldClass}
+                        />
                       </Field>
                       <Field label="مقدار">
-                        <input type="text" value={newAttribute.value} onChange={(e) => setNewAttribute({ ...newAttribute, value: e.target.value })} className={fieldClass} />
+                        <input
+                          type="text"
+                          value={newAttribute.value}
+                          onChange={(e) =>
+                            setNewAttribute({ ...newAttribute, value: e.target.value })
+                          }
+                          className={fieldClass}
+                        />
                       </Field>
                       <Field label="ترتیب">
-                        <input type="number" value={newAttribute.sort_order} onChange={(e) => setNewAttribute({ ...newAttribute, sort_order: e.target.value })} className={fieldClass} />
+                        <input
+                          type="number"
+                          value={newAttribute.sort_order}
+                          onChange={(e) =>
+                            setNewAttribute({ ...newAttribute, sort_order: e.target.value })
+                          }
+                          className={fieldClass}
+                        />
                       </Field>
                     </div>
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" checked={newAttribute.is_specification} onChange={(e) => setNewAttribute({ ...newAttribute, is_specification: e.target.checked })} className="w-4 h-4 rounded text-rose-600" />
-                      <span className="font-bold">در جدول مشخصات فنی نمایش داده شود</span>
+                    <label className="flex items-center gap-2 font-bold text-admin-text">
+                      <input
+                        type="checkbox"
+                        checked={newAttribute.is_specification}
+                        onChange={(e) =>
+                          setNewAttribute({ ...newAttribute, is_specification: e.target.checked })
+                        }
+                        className="w-4 h-4 rounded border-admin-border/70 text-admin-primary focus:ring-admin-primary/50"
+                      />
+                      <span>در جدول مشخصات فنی نمایش داده شود</span>
                     </label>
-                    <button type="button" onClick={addAttribute} className="flex items-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-xl font-bold">
+                    <button
+                      type="button"
+                      onClick={addAttribute}
+                      className="flex items-center gap-2 px-4 py-2 bg-admin-primary text-white rounded-xl font-bold hover:opacity-90 transition"
+                    >
                       <PlusIcon className="w-4 h-4" /> افزودن ویژگی
                     </button>
                   </div>
@@ -580,12 +765,22 @@ export default function ProductModal({
                   {formData.attributes.length > 0 && (
                     <div className="space-y-2">
                       {formData.attributes.map((a, i) => (
-                        <div key={a.id || a.tempId} className="flex items-center gap-3 p-3 border rounded-xl bg-white dark:bg-slate-800">
+                        <div
+                          key={a.id || a.tempId}
+                          className="flex items-center gap-3 p-3 border border-admin-border/70 rounded-xl bg-admin-surface"
+                        >
                           <div className="flex-1">
-                            <div className="font-bold">{a.key}</div>
-                            <div className="text-slate-500 mt-1">{a.value}{a.is_specification && " · مشخصات فنی"}</div>
+                            <div className="font-bold text-admin-text">{a.key}</div>
+                            <div className="text-admin-text-muted mt-1">
+                              {a.value}
+                              {a.is_specification && " · مشخصات فنی"}
+                            </div>
                           </div>
-                          <button type="button" onClick={() => removeAttribute(i)} className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg">
+                          <button
+                            type="button"
+                            onClick={() => removeAttribute(i)}
+                            className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-xl transition"
+                          >
                             <TrashIcon className="w-4 h-4" />
                           </button>
                         </div>
@@ -597,7 +792,7 @@ export default function ProductModal({
 
               {activeTab === "images" && (
                 <div className="space-y-4">
-                  <div className="p-4 border rounded-xl space-y-3 bg-slate-50 dark:bg-slate-800/50">
+                  <div className="p-4 border border-admin-border/70 rounded-xl space-y-3 bg-admin-background/40">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <Field label="فایل تصویر *">
                         <input
@@ -605,23 +800,49 @@ export default function ProductModal({
                           accept="image/*"
                           onChange={(e) => {
                             const f = e.target.files?.[0];
-                            if (f) setNewImage({ ...newImage, file: f, preview: URL.createObjectURL(f) });
+                            if (f)
+                              setNewImage({ ...newImage, file: f, preview: URL.createObjectURL(f) });
                           }}
                           className={fieldClass}
                         />
                       </Field>
                       <Field label="متن جایگزین (alt)">
-                        <input type="text" value={newImage.alt_text} onChange={(e) => setNewImage({ ...newImage, alt_text: e.target.value })} className={fieldClass} />
+                        <input
+                          type="text"
+                          value={newImage.alt_text}
+                          onChange={(e) =>
+                            setNewImage({ ...newImage, alt_text: e.target.value })
+                          }
+                          className={fieldClass}
+                        />
                       </Field>
                       <Field label="ترتیب">
-                        <input type="number" value={newImage.sort_order} onChange={(e) => setNewImage({ ...newImage, sort_order: e.target.value })} className={fieldClass} />
+                        <input
+                          type="number"
+                          value={newImage.sort_order}
+                          onChange={(e) =>
+                            setNewImage({ ...newImage, sort_order: e.target.value })
+                          }
+                          className={fieldClass}
+                        />
                       </Field>
                     </div>
-                    <label className="flex items-center gap-2">
-                      <input type="checkbox" checked={newImage.is_main} onChange={(e) => setNewImage({ ...newImage, is_main: e.target.checked })} className="w-4 h-4 rounded text-rose-600" />
-                      <span className="font-bold">تصویر اصلی</span>
+                    <label className="flex items-center gap-2 font-bold text-admin-text">
+                      <input
+                        type="checkbox"
+                        checked={newImage.is_main}
+                        onChange={(e) =>
+                          setNewImage({ ...newImage, is_main: e.target.checked })
+                        }
+                        className="w-4 h-4 rounded border-admin-border/70 text-admin-primary focus:ring-admin-primary/50"
+                      />
+                      <span>تصویر اصلی</span>
                     </label>
-                    <button type="button" onClick={addImage} className="flex items-center gap-2 px-4 py-2 bg-rose-600 text-white rounded-xl font-bold">
+                    <button
+                      type="button"
+                      onClick={addImage}
+                      className="flex items-center gap-2 px-4 py-2 bg-admin-primary text-white rounded-xl font-bold hover:opacity-90 transition"
+                    >
                       <PlusIcon className="w-4 h-4" /> افزودن تصویر
                     </button>
                   </div>
@@ -633,17 +854,17 @@ export default function ProductModal({
                           <img
                             src={img.preview || img.file_url}
                             alt=""
-                            className="w-full aspect-square object-cover rounded-xl border"
+                            className="w-full aspect-square object-cover rounded-xl border border-admin-border/70"
                           />
                           {img.is_main && (
-                            <span className="absolute top-1 right-1 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+                            <span className="absolute top-1 right-1 bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
                               اصلی
                             </span>
                           )}
                           <button
                             type="button"
                             onClick={() => removeImage(i)}
-                            className="absolute top-1 left-1 p-1 bg-rose-600 text-white rounded-lg opacity-0 group-hover:opacity-100 transition"
+                            className="absolute top-1 left-1 p-1 bg-rose-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition"
                           >
                             <TrashIcon className="w-3.5 h-3.5" />
                           </button>
@@ -654,18 +875,18 @@ export default function ProductModal({
                 </div>
               )}
 
-              <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-admin-border/70">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+                  className="px-4 py-2 rounded-xl border border-admin-border/70 text-admin-text-muted hover:text-admin-text hover:bg-admin-background transition"
                 >
                   انصراف
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="px-5 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-lg shadow-rose-600/20"
+                  className="px-5 py-2 rounded-xl bg-admin-primary text-white font-bold hover:opacity-90 disabled:opacity-50 transition shadow-lg shadow-admin-primary/20"
                 >
                   {loading ? "در حال ذخیره..." : "ذخیره محصول"}
                 </button>

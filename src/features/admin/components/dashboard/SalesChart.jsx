@@ -19,77 +19,112 @@ const RANGES = [
 export default function SalesChart({ data, range, onRangeChange, loading }) {
   const points = data?.points || [];
 
-  const formatPrice = (v) => Number(v).toLocaleString("fa-IR");
+  const formatPrice = (v) => {
+    if (v === null || v === undefined) return "۰";
+    return Number(v).toLocaleString("fa-IR");
+  };
 
   return (
-    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
+    <div className="bg-admin-surface p-5 sm:p-6 rounded-2xl sm:rounded-3xl border border-admin-border/70 shadow-sm dir-rtl select-none">
+      {/* هدر نمودار و دکمه‌های بازه زمانی */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
         <div>
-          <h3 className="text-sm font-black text-slate-800 dark:text-slate-100">نمودار فروش</h3>
-          <p className="text-[11px] text-slate-500 mt-1">
-            درآمد کل بازه: <span className="font-bold text-slate-700 dark:text-slate-300">
-              {formatPrice(data?.total_revenue || 0)} ریال
+          <h3 className="text-sm font-black text-admin-text tracking-tight">نمودار روند فروش</h3>
+          <p className="text-[11px] font-bold text-admin-text-muted mt-1">
+            درآمد کل بازه:{" "}
+            <span className="font-extrabold text-admin-text">
+              {formatPrice(data?.total_revenue || 0)} تومان
             </span>
             {" · "}
-            تعداد سفارش: <span className="font-bold text-slate-700 dark:text-slate-300">
+            تعداد سفارش:{" "}
+            <span className="font-extrabold text-admin-text">
               {Number(data?.total_orders || 0).toLocaleString("fa-IR")}
             </span>
           </p>
         </div>
-        <div className="flex gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
-          {RANGES.map((r) => (
-            <button
-              key={r.key}
-              onClick={() => onRangeChange(r.key)}
-              className={`px-3 py-1.5 text-[11px] font-bold rounded-lg transition ${
-                range === r.key
-                  ? "bg-rose-600 text-white shadow"
-                  : "text-slate-600 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700"
-              }`}
-            >
-              {r.label}
-            </button>
-          ))}
+
+        {/* دکمه‌های انتخاب بازه */}
+        <div className="flex gap-1 bg-admin-background p-1 rounded-xl border border-admin-border/50">
+          {RANGES.map((r) => {
+            const isActive = range === r.key;
+            return (
+              <button
+                key={r.key}
+                type="button"
+                onClick={() => onRangeChange(r.key)}
+                className={`px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all duration-200 cursor-pointer ${
+                  isActive
+                    ? "bg-admin-primary text-white shadow-sm"
+                    : "text-admin-text-muted hover:text-admin-text hover:bg-admin-surface"
+                }`}
+              >
+                {r.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
+      {/* وضعیت بارگذاری یا نبود داده */}
       {loading ? (
-        <div className="h-64 flex items-center justify-center text-xs text-slate-500">
-          در حال بارگذاری...
+        <div className="h-64 flex items-center justify-center text-xs font-bold text-admin-text-muted">
+          در حال دریافت اطلاعات نمودار...
         </div>
       ) : points.length === 0 ? (
-        <div className="h-64 flex items-center justify-center text-xs text-slate-500">
-          داده‌ای برای نمایش وجود ندارد
+        <div className="h-64 flex items-center justify-center text-xs font-bold text-admin-text-muted">
+          داده‌ای برای نمایش در این بازه وجود ندارد
         </div>
       ) : (
-        <ResponsiveContainer width="100%" height={260}>
-          <AreaChart data={points} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#e11d48" stopOpacity={0.4} />
-                <stop offset="100%" stopColor="#e11d48" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-            <XAxis dataKey="label" tick={{ fontSize: 10 }} stroke="#94a3b8" />
-            <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" tickFormatter={(v) => Number(v).toLocaleString("fa-IR")} />
-            <Tooltip
-              contentStyle={{ direction: "rtl", fontSize: 12, borderRadius: 12, border: "1px solid #e2e8f0" }}
-              formatter={(value, name) => {
-                if (name === "revenue") return [Number(value).toLocaleString("fa-IR") + " ریال", "درآمد"];
-                if (name === "orders") return [Number(value).toLocaleString("fa-IR"), "سفارش"];
-                return [value, name];
-              }}
-            />
-            <Area
-              type="monotone"
-              dataKey="revenue"
-              stroke="#e11d48"
-              strokeWidth={2}
-              fill="url(#revenueGrad)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+        /* نمایش نمودار Recharts */
+        <div className="w-full h-64 dir-ltr">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={points} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#f43f5e" stopOpacity={0.35} />
+                  <stop offset="100%" stopColor="#f43f5e" stopOpacity={0.0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.15)" vertical={false} />
+              <XAxis
+                dataKey="label"
+                tick={{ fontSize: 10, fill: "var(--admin-text-muted, #94a3b8)", fontWeight: 600 }}
+                stroke="transparent"
+              />
+              <YAxis
+                tick={{ fontSize: 10, fill: "var(--admin-text-muted, #94a3b8)", fontWeight: 600 }}
+                stroke="transparent"
+                tickFormatter={(v) => Number(v).toLocaleString("fa-IR")}
+              />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: "var(--admin-surface, #ffffff)",
+                  borderColor: "var(--admin-border, #e2e8f0)",
+                  borderRadius: "16px",
+                  color: "var(--admin-text, #0f172a)",
+                  direction: "rtl",
+                  fontSize: "11px",
+                  fontWeight: "bold",
+                  boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                }}
+                formatter={(value, name) => {
+                  if (name === "revenue")
+                    return [Number(value).toLocaleString("fa-IR") + " تومان", "درآمد"];
+                  if (name === "orders")
+                    return [Number(value).toLocaleString("fa-IR") + " عدد", "تعداد سفارش"];
+                  return [value, name];
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="revenue"
+                stroke="#f43f5e"
+                strokeWidth={2.5}
+                fill="url(#revenueGrad)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       )}
     </div>
   );

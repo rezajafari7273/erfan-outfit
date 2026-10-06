@@ -77,17 +77,17 @@ export default function AdminSidebar({ onCloseMobile }) {
   };
 
   return (
-    <aside className="w-64 h-screen flex flex-col shrink-0 bg-admin-surface border-l border-admin-border text-admin-text select-none">
+    <aside className="w-64 h-full flex flex-col shrink-0 bg-admin-surface border-l border-admin-border text-admin-text select-none">
       {/* Header */}
-      <div className="h-16 flex items-center justify-between px-5 bg-admin-background border-b border-admin-border">
+      <div className="h-16 flex items-center justify-between px-5 bg-admin-background border-b border-admin-border shrink-0">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-admin-primary flex items-center justify-center text-white font-black text-xs">
+          <div className="w-8 h-8 rounded-xl bg-admin-primary flex items-center justify-center text-white font-black text-xs shadow-sm">
             A
           </div>
           <span className="font-black text-sm text-admin-text tracking-tight">پنل مدیریت</span>
         </div>
 
-        {/* Close button - mobile only */}
+        {/* بستن موبایل */}
         <button
           type="button"
           onClick={onCloseMobile}
@@ -98,7 +98,7 @@ export default function AdminSidebar({ onCloseMobile }) {
         </button>
       </div>
 
-      {/* Nav */}
+      {/* لیست منوها */}
       <nav className="flex-1 p-3.5 space-y-4 overflow-y-auto">
         {navGroups.map((group) => {
           const isCollapsed = collapsed[group.title];
@@ -158,7 +158,7 @@ export default function AdminSidebar({ onCloseMobile }) {
         })}
       </nav>
 
-      <div className="p-3.5 border-t border-admin-border bg-admin-background text-[10px] text-admin-text-muted font-bold text-center">
+      <div className="p-3.5 border-t border-admin-border bg-admin-background text-[10px] text-admin-text-muted font-bold text-center shrink-0">
         Erfan Apparel · v1.0
       </div>
     </aside>

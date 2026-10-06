@@ -3,17 +3,50 @@
 import { adminApi } from "@/features/admin/api/adminApi";
 
 const STATUS_OPTIONS = [
-  { value: "pending", label: "در انتظار پرداخت", color: "text-amber-700 bg-amber-100" },
-  { value: "paid", label: "پرداخت شده", color: "text-emerald-700 bg-emerald-100" },
-  { value: "processing", label: "در حال آماده‌سازی", color: "text-blue-700 bg-blue-100" },
-  { value: "shipped", label: "ارسال شده", color: "text-indigo-700 bg-indigo-100" },
-  { value: "delivered", label: "تحویل شده", color: "text-emerald-700 bg-emerald-100" },
-  { value: "cancelled", label: "لغو شده", color: "text-rose-700 bg-rose-100" },
-  { value: "refunded", label: "مسترد شده", color: "text-slate-700 bg-slate-100" },
+  {
+    value: "pending",
+    label: "در انتظار پرداخت",
+    color: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+  },
+  {
+    value: "paid",
+    label: "پرداخت شده",
+    color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+  },
+  {
+    value: "processing",
+    label: "در حال آماده‌سازی",
+    color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+  },
+  {
+    value: "shipped",
+    label: "ارسال شده",
+    color: "bg-indigo-500/10 text-indigo-500 border-indigo-500/20",
+  },
+  {
+    value: "delivered",
+    label: "تحویل شده",
+    color: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+  },
+  {
+    value: "cancelled",
+    label: "لغو شده",
+    color: "bg-rose-500/10 text-rose-500 border-rose-500/20",
+  },
+  {
+    value: "refunded",
+    label: "مسترد شده",
+    color: "bg-admin-border/40 text-admin-text-muted border-admin-border/60",
+  },
 ];
 
 export function statusInfo(status) {
-  return STATUS_OPTIONS.find((s) => s.value === status) || { label: status, color: "bg-slate-100 text-slate-700" };
+  return (
+    STATUS_OPTIONS.find((s) => s.value === status) || {
+      label: status,
+      color: "bg-admin-border/40 text-admin-text-muted border-admin-border/60",
+    }
+  );
 }
 
 export default function OrderStatusSelect({ order, onUpdated }) {
@@ -27,7 +60,7 @@ export default function OrderStatusSelect({ order, onUpdated }) {
       onUpdated?.();
     } catch (err) {
       console.error(err);
-      alert("خطا در تغییر وضعیت");
+      alert("خطا در تغییر وضعیت سفارش");
     }
   };
 
@@ -35,10 +68,16 @@ export default function OrderStatusSelect({ order, onUpdated }) {
     <select
       value={order.status}
       onChange={handleChange}
-      className={`text-[11px] font-bold px-2 py-1.5 rounded-lg border-0 focus:ring-2 focus:ring-rose-500 cursor-pointer ${current.color}`}
+      className={`text-[11px] font-bold px-2.5 py-1.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-admin-primary/50 cursor-pointer transition-all ${current.color}`}
     >
       {STATUS_OPTIONS.map((s) => (
-        <option key={s.value} value={s.value}>{s.label}</option>
+        <option
+          key={s.value}
+          value={s.value}
+          className="bg-admin-surface text-admin-text"
+        >
+          {s.label}
+        </option>
       ))}
     </select>
   );

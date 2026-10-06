@@ -26,12 +26,14 @@ const emptyForm = {
 };
 
 const fieldClass =
-  "w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-rose-500";
+  "w-full px-3.5 py-2.5 border border-admin-border/70 rounded-xl bg-admin-background text-admin-text text-xs focus:outline-none focus:ring-2 focus:ring-admin-primary/50 transition-all placeholder:text-admin-text-muted/50";
 
 function Field({ label, children }) {
   return (
     <div>
-      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">{label}</label>
+      <label className="block font-bold text-admin-text mb-1.5 text-xs">
+        {label}
+      </label>
       {children}
     </div>
   );
@@ -41,6 +43,7 @@ export default function CategoryModal({
   isOpen,
   onClose,
   editingCategory,
+  defaultParent = null,
   categories = [],
   onSuccess,
 }) {
@@ -73,9 +76,12 @@ export default function CategoryModal({
         theme_color: editingCategory.theme_color || "blue",
       });
     } else {
-      setFormData(emptyForm);
+      setFormData({
+        ...emptyForm,
+        parent: defaultParent || "",
+      });
     }
-  }, [editingCategory, isOpen]);
+  }, [editingCategory, defaultParent, isOpen]);
 
   if (!isOpen) return null;
 
@@ -84,10 +90,11 @@ export default function CategoryModal({
     setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  // ساخت لیست درختی والدها برای انتخاب
   const parentOptions = (() => {
     const map = {};
-    categories.forEach((c) => { map[c.id] = { ...c, children: [] }; });
+    categories.forEach((c) => {
+      map[c.id] = { ...c, children: [] };
+    });
     const roots = [];
     categories.forEach((c) => {
       if (c.parent && map[c.parent]) map[c.parent].children.push(map[c.id]);
@@ -118,10 +125,25 @@ export default function CategoryModal({
         else fd.append(k, v);
       };
 
-      ["parent", "name", "slug", "description", "season", "style",
-       "min_age", "max_age", "gender", "sort_order",
-       "is_active", "show_in_menu", "is_featured", "is_collection",
-       "code", "icon_name", "theme_color"].forEach((k) => {
+      [
+        "parent",
+        "name",
+        "slug",
+        "description",
+        "season",
+        "style",
+        "min_age",
+        "max_age",
+        "gender",
+        "sort_order",
+        "is_active",
+        "show_in_menu",
+        "is_featured",
+        "is_collection",
+        "code",
+        "icon_name",
+        "theme_color",
+      ].forEach((k) => {
         appendIf(k, formData[k]);
       });
 
@@ -137,7 +159,8 @@ export default function CategoryModal({
       onClose?.();
     } catch (err) {
       console.error("Category save error:", err);
-      const msg = err?.detail || err?.message || (typeof err === "object" ? JSON.stringify(err) : "خطای نامشخص");
+      const msg =
+        err?.detail || err?.message || (typeof err === "object" ? JSON.stringify(err) : "خطای نامشخص");
       setError(`خطا: ${msg}`);
     } finally {
       setLoading(false);
@@ -145,40 +168,74 @@ export default function CategoryModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 dir-rtl">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-3xl p-6 relative max-h-[92vh] flex flex-col border border-slate-200 dark:border-slate-800">
-        <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="text-lg font-black text-slate-800 dark:text-slate-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 dir-rtl animate-fadeIn select-none">
+      <div className="bg-admin-surface rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-3xl p-6 relative max-h-[92vh] flex flex-col border border-admin-border/70">
+        {/* هدر مدال */}
+        <div className="flex justify-between items-center pb-4 mb-4 border-b border-admin-border/70">
+          <h2 className="text-base sm:text-lg font-black text-admin-text tracking-tight">
             {editingCategory ? "ویرایش دسته‌بندی" : "افزودن دسته‌بندی جدید"}
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-xl text-admin-text-muted hover:text-admin-text hover:bg-admin-background transition"
+          >
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
-        {error && <div className="mb-4 p-3 bg-rose-100 text-rose-700 text-xs font-bold rounded-xl">{error}</div>}
+        {error && (
+          <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-bold rounded-xl">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Field label="نام دسته‌بندی *">
-              <input type="text" name="name" value={formData.name} onChange={handleChange} required className={fieldClass} />
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                required
+                className={fieldClass}
+              />
             </Field>
             <Field label="اسلاگ (اختیاری)">
-              <input type="text" name="slug" value={formData.slug} onChange={handleChange} className={fieldClass} />
+              <input
+                type="text"
+                name="slug"
+                value={formData.slug}
+                onChange={handleChange}
+                className={fieldClass}
+              />
             </Field>
           </div>
 
           <Field label="دسته‌بندی مادر">
-            <select name="parent" value={formData.parent} onChange={handleChange} className={fieldClass}>
+            <select
+              name="parent"
+              value={formData.parent}
+              onChange={handleChange}
+              className={fieldClass}
+            >
               <option value="">— بدون والد (دسته اصلی) —</option>
               {parentOptions.map((o) => (
-                <option key={o.id} value={o.id}>{o.label}</option>
+                <option key={o.id} value={o.id}>
+                  {o.label}
+                </option>
               ))}
             </select>
           </Field>
 
           <Field label="توضیحات">
-            <textarea name="description" rows="2" value={formData.description} onChange={handleChange} className={fieldClass} />
+            <textarea
+              name="description"
+              rows="2"
+              value={formData.description}
+              onChange={handleChange}
+              className={fieldClass}
+            />
           </Field>
 
           <Field label="تصویر شاخص">
@@ -195,7 +252,12 @@ export default function CategoryModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label="فصل">
-              <select name="season" value={formData.season} onChange={handleChange} className={fieldClass}>
+              <select
+                name="season"
+                value={formData.season}
+                onChange={handleChange}
+                className={fieldClass}
+              >
                 <option value="spring">بهار</option>
                 <option value="summer">تابستان</option>
                 <option value="fall">پاییز</option>
@@ -204,7 +266,12 @@ export default function CategoryModal({
               </select>
             </Field>
             <Field label="سبک">
-              <select name="style" value={formData.style} onChange={handleChange} className={fieldClass}>
+              <select
+                name="style"
+                value={formData.style}
+                onChange={handleChange}
+                className={fieldClass}
+              >
                 <option value="casual">کژوال</option>
                 <option value="formal">رسمی</option>
                 <option value="sport">ورزشی</option>
@@ -212,7 +279,12 @@ export default function CategoryModal({
               </select>
             </Field>
             <Field label="جنسیت">
-              <select name="gender" value={formData.gender} onChange={handleChange} className={fieldClass}>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleChange}
+                className={fieldClass}
+              >
                 <option value="male">مردانه</option>
                 <option value="female">زنانه</option>
                 <option value="unisex">عمومی</option>
@@ -223,25 +295,62 @@ export default function CategoryModal({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label="حداقل سن">
-              <input type="number" name="min_age" value={formData.min_age} onChange={handleChange} className={fieldClass} />
+              <input
+                type="number"
+                name="min_age"
+                value={formData.min_age}
+                onChange={handleChange}
+                className={fieldClass}
+              />
             </Field>
             <Field label="حداکثر سن">
-              <input type="number" name="max_age" value={formData.max_age} onChange={handleChange} className={fieldClass} />
+              <input
+                type="number"
+                name="max_age"
+                value={formData.max_age}
+                onChange={handleChange}
+                className={fieldClass}
+              />
             </Field>
             <Field label="ترتیب نمایش">
-              <input type="number" name="sort_order" value={formData.sort_order} onChange={handleChange} className={fieldClass} />
+              <input
+                type="number"
+                name="sort_order"
+                value={formData.sort_order}
+                onChange={handleChange}
+                className={fieldClass}
+              />
             </Field>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Field label="کد کوتاه">
-              <input type="text" name="code" value={formData.code} onChange={handleChange} placeholder="WIN / CAS" className={fieldClass} />
+              <input
+                type="text"
+                name="code"
+                value={formData.code}
+                onChange={handleChange}
+                placeholder="WIN / CAS"
+                className={fieldClass}
+              />
             </Field>
             <Field label="نام آیکون Heroicon">
-              <input type="text" name="icon_name" value={formData.icon_name} onChange={handleChange} placeholder="SparklesIcon" className={fieldClass} />
+              <input
+                type="text"
+                name="icon_name"
+                value={formData.icon_name}
+                onChange={handleChange}
+                placeholder="SparklesIcon"
+                className={fieldClass}
+              />
             </Field>
             <Field label="رنگ تم">
-              <select name="theme_color" value={formData.theme_color} onChange={handleChange} className={fieldClass}>
+              <select
+                name="theme_color"
+                value={formData.theme_color}
+                onChange={handleChange}
+                className={fieldClass}
+              >
                 <option value="blue">آبی</option>
                 <option value="pink">صورتی</option>
                 <option value="emerald">زمردی</option>
@@ -254,29 +363,61 @@ export default function CategoryModal({
           </div>
 
           <div className="flex flex-wrap items-center gap-5 pt-2">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="is_active" checked={formData.is_active} onChange={handleChange} className="w-4 h-4 rounded text-rose-600" />
-              <span className="font-bold">فعال</span>
+            <label className="flex items-center gap-2 cursor-pointer font-bold text-admin-text">
+              <input
+                type="checkbox"
+                name="is_active"
+                checked={formData.is_active}
+                onChange={handleChange}
+                className="w-4 h-4 rounded border-admin-border/70 text-admin-primary focus:ring-admin-primary/50"
+              />
+              <span>فعال</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="show_in_menu" checked={formData.show_in_menu} onChange={handleChange} className="w-4 h-4 rounded text-rose-600" />
-              <span className="font-bold">نمایش در مگامنو</span>
+            <label className="flex items-center gap-2 cursor-pointer font-bold text-admin-text">
+              <input
+                type="checkbox"
+                name="show_in_menu"
+                checked={formData.show_in_menu}
+                onChange={handleChange}
+                className="w-4 h-4 rounded border-admin-border/70 text-admin-primary focus:ring-admin-primary/50"
+              />
+              <span>نمایش در مگامنو</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="is_featured" checked={formData.is_featured} onChange={handleChange} className="w-4 h-4 rounded text-amber-500" />
-              <span className="font-bold">محبوب / داغ</span>
+            <label className="flex items-center gap-2 cursor-pointer font-bold text-admin-text">
+              <input
+                type="checkbox"
+                name="is_featured"
+                checked={formData.is_featured}
+                onChange={handleChange}
+                className="w-4 h-4 rounded border-admin-border/70 text-amber-500 focus:ring-amber-500/50"
+              />
+              <span>محبوب / داغ</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" name="is_collection" checked={formData.is_collection} onChange={handleChange} className="w-4 h-4 rounded text-violet-500" />
-              <span className="font-bold">کالکشن ویژه</span>
+            <label className="flex items-center gap-2 cursor-pointer font-bold text-admin-text">
+              <input
+                type="checkbox"
+                name="is_collection"
+                checked={formData.is_collection}
+                onChange={handleChange}
+                className="w-4 h-4 rounded border-admin-border/70 text-violet-500 focus:ring-violet-500/50"
+              />
+              <span>کالکشن ویژه</span>
             </label>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
-            <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+          <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-admin-border/70">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl border border-admin-border/70 text-admin-text-muted hover:text-admin-text hover:bg-admin-background transition"
+            >
               انصراف
             </button>
-            <button type="submit" disabled={loading} className="px-5 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 disabled:opacity-50 transition shadow-lg shadow-rose-600/20">
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-5 py-2 rounded-xl bg-admin-primary text-white font-bold hover:opacity-90 disabled:opacity-50 transition shadow-lg shadow-admin-primary/20"
+            >
               {loading ? "در حال ذخیره..." : "ذخیره دسته‌بندی"}
             </button>
           </div>

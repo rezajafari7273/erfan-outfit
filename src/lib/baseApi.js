@@ -3,89 +3,62 @@ import axios from "axios";
 const BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "https://online-mod.com/api/v1";
 
-// دامنه اصلی سایت برای عکس‌ها (بدون /api/v1)
-const MEDIA_BASE_URL = BASE_URL.replace(/\/api\/v1\/?$/, "");
+// دامنه اصلی برای تصاویر
+const MEDIA_BASE_URL = "https://online-mod.com";
 
-// لیست فیلدهایی که احتمال دارد حاوی آدرس عکس باشند
-const IMAGE_KEYS = [
-  "image",
-  "img",
-  "banner",
-  "icon",
-  "avatar",
-  "cover",
-  "thumbnail",
-  "file",
-  "src",
-  "photo",
-];
-
-// تشخیص اینکه آیا یک رشته آدرس تصویر است یا خیر
-function isImagePath(str) {
-  if (typeof str !== "string" || !str.trim()) return false;
-  
-  // اگر آدرس از قبل کامل باشد نیاز به تغییر ندارد
-  if (str.startsWith("http://") || str.startsWith("https://") || str.startsWith("data:")) {
-    return false;
-  }
-
-  // پسوندهای متداول عکس
-  const hasImageExtension = /\.(jpg|jpeg|png|webp|gif|svg|avif)$/i.test(str);
-  
-  // مسیرهای متداول ذخیره‌سازی فایل
-  const hasMediaPath =
-    str.includes("media/") ||
-    str.includes("static/") ||
-    str.includes("uploads/") ||
-    str.includes("images/");
-
-  return hasImageExtension || hasMediaPath;
-}
-
-// تابع جایگزین کردن و کامل‌سازی آدرس تصویر
-function processUrl(url) {
+// تابع مطمئن برای کامل کردن آدرس عکس‌ها
+export function fixImageUrl(url) {
   if (!url || typeof url !== "string") return url;
+  
+  // اگر آدرس از قبل کامل است (Unsplash، لینک کامل یا Base64)
   if (url.startsWith("http://") || url.startsWith("https://") || url.startsWith("data:")) {
     return url;
   }
 
+  // اگر نام آیکون React است (مثل Squares2X2Icon) دستکاری نکن
+  if (/^[A-Za-z0-9]+Icon$/.test(url)) {
+    return url;
+  }
+
+  // اضافه کردن دامنه اصلی به آدرس‌های نسبی مثل /media/...
   const cleanPath = url.startsWith("/") ? url : `/${url}`;
   return `${MEDIA_BASE_URL}${cleanPath}`;
 }
 
-// تابع پیمایش عمیق در داده‌های خروجی API
-function fixImageUrls(data) {
+// تابع پیمایش عمیق در داده‌های API
+function processImagesInObject(data) {
   if (!data) return data;
 
   if (typeof data === "string") {
-    if (isImagePath(data)) {
-      return processUrl(data);
+    // اگر مسیر عکس بود آدرس را کامل کن
+    if (/\.(jpg|jpeg|png|webp|gif|svg|avif)($|\?)/i.test(data) || data.includes("/media/")) {
+      return fixImageUrl(data);
     }
     return data;
   }
 
   if (Array.isArray(data)) {
-    return data.map((item) => fixImageUrls(item));
+    return data.map((item) => processImagesInObject(item));
   }
 
   if (typeof data === "object") {
-    const updated = {};
-    for (const key in data) {
-      if (Object.prototype.hasOwnProperty.call(data, key)) {
-        const value = data[key];
-        
-        // اگر نام کلید جزو کلیدهای تصویر باشد یا مقدارش آدرس عکس باشد
-        if (
-          (IMAGE_KEYS.includes(key.toLowerCase()) && typeof value === "string") ||
-          isImagePath(value)
-        ) {
-          updated[key] = processUrl(value);
-        } else {
-          updated[key] = fixImageUrls(value);
+    const copy = { ...data };
+    for (const key in copy) {
+      if (Object.prototype.hasOwnProperty.call(copy, key)) {
+        const val = copy[key];
+        if (typeof val === "string") {
+          const lowerKey = key.toLowerCase();
+          const imageKeys = ["image", "img", "banner", "cover", "thumbnail", "photo", "avatar", "src", "file"];
+          
+          if (imageKeys.some((k) => lowerKey.includes(k))) {
+            copy[key] = fixImageUrl(val);
+          }
+        } else if (typeof val === "object" && val !== null) {
+          copy[key] = processImagesInObject(val);
         }
       }
     }
-    return updated;
+    return copy;
   }
 
   return data;
@@ -120,8 +93,8 @@ baseApi.interceptors.response.use(
   (response) => {
     let responseData = response.data !== undefined ? response.data : response;
     
-    // اصلاح خودکار تمامی آدرس‌های عکس در پکیج دریافتی
-    responseData = fixImageUrls(responseData);
+    // اصلاح اتوماتیک آدرس عکس‌ها
+    responseData = processImagesInObject(responseData);
 
     return responseData;
   },

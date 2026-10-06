@@ -23,17 +23,19 @@ export default function CategoryRow({
 }) {
   const indent = depth * 24;
 
+  const formatNum = (v) => Number(v || 0).toLocaleString("fa-IR");
+
   return (
     <div
-      className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/40 transition group"
+      className="flex items-center gap-3 p-3 rounded-2xl hover:bg-admin-background/60 border border-transparent hover:border-admin-border/50 transition group"
       style={{ paddingRight: `${indent + 12}px` }}
     >
-      {/* Expand toggle */}
-      <div className="w-5 shrink-0">
+      {/* دکمه باز و بسته‌شدن شاخه */}
+      <div className="w-5 shrink-0 flex items-center justify-center">
         {hasChildren ? (
           <button
             onClick={() => onToggleExpand(category.id)}
-            className="p-0.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
+            className="p-1 rounded-lg text-admin-text-muted hover:text-admin-text hover:bg-admin-border/40 transition"
           >
             {isExpanded ? (
               <ChevronDownIcon className="w-4 h-4" />
@@ -42,72 +44,92 @@ export default function CategoryRow({
             )}
           </button>
         ) : (
-          <span className="block w-4 h-4 text-slate-300 dark:text-slate-600 text-center text-xs">•</span>
+          <span className="block w-2 h-2 rounded-full bg-admin-border/80" />
         )}
       </div>
 
-      {/* Image */}
+      {/* تصویر */}
       {category.image ? (
-        <img src={category.image} alt="" className="w-9 h-9 rounded-lg object-cover border shrink-0" />
+        <img
+          src={category.image}
+          alt=""
+          className="w-10 h-10 rounded-xl object-cover border border-admin-border/50 shrink-0"
+        />
       ) : (
-        <div className="w-9 h-9 rounded-lg bg-slate-100 dark:bg-slate-800 shrink-0" />
+        <div className="w-10 h-10 rounded-xl bg-admin-border/40 shrink-0" />
       )}
 
-      {/* Info */}
+      {/* اطلاعات */}
       <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <span className={`text-xs font-bold ${depth === 0 ? "text-slate-800 dark:text-slate-100" : "text-slate-600 dark:text-slate-300"}`}>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className={`text-xs font-bold ${
+              depth === 0 ? "text-admin-text" : "text-admin-text-muted"
+            }`}
+          >
             {category.name}
           </span>
           {category.code && (
-            <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-1.5 py-0.5 rounded font-mono">
+            <span className="text-[10px] bg-admin-background text-admin-text-muted px-2 py-0.5 rounded-md font-mono border border-admin-border/60">
               {category.code}
             </span>
           )}
           {category.is_featured && (
-            <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold">داغ</span>
+            <span className="text-[10px] bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-0.5 rounded-md font-bold">
+              محبوب
+            </span>
           )}
           {category.is_collection && (
-            <span className="text-[10px] bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded font-bold">کالکشن</span>
+            <span className="text-[10px] bg-violet-500/10 text-violet-500 border border-violet-500/20 px-2 py-0.5 rounded-md font-bold">
+              کالکشن
+            </span>
           )}
         </div>
-        <div className="text-[10px] text-slate-500 mt-0.5">
+        <div className="text-[10px] font-bold text-admin-text-muted mt-1">
           {category.slug}
           {typeof category.products_count === "number" && (
-            <> · {category.products_count} محصول</>
+            <> · {formatNum(category.products_count)} محصول</>
           )}
         </div>
       </div>
 
-      {/* Actions */}
+      {/* عملیات */}
       <div className="flex items-center gap-1.5 shrink-0">
         <button
           onClick={() => onAddChild(category)}
           title="افزودن زیردسته"
-          className="p-1.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-lg"
+          className="p-1.5 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 rounded-xl transition"
         >
-          <PlusIcon className="w-3.5 h-3.5" />
+          <PlusIcon className="w-4 h-4" />
         </button>
         <button
           onClick={() => onToggleActive(category.id)}
-          title={category.is_active ? "غیرفعال" : "فعال"}
-          className={`p-1.5 rounded-lg ${category.is_active ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-400"}`}
+          title={category.is_active ? "غیرفعال کردن" : "فعال کردن"}
+          className={`p-1.5 rounded-xl transition ${
+            category.is_active
+              ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
+              : "bg-admin-border/40 text-admin-text-muted hover:bg-admin-border/70"
+          }`}
         >
-          {category.is_active ? <EyeIcon className="w-3.5 h-3.5" /> : <EyeSlashIcon className="w-3.5 h-3.5" />}
+          {category.is_active ? (
+            <EyeIcon className="w-4 h-4" />
+          ) : (
+            <EyeSlashIcon className="w-4 h-4" />
+          )}
         </button>
         <button
           onClick={() => onEdit(category)}
           title="ویرایش"
-          className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg"
+          className="p-1.5 bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 rounded-xl transition"
         >
-          <PencilSquareIcon className="w-3.5 h-3.5" />
+          <PencilSquareIcon className="w-4 h-4" />
         </button>
         <button
           onClick={() => onDelete(category)}
           title="حذف"
-          className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg"
+          className="p-1.5 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 rounded-xl transition"
         >
-          <TrashIcon className="w-3.5 h-3.5" />
+          <TrashIcon className="w-4 h-4" />
         </button>
       </div>
     </div>
