@@ -10,12 +10,12 @@ import DestinationSection, {
 } from "./DestinationSection";
 
 const fieldClass =
-  "w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-rose-500";
+  "w-full px-3 py-2 border border-admin-border rounded-xl bg-admin-background text-admin-text text-xs focus:outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary transition-all";
 
 function Field({ label, children }) {
   return (
     <div>
-      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">{label}</label>
+      <label className="block font-bold text-admin-text mb-1">{label}</label>
       {children}
     </div>
   );
@@ -104,20 +104,20 @@ export default function BannerSliderModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 dir-rtl">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl p-6 relative max-h-[92vh] flex flex-col border border-slate-200 dark:border-slate-800">
-        <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="text-base font-black text-slate-800 dark:text-slate-100">
+      <div className="bg-admin-surface rounded-2xl shadow-2xl w-full max-w-2xl p-6 relative max-h-[92vh] flex flex-col border border-admin-border">
+        <div className="flex justify-between items-center pb-4 mb-4 border-b border-admin-border">
+          <h2 className="text-base font-black text-admin-text">
             {editingItem ? "ویرایش اسلاید" : "افزودن اسلاید"}
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+          <button onClick={onClose} className="text-admin-text-muted hover:text-admin-text">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
-        {error && <div className="mb-4 p-3 bg-rose-100 text-rose-700 text-xs font-bold rounded-xl">{error}</div>}
+        {error && <div className="mb-4 p-3 bg-admin-danger/10 text-admin-danger text-xs font-bold rounded-xl">{error}</div>}
 
         {fetching ? (
-          <div className="p-12 text-center text-xs text-slate-500">در حال بارگذاری...</div>
+          <div className="p-12 text-center text-xs text-admin-text-muted">در حال بارگذاری...</div>
         ) : (
           <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-3 text-xs pr-1">
             <div className="grid grid-cols-2 gap-3">
@@ -148,7 +148,7 @@ export default function BannerSliderModal({
                 className={fieldClass}
               />
               {editingItem?.image && (
-                <img src={editingItem.image} alt="" className="mt-2 h-20 rounded-lg border" />
+                <img src={editingItem.image} alt="" className="mt-2 h-20 rounded-lg border border-admin-border object-cover" />
               )}
             </Field>
 
@@ -176,23 +176,23 @@ export default function BannerSliderModal({
                 type="checkbox"
                 checked={form.is_active}
                 onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-                className="w-4 h-4 rounded text-rose-600"
+                className="w-4 h-4 rounded text-admin-primary focus:ring-admin-primary border-admin-border bg-admin-background"
               />
-              <span className="font-bold">فعال</span>
+              <span className="font-bold text-admin-text">فعال</span>
             </label>
 
-            <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-admin-border">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="px-4 py-2 rounded-xl border border-admin-border text-admin-text hover:bg-admin-background transition-all"
               >
                 انصراف
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-5 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-admin-primary text-button-text font-bold hover:bg-admin-primary-hover disabled:opacity-50 transition-all shadow-md shadow-admin-primary/10"
               >
                 {loading ? "..." : "ذخیره"}
               </button>

@@ -10,13 +10,32 @@ import DestinationSection, {
 } from "./DestinationSection";
 
 const fieldClass =
-  "w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-rose-500";
+  "w-full px-3 py-2 border border-admin-border rounded-xl bg-admin-surface text-admin-text text-xs focus:outline-none focus:ring-2 focus:ring-admin-primary";
 
 function Field({ label, children }) {
   return (
     <div>
-      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">{label}</label>
+      <label className="block font-bold text-admin-text mb-1">{label}</label>
       {children}
+    </div>
+  );
+}
+
+function FormSkeleton() {
+  return (
+    <div className="flex-1 space-y-4 animate-pulse pr-1">
+      <div className="space-y-1.5">
+        <div className="h-3 bg-admin-border/50 rounded w-16"></div>
+        <div className="h-9 bg-admin-border/30 rounded-xl w-full"></div>
+      </div>
+      <div className="space-y-1.5">
+        <div className="h-3 bg-admin-border/50 rounded w-20"></div>
+        <div className="h-10 bg-admin-border/30 rounded-xl w-full"></div>
+      </div>
+      <div className="p-4 border border-admin-border/40 rounded-xl space-y-3">
+        <div className="h-3 bg-admin-border/50 rounded w-28"></div>
+        <div className="h-9 bg-admin-border/30 rounded-xl w-full"></div>
+      </div>
     </div>
   );
 }
@@ -91,20 +110,20 @@ export default function TopBannerModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 dir-rtl">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl p-6 relative max-h-[92vh] flex flex-col border border-slate-200 dark:border-slate-800">
-        <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="text-base font-black text-slate-800 dark:text-slate-100">
+      <div className="bg-admin-surface rounded-2xl shadow-2xl w-full max-w-2xl p-6 relative max-h-[92vh] flex flex-col border border-admin-border">
+        <div className="flex justify-between items-center pb-4 mb-4 border-b border-admin-border">
+          <h2 className="text-base font-black text-admin-text">
             {editingItem ? "ویرایش تاپ بنر" : "افزودن تاپ بنر"}
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+          <button onClick={onClose} className="text-admin-text-muted hover:text-admin-text transition-colors">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
-        {error && <div className="mb-4 p-3 bg-rose-100 text-rose-700 text-xs font-bold rounded-xl">{error}</div>}
+        {error && <div className="mb-4 p-3 bg-admin-primary-soft text-admin-danger text-xs font-bold rounded-xl border border-admin-danger/20">{error}</div>}
 
         {fetching ? (
-          <div className="p-12 text-center text-xs text-slate-500">در حال بارگذاری...</div>
+          <FormSkeleton />
         ) : (
           <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-3 text-xs pr-1">
             <Field label="عنوان *">
@@ -126,7 +145,7 @@ export default function TopBannerModal({
                 className={fieldClass}
               />
               {editingItem?.image && (
-                <img src={editingItem.image} alt="" className="mt-2 h-20 rounded-lg border" />
+                <img src={editingItem.image} alt="" className="mt-2 h-20 rounded-lg border border-admin-border object-cover" />
               )}
             </Field>
 
@@ -140,28 +159,28 @@ export default function TopBannerModal({
               sizes={sizes}
             />
 
-            <label className="flex items-center gap-2 cursor-pointer pt-2">
+            <label className="flex items-center gap-2 cursor-pointer pt-2 text-admin-text">
               <input
                 type="checkbox"
                 checked={form.is_active}
                 onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-                className="w-4 h-4 rounded text-rose-600"
+                className="w-4 h-4 rounded accent-admin-primary"
               />
               <span className="font-bold">فعال</span>
             </label>
 
-            <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-admin-border">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="px-4 py-2 rounded-xl border border-admin-border text-admin-text hover:bg-admin-background transition-colors"
               >
                 انصراف
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-5 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-admin-primary text-button-text font-bold hover:bg-admin-primary-hover disabled:opacity-50 transition-colors"
               >
                 {loading ? "..." : "ذخیره"}
               </button>

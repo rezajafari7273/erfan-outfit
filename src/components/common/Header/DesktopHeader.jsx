@@ -95,6 +95,7 @@ export default function DesktopHeader() {
 
   return (
     <div className="sticky top-0 z-50">
+      {/* بخش بالای هدر */}
       <div
         ref={topHeaderRef}
         className={`bg-white relative z-50 transition-all duration-300 ${
@@ -103,16 +104,21 @@ export default function DesktopHeader() {
       >
         <div className="mx-auto px-4">
           <div className="flex items-center justify-between h-20 gap-8">
-            <div className="flex items-center gap-6 flex-1 max-w-3xl">
+            
+            {/* سمت راست: لوگو + سرچ سراسری با کنترل Z-Index */}
+            <div className="flex items-center gap-6 flex-1 max-w-3xl relative z-20">
               <Logo width={150} height={45} priority={true} />
-              <GlobalSearch />
+              <div className="flex-1 relative z-20">
+                <GlobalSearch />
+              </div>
             </div>
 
-            <div className="flex items-center gap-3 shrink-0">
+            {/* سمت چپ: سبد خرید + دکمه و منوی کاربری */}
+            <div className="flex items-center gap-3 shrink-0 relative z-30">
               <Link
                 href="/cart"
                 id="cart-btn"
-                className="relative p-3 rounded-full border border-secondary/10 bg-gray-200/60 backdrop-blur-md hover:border-secondary/20 hover:bg-gray-200 hover:text-white transition-all duration-300 group shadow-lg shadow-secondary-500/10"
+                className="relative p-3 rounded-full border border-secondary/10 bg-gray-200/60 backdrop-blur-md hover:border-secondary/20 hover:bg-gray-200 hover:text-white transition-all duration-300 group shadow-lg shadow-secondary-500/10 shrink-0"
               >
                 <ShoppingBagIcon className="w-5 h-5 text-secondary transition-colors stroke-[1.8]" />
                 {cartCount > 0 && (
@@ -122,14 +128,19 @@ export default function DesktopHeader() {
                 )}
               </Link>
 
-              <UserAuthButton onOpenAuthModal={() => setIsAuthModalOpen(true)} />
+              {/* کانتینر مجزا برای منوی پروفایل */}
+              <div className="relative shrink-0">
+                <UserAuthButton onOpenAuthModal={() => setIsAuthModalOpen(true)} />
+              </div>
             </div>
+
           </div>
         </div>
       </div>
 
+      {/* منوی اصلی navigation */}
       <nav
-        className="bg-white border-b border-secondary/20 shadow-sm transition-transform duration-500 ease-in-out relative"
+        className="bg-white border-b border-secondary/20 shadow-sm transition-transform duration-500 ease-in-out relative z-40"
         style={{
           transform: hideNav ? `translateY(-${topHeaderHeight}px)` : 'translateY(0)',
           willChange: 'transform',
@@ -196,7 +207,6 @@ export default function DesktopHeader() {
               )}
             </li>
 
-            {/* بخش آدرس پویای جدید */}
             <li className="mr-auto flex items-center gap-4">
               <div className="h-4 w-[1px] bg-gray-200"></div>
               <LocationSelector />

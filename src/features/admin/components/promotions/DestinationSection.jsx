@@ -1,14 +1,14 @@
 "use client";
 
 const fieldClass =
-  "w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-rose-500/50 dark:focus:ring-rose-500/40 transition-all";
+  "w-full px-3 py-2 border border-admin-border rounded-xl bg-admin-background text-admin-text text-xs focus:outline-none focus:border-admin-primary focus:ring-1 focus:ring-admin-primary transition-all";
 
 function Field({ label, help, children }) {
   return (
     <div>
-      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">{label}</label>
+      <label className="block font-bold text-admin-text mb-1">{label}</label>
       {children}
-      {help && <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">{help}</p>}
+      {help && <p className="text-[10px] text-admin-text-muted mt-1">{help}</p>}
     </div>
   );
 }
@@ -86,8 +86,8 @@ export default function DestinationSection({
   const setField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
   return (
-    <div className="space-y-3 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
-      <h3 className="text-xs font-black text-slate-800 dark:text-slate-100">مقصد (Destination)</h3>
+    <div className="space-y-3 p-4 rounded-2xl bg-admin-background/60 border border-admin-border">
+      <h3 className="text-xs font-black text-admin-text">مقصد (Destination)</h3>
 
       <Field label="نوع مقصد">
         <select
@@ -144,8 +144,8 @@ export default function DestinationSection({
       )}
 
       {form.destination_type === "products" && (
-        <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-700/60">
-          <p className="text-[10px] text-slate-500 dark:text-slate-400">
+        <div className="space-y-3 pt-2 border-t border-admin-border">
+          <p className="text-[10px] text-admin-text-muted">
             این فیلترها به فرانت ارسال می‌شوند تا محصولات را واکشی کند.
           </p>
 
@@ -175,9 +175,9 @@ export default function DestinationSection({
           </div>
 
           <Field label="رنگ‌ها">
-            <div className="flex flex-wrap gap-2 p-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 min-h-[44px]">
+            <div className="flex flex-wrap gap-2 p-2.5 border border-admin-border rounded-xl bg-admin-surface min-h-[44px]">
               {colors.length === 0 ? (
-                <span className="text-[10px] text-slate-400 dark:text-slate-500">رنگی ثبت نشده</span>
+                <span className="text-[10px] text-admin-text-muted">رنگی ثبت نشده</span>
               ) : (
                 colors.map((c) => {
                   const checked = (form.filter_color || []).map(Number).includes(c.id);
@@ -186,8 +186,8 @@ export default function DestinationSection({
                       key={c.id}
                       className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border cursor-pointer transition-all text-xs font-medium ${
                         checked
-                          ? "bg-rose-600 text-white border-rose-600 shadow-sm"
-                          : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                          ? "bg-admin-primary text-button-text border-admin-primary shadow-sm"
+                          : "bg-admin-background border-admin-border text-admin-text hover:border-admin-primary/50"
                       }`}
                     >
                       <input
@@ -215,9 +215,9 @@ export default function DestinationSection({
           </Field>
 
           <Field label="سایزها">
-            <div className="flex flex-wrap gap-2 p-2.5 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 min-h-[44px]">
+            <div className="flex flex-wrap gap-2 p-2.5 border border-admin-border rounded-xl bg-admin-surface min-h-[44px]">
               {sizes.length === 0 ? (
-                <span className="text-[10px] text-slate-400 dark:text-slate-500">سایزی ثبت نشده</span>
+                <span className="text-[10px] text-admin-text-muted">سایزی ثبت نشده</span>
               ) : (
                 sizes.map((s) => {
                   const checked = (form.filter_size || []).map(Number).includes(s.id);
@@ -226,8 +226,8 @@ export default function DestinationSection({
                       key={s.id}
                       className={`px-3 py-1 rounded-lg border cursor-pointer transition-all text-xs font-medium ${
                         checked
-                          ? "bg-rose-600 text-white border-rose-600 shadow-sm"
-                          : "bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                          ? "bg-admin-primary text-button-text border-admin-primary shadow-sm"
+                          : "bg-admin-background border-admin-border text-admin-text hover:border-admin-primary/50"
                       }`}
                     >
                       <input
@@ -269,12 +269,12 @@ export default function DestinationSection({
             </Field>
           </div>
 
-          <label className="flex items-center gap-2 cursor-pointer pt-1 text-slate-700 dark:text-slate-300">
+          <label className="flex items-center gap-2 cursor-pointer pt-1 text-admin-text">
             <input
               type="checkbox"
               checked={form.filter_has_discount || false}
               onChange={(e) => setField("filter_has_discount", e.target.checked)}
-              className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 border-slate-300 dark:border-slate-600 dark:bg-slate-800"
+              className="w-4 h-4 rounded text-admin-primary focus:ring-admin-primary border-admin-border bg-admin-background"
             />
             <span className="font-bold text-xs">فقط محصولات تخفیف‌دار</span>
           </label>

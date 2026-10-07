@@ -15,8 +15,8 @@ export default function ShopLayout({ children }) {
           {/* بازگردانی اسکرول بین صفحات */}
           <ScrollRestoration />
 
-          {/* Header & Top Banner */}
-          <div className="contents lg:block lg:header-wrapper lg:sticky lg:top-0 lg:z-50">
+          {/* Header & Top Banner - حذف کلاس contents برای جلوگیری از برهم خوردن Containing Block */}
+          <div className="w-full lg:header-wrapper lg:sticky lg:top-0 lg:z-50">
             <div className="relative z-30">
               <PromotionRenderer type="topBanner" />
             </div>

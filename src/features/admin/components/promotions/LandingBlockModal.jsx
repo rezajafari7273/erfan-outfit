@@ -5,13 +5,34 @@ import { adminApi } from "@/features/admin/api/adminApi";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 const fieldClass =
-  "w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-rose-500";
+  "w-full px-3 py-2 border border-admin-border rounded-xl bg-admin-surface text-admin-text text-xs focus:outline-none focus:ring-2 focus:ring-admin-primary transition-all";
 
 function Field({ label, children }) {
   return (
     <div>
-      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">{label}</label>
+      <label className="block font-bold text-admin-text mb-1">{label}</label>
       {children}
+    </div>
+  );
+}
+
+function LandingBlockSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse p-2">
+      <div className="grid grid-cols-2 gap-3">
+        <div className="h-9 bg-admin-border/40 rounded-xl"></div>
+        <div className="h-9 bg-admin-border/40 rounded-xl"></div>
+      </div>
+      <div className="h-9 bg-admin-border/40 rounded-xl"></div>
+      <div className="h-9 bg-admin-border/40 rounded-xl"></div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="h-9 bg-admin-border/40 rounded-xl"></div>
+        <div className="h-9 bg-admin-border/40 rounded-xl"></div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="h-20 bg-admin-border/30 rounded-xl"></div>
+        <div className="h-20 bg-admin-border/30 rounded-xl"></div>
+      </div>
     </div>
   );
 }
@@ -156,20 +177,24 @@ export default function LandingBlockModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 dir-rtl">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl p-6 relative max-h-[92vh] flex flex-col border border-slate-200 dark:border-slate-800">
-        <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="text-base font-black text-slate-800 dark:text-slate-100">
+      <div className="bg-admin-surface text-admin-text rounded-2xl shadow-2xl w-full max-w-2xl p-6 relative max-h-[92vh] flex flex-col border border-admin-border">
+        <div className="flex justify-between items-center pb-4 mb-4 border-b border-admin-border">
+          <h2 className="text-base font-black text-admin-text">
             {editingItem ? "ویرایش بلاک" : "افزودن بلاک جدید"}
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+          <button onClick={onClose} className="text-admin-text-muted hover:text-admin-text transition-colors">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
-        {error && <div className="mb-4 p-3 bg-rose-100 text-rose-700 text-xs font-bold rounded-xl">{error}</div>}
+        {error && (
+          <div className="mb-4 p-3 bg-admin-danger/10 border border-admin-danger/20 text-admin-danger text-xs font-bold rounded-xl">
+            {error}
+          </div>
+        )}
 
-        {fetching ? (
-          <div className="p-12 text-center text-xs text-slate-500">در حال بارگذاری...</div>
+        {fetching || loading ? (
+          <LandingBlockSkeleton />
         ) : (
           <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto space-y-3 text-xs pr-1">
             <div className="grid grid-cols-2 gap-3">
@@ -253,8 +278,8 @@ export default function LandingBlockModal({
             </div>
 
             {form.block_type === "productSlider" && (
-              <div className="p-3 border border-slate-200 dark:border-slate-700 rounded-xl space-y-3 bg-slate-50 dark:bg-slate-800/50">
-                <h4 className="text-[11px] font-black text-slate-800 dark:text-slate-100">فیلتر اسلایدر</h4>
+              <div className="p-3 border border-admin-border rounded-xl space-y-3 bg-admin-background">
+                <h4 className="text-[11px] font-black text-admin-text">فیلتر اسلایدر</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <Field label="دسته‌بندی">
                     <select
@@ -278,12 +303,12 @@ export default function LandingBlockModal({
                     />
                   </Field>
                 </div>
-                <label className="flex items-center gap-2 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer text-admin-text">
                   <input
                     type="checkbox"
                     checked={form.filter_has_discount}
                     onChange={(e) => setForm({ ...form, filter_has_discount: e.target.checked })}
-                    className="w-4 h-4 rounded text-rose-600"
+                    className="w-4 h-4 rounded accent-admin-primary"
                   />
                   <span className="font-bold">فقط محصولات تخفیف‌دار</span>
                 </label>
@@ -299,7 +324,7 @@ export default function LandingBlockModal({
                   className={fieldClass}
                 />
                 {form.image_url && (
-                  <img src={form.image_url} alt="" className="mt-2 h-16 rounded-lg border" />
+                  <img src={form.image_url} alt="" className="mt-2 h-16 rounded-lg border border-admin-border object-cover" />
                 )}
               </Field>
               <Field label="ویدیو (اختیاری)">
@@ -310,25 +335,25 @@ export default function LandingBlockModal({
                   className={fieldClass}
                 />
                 {form.video_url && (
-                  <p className="mt-2 text-[10px] text-slate-500">ویدیو فعلی دارد</p>
+                  <p className="mt-2 text-[10px] text-admin-text-muted">ویدیو فعلی دارد</p>
                 )}
               </Field>
             </div>
 
-            <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-admin-border">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="px-4 py-2 rounded-xl border border-admin-border text-admin-text hover:bg-admin-background transition-colors"
               >
                 انصراف
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-5 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-admin-primary text-button-text font-bold hover:bg-admin-primary-hover disabled:opacity-50 transition-colors"
               >
-                {loading ? "..." : "ذخیره"}
+                ذخیره
               </button>
             </div>
           </form>

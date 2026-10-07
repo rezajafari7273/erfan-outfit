@@ -5,13 +5,36 @@ import { adminApi } from "@/features/admin/api/adminApi";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 
 const fieldClass =
-  "w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-rose-500";
+  "w-full px-3 py-2 border border-admin-border rounded-xl bg-admin-surface text-admin-text text-xs focus:outline-none focus:ring-2 focus:ring-admin-primary transition-all";
 
 function Field({ label, children }) {
   return (
     <div>
-      <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1">{label}</label>
+      <label className="block font-bold text-admin-text mb-1">{label}</label>
       {children}
+    </div>
+  );
+}
+
+function LandingPageSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      <div className="space-y-2">
+        <div className="h-3 w-16 bg-admin-border/60 rounded"></div>
+        <div className="h-9 w-full bg-admin-border/40 rounded-xl"></div>
+      </div>
+      <div className="space-y-2">
+        <div className="h-3 w-28 bg-admin-border/60 rounded"></div>
+        <div className="h-9 w-full bg-admin-border/40 rounded-xl"></div>
+      </div>
+      <div className="space-y-2">
+        <div className="h-3 w-24 bg-admin-border/60 rounded"></div>
+        <div className="h-9 w-full bg-admin-border/40 rounded-xl"></div>
+      </div>
+      <div className="space-y-2">
+        <div className="h-3 w-32 bg-admin-border/60 rounded"></div>
+        <div className="h-16 w-full bg-admin-border/40 rounded-xl"></div>
+      </div>
     </div>
   );
 }
@@ -71,83 +94,91 @@ export default function LandingPageModal({ isOpen, onClose, editingItem, onSucce
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 dir-rtl">
-      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-lg p-6 relative border border-slate-200 dark:border-slate-800">
-        <div className="flex justify-between items-center pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
-          <h2 className="text-base font-black text-slate-800 dark:text-slate-100">
+      <div className="bg-admin-surface text-admin-text rounded-2xl shadow-2xl w-full max-w-lg p-6 relative border border-admin-border">
+        <div className="flex justify-between items-center pb-4 mb-4 border-b border-admin-border">
+          <h2 className="text-base font-black text-admin-text">
             {editingItem ? "ویرایش لندینگ" : "افزودن لندینگ"}
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+          <button onClick={onClose} className="text-admin-text-muted hover:text-admin-text transition-colors">
             <XMarkIcon className="w-5 h-5" />
           </button>
         </div>
 
-        {error && <div className="mb-4 p-3 bg-rose-100 text-rose-700 text-xs font-bold rounded-xl">{error}</div>}
-
-        <form onSubmit={handleSubmit} className="space-y-3 text-xs">
-          <Field label="عنوان *">
-            <input
-              type="text"
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              required
-              className={fieldClass}
-            />
-          </Field>
-
-          <Field label="اسلاگ (اختیاری، خودکار)">
-            <input
-              type="text"
-              value={form.slug}
-              onChange={(e) => setForm({ ...form, slug: e.target.value })}
-              className={fieldClass}
-            />
-          </Field>
-
-          <Field label="Meta Title">
-            <input
-              type="text"
-              value={form.meta_title}
-              onChange={(e) => setForm({ ...form, meta_title: e.target.value })}
-              className={fieldClass}
-            />
-          </Field>
-
-          <Field label="Meta Description">
-            <textarea
-              rows="2"
-              value={form.meta_description}
-              onChange={(e) => setForm({ ...form, meta_description: e.target.value })}
-              className={fieldClass}
-            />
-          </Field>
-
-          <label className="flex items-center gap-2 cursor-pointer pt-2">
-            <input
-              type="checkbox"
-              checked={form.is_active}
-              onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
-              className="w-4 h-4 rounded text-rose-600"
-            />
-            <span className="font-bold">فعال</span>
-          </label>
-
-          <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-            >
-              انصراف
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-5 py-2 rounded-xl bg-rose-600 text-white font-bold hover:bg-rose-700 disabled:opacity-50"
-            >
-              {loading ? "..." : "ذخیره"}
-            </button>
+        {error && (
+          <div className="mb-4 p-3 bg-admin-danger/10 border border-admin-danger/20 text-admin-danger text-xs font-bold rounded-xl">
+            {error}
           </div>
-        </form>
+        )}
+
+        {loading ? (
+          <LandingPageSkeleton />
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+            <Field label="عنوان *">
+              <input
+                type="text"
+                value={form.title}
+                onChange={(e) => setForm({ ...form, title: e.target.value })}
+                required
+                className={fieldClass}
+              />
+            </Field>
+
+            <Field label="اسلاگ (اختیاری، خودکار)">
+              <input
+                type="text"
+                value={form.slug}
+                onChange={(e) => setForm({ ...form, slug: e.target.value })}
+                className={fieldClass}
+              />
+            </Field>
+
+            <Field label="Meta Title">
+              <input
+                type="text"
+                value={form.meta_title}
+                onChange={(e) => setForm({ ...form, meta_title: e.target.value })}
+                className={fieldClass}
+              />
+            </Field>
+
+            <Field label="Meta Description">
+              <textarea
+                rows="2"
+                value={form.meta_description}
+                onChange={(e) => setForm({ ...form, meta_description: e.target.value })}
+                className={fieldClass}
+              />
+            </Field>
+
+            <label className="flex items-center gap-2 cursor-pointer pt-2 text-admin-text">
+              <input
+                type="checkbox"
+                checked={form.is_active}
+                onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+                className="w-4 h-4 rounded accent-admin-primary"
+              />
+              <span className="font-bold">فعال</span>
+            </label>
+
+            <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-admin-border">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-4 py-2 rounded-xl border border-admin-border text-admin-text hover:bg-admin-background transition-colors"
+              >
+                انصراف
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-5 py-2 rounded-xl bg-admin-primary text-button-text font-bold hover:bg-admin-primary-hover disabled:opacity-50 transition-colors"
+              >
+                ذخیره
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
