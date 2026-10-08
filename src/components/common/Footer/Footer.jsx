@@ -33,24 +33,39 @@ export default function Footer() {
             <div className="lg:col-span-5 mt-2 p-2 flex flex-col justify-between">
               <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr_auto_1fr] gap-4 items-stretch">
 
-                {/* ستون ۱ */}
+                {/* ستون ۱: راهنمای خرید */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <span className="w-1 h-4 bg-primary rounded-full" />
                     <h3 className="text-sm font-black text-slate-900">راهنمای خرید</h3>
                   </div>
                   <ul className="space-y-3 text-xs font-bold text-slate-600">
-                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
-                      <span>ثبت سفارش</span>
-                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    <li>
+                      <Link
+                        href="/faq?category=orders"
+                        className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group"
+                      >
+                        <span>ثبت سفارش</span>
+                        <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                      </Link>
                     </li>
-                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
-                      <span>نحوه ارسال</span>
-                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    <li>
+                      <Link
+                        href="/faq?category=shipping"
+                        className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group"
+                      >
+                        <span>نحوه ارسال</span>
+                        <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                      </Link>
                     </li>
-                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
-                      <span>شیوه‌های پرداخت</span>
-                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    <li>
+                      <Link
+                        href="/faq?category=payment"
+                        className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group"
+                      >
+                        <span>شیوه‌های پرداخت</span>
+                        <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                      </Link>
                     </li>
                   </ul>
                 </div>
@@ -60,24 +75,39 @@ export default function Footer() {
                   <div className="w-px h-full min-h-[100px] bg-slate-200 shrink-0" />
                 </div>
 
-                {/* ستون ۲ */}
+                {/* ستون ۲: دسترسی سریع */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <span className="w-1 h-4 bg-primary rounded-full" />
                     <h3 className="text-sm font-black text-slate-900">دسترسی سریع</h3>
                   </div>
                   <ul className="space-y-3 text-xs font-bold text-slate-600">
-                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
-                      <span>تماس با ما</span>
-                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    <li>
+                      <Link
+                        href="/contact"
+                        className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group"
+                      >
+                        <span>تماس با ما</span>
+                        <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                      </Link>
                     </li>
-                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
-                      <span>فروشگاه</span>
-                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    <li>
+                      <Link
+                        href="/products"
+                        className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group"
+                      >
+                        <span>فروشگاه</span>
+                        <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                      </Link>
                     </li>
-                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
-                      <span>وبلاگ</span>
-                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    <li>
+                      <Link
+                        href="/blog"
+                        className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group"
+                      >
+                        <span>وبلاگ</span>
+                        <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                      </Link>
                     </li>
                   </ul>
                 </div>
@@ -87,24 +117,39 @@ export default function Footer() {
                   <div className="w-px h-full min-h-[100px] bg-slate-200 shrink-0" />
                 </div>
 
-                {/* ستون ۳ */}
+                {/* ستون ۳: خدمات مشتریان */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <span className="w-1 h-4 bg-primary rounded-full" />
                     <h3 className="text-sm font-black text-slate-900">خدمات مشتریان</h3>
                   </div>
                   <ul className="space-y-3 text-xs font-bold text-slate-600">
-                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
-                      <span>سوالات متداول</span>
-                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    <li>
+                      <Link
+                        href="/faq"
+                        className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group"
+                      >
+                        <span>سوالات متداول</span>
+                        <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                      </Link>
                     </li>
-                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
-                      <span>حریم خصوصی</span>
-                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    <li>
+                      <Link
+                        href="/privacy-policy"
+                        className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group"
+                      >
+                        <span>حریم خصوصی</span>
+                        <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                      </Link>
                     </li>
-                    <li className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group">
-                      <span>بازگشت وجه</span>
-                      <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                    <li>
+                      <Link
+                        href="/faq?category=returns"
+                        className="flex items-center justify-between hover:text-primary transition-colors cursor-pointer group"
+                      >
+                        <span>بازگشت وجه و تعویض</span>
+                        <ChevronLeftIcon className="w-3 h-3 text-slate-400 group-hover:text-primary" />
+                      </Link>
                     </li>
                   </ul>
                 </div>
@@ -121,7 +166,7 @@ export default function Footer() {
 
               <div className="space-y-3 text-right">
                 {/* شماره تماس */}
-                <div className="flex items-center gap-3">  
+                <a href="tel:02155678910" className="flex items-center gap-3 hover:opacity-80 transition-opacity">  
                   <div className="w-8 h-8 rounded-xl border border-secondary/8 bg-gray-200/60 backdrop-blur-md shadow-lg shadow-secondary-500/10 flex items-center justify-center font-bold">
                     <PhoneIcon className="w-4 h-4 text-secondary" />
                   </div>
@@ -129,7 +174,7 @@ export default function Footer() {
                     <p className="text-xs font-black text-slate-800 tabular-nums">۰۲۱-۵۵۶۷۸۹۱۰</p>
                     <p className="text-[10px] text-slate-400 font-semibold">پشتیبانی و تماس با ما</p>
                   </div>
-                </div>
+                </a>
 
                 {/* آدرس */}
                 <div className="flex items-center gap-3">        
@@ -143,7 +188,7 @@ export default function Footer() {
                 </div>
 
                 {/* ایمیل */}
-                <div className="flex items-center gap-3">
+                <a href="mailto:info@site.com" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                   <div className="w-8 h-8 rounded-xl border border-secondary/8 bg-gray-200/60 backdrop-blur-md shadow-lg shadow-secondary-500/10 flex items-center justify-center font-bold">
                     <EnvelopeIcon className="w-4 h-4 text-secondary" />
                   </div>
@@ -151,7 +196,7 @@ export default function Footer() {
                     <p className="text-xs font-black text-slate-800">info@site.com</p>
                     <p className="text-[10px] text-slate-400 font-semibold">ایمیل پشتیبانی</p>
                   </div>
-                </div>
+                </a>
               </div>
             </div>
 
@@ -182,10 +227,15 @@ export default function Footer() {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/10 flex flex-col items-center justify-end p-1.5">
-                  <button className="w-full py-1 bg-white/90 backdrop-blur-md rounded-lg text-[9px] font-bold text-slate-800 shadow-sm flex items-center justify-center gap-1">
+                  <a 
+                    href="https://maps.google.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-full py-1 bg-white/90 backdrop-blur-md rounded-lg text-[9px] font-bold text-slate-800 shadow-sm flex items-center justify-center gap-1 hover:bg-white transition-colors"
+                  >
                     <MapPinIcon className="w-3 h-3 text-rose-600" />
                     مشاهده موقعیت
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>

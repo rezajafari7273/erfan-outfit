@@ -221,17 +221,32 @@ export default function ProductPage() {
     }, 100);
   };
 
-  const breadcrumbItems = product?.breadcrumb?.length
-    ? product.breadcrumb.map((item, i, arr) => ({
-        label: item.name,
-        href: i < arr.length - 1 ? `/category/${item.slug}` : undefined,
-      }))
-    : [
-        { label: "پوشاک مردانه", href: "/category/men" },
-        { label: "پیراهن", href: "/category/shirts" },
-        { label: "پیراهن کتان آستین بلند OverSize" },
-      ];
+// ساخت داینامیک آیتم‌های بردکرامپ بدون تکرار خانه و با لینک‌های درست
+  const breadcrumbItems = (() => {
+    // ۱. اگر دیتای بردکرامپ از بک‌اند دریافت شده باشد
+    if (Array.isArray(product?.breadcrumb) && product.breadcrumb.length > 0) {
+      return product.breadcrumb
+        // حذف آیتم "خانه" از دیتای API برای جلوگیری از تکرار آن در UI
+        .filter((b) => b.name !== "خانه" && b.slug !== "home")
+        .map((item, index, arr) => {
+          const isLast = index === arr.length - 1;
+          return {
+            label: item.name,
+            // آیتم آخر (خود محصول) کلیک‌پذیر نیست؛ باقی موارد به کوئری پارامتر دسته وصل می‌شوند
+            href: isLast ? undefined : `/products?category=${item.slug}`,
+          };
+        });
+    }
 
+    // ۲. فالبک در صورت عدم دریافت دیتا از API
+    return [
+      {
+        label: product?.category?.name || "پوشاک مردانه",
+        href: `/products?category=${product?.category?.slug || "men-clothing"}`,
+      },
+      { label: product?.title || "جزئیات محصول" },
+    ];
+  })();
   const HeaderButtons = ({ isPinned = false }) => (
     <div className="flex items-center justify-between w-full transition-all duration-300">
       <button

@@ -50,6 +50,7 @@ export default function PrivacyPolicyPage() {
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
             {/* سمت راست: نوار مسیریابی، عنوان و متن */}
             <div className="space-y-4 max-w-2xl text-right">
+              
               {/* Breadcrumb مدرن */}
               <nav className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-slate-200/80 text-xs text-slate-500 shadow-sm backdrop-blur-md">
                 <HomeIcon className="w-3.5 h-3.5 text-slate-400" />

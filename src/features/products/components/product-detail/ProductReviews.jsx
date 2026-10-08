@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import {
-  StarIcon,
   XMarkIcon,
   ChevronDownIcon,
   PlusIcon,
@@ -12,13 +11,17 @@ import {
   SparklesIcon,
   CheckBadgeIcon,
   ChevronLeftIcon,
+  ChatBubbleLeftRightIcon,
+  CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import { StarIcon as StarSolidIcon } from "@heroicons/react/24/solid";
+
+// 1. ایمپورت کامپوننت Alert
+import Alert from "@/components/ui/Alert";
 
 import "swiper/css";
 import "swiper/css/pagination";
 
-// داده‌های نمونه دیدگاه‌ها
 const MOCK_REVIEWS = Array.from({ length: 18 }, (_, i) => ({
   id: i + 1,
   user: `کاربر ${i + 1}`,
@@ -37,12 +40,59 @@ export default function ProductReviews() {
   const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState(null);
 
+  // ---- استیت ثبت دیدگاه جدید ----
+  const [isAddReviewOpen, setIsAddReviewOpen] = useState(false);
+  const [newRating, setNewRating] = useState(5);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [commentText, setCommentText] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ---- استیت Toast Alert ----
+  const [toast, setToast] = useState({ show: false, message: "" });
+
+  const triggerToast = (message) => {
+    setToast({ show: true, message });
+    setTimeout(() => {
+      setToast({ show: false, message: "" });
+    }, 4000);
+  };
+
   const handleLoadMore = () => {
     setVisibleCount((prev) => prev + 5);
   };
 
+  const handleSubmitReview = (e) => {
+    e.preventDefault();
+    if (!commentText.trim()) return;
+
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsAddReviewOpen(false);
+      setCommentText("");
+      setNewRating(5);
+
+      // نمایش Toast Alert انیمیشنی
+      triggerToast("دیدگاه شما با موفقیت ثبت شد و پس از بررسی منتشر خواهد شد.");
+    }, 800);
+  };
+
   return (
-    <section className="pt-6 border-t border-rose-100/60 mb-8">
+    <section className="pt-6 border-t border-rose-100/60 mb-8 relative">
+      {/* 🔔 Toast Alert بالای صفحه با استفاده از Alert Component */}
+      {toast.show && (
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[120] w-[92%] max-w-md animate-in slide-in-from-top-6 fade-in duration-300 shadow-2xl">
+          <Alert
+            variant="success"
+            title="ثبت موفقیت‌آمیز"
+            icon={<CheckCircleIcon className="w-5 h-5 text-success" />}
+            className="bg-white/95 backdrop-blur-md shadow-xl border-emerald-200"
+          >
+            {toast.message}
+          </Alert>
+        </div>
+      )}
+
       {/* هدر بخش دیدگاه‌ها */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2.5">
@@ -51,15 +101,17 @@ export default function ProductReviews() {
             {MOCK_REVIEWS.length} نظر
           </span>
         </div>
-        <button className="text-xs font-bold text-primary hover:text-white bg-primary/10 hover:bg-primary border border-primary/20 px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer">
+        <button
+          type="button"
+          onClick={() => setIsAddReviewOpen(true)}
+          className="text-xs font-bold text-primary hover:text-white bg-primary/10 hover:bg-primary border border-primary/20 px-3.5 py-2 rounded-xl transition-all duration-200 flex items-center gap-1.5 shadow-2xs active:scale-95 cursor-pointer relative z-10"
+        >
           <PlusIcon className="w-4 h-4 stroke-[2.5]" />
           ثبت دیدگاه جدید
         </button>
       </div>
 
-      {/* ========================================== */}
-      {/* 💻 حالت دسکتاپ (نمایش ۵تایی + مشاهده بیشتر) */}
-      {/* ========================================== */}
+      {/* 💻 حالت دسکتاپ */}
       <div className="hidden lg:block space-y-4">
         <div className="space-y-3.5">
           {MOCK_REVIEWS.slice(0, visibleCount).map((review) => (
@@ -70,6 +122,7 @@ export default function ProductReviews() {
         {visibleCount < MOCK_REVIEWS.length && (
           <div className="text-center pt-5">
             <button
+              type="button"
               onClick={handleLoadMore}
               className="inline-flex items-center gap-2 text-xs font-bold text-gray-700 bg-rose-50/70 hover:bg-rose-100/80 border border-rose-200/60 px-6 py-2.5 rounded-xl transition-all cursor-pointer active:scale-98"
             >
@@ -80,9 +133,7 @@ export default function ProductReviews() {
         )}
       </div>
 
-      {/* ========================================== */}
-      {/* 📱 حالت موبایل (سوئیپر ۵تایی + کارت آخر)     */}
-      {/* ========================================== */}
+      {/* 📱 حالت موبایل */}
       <div className="lg:hidden">
         <Swiper
           spaceBetween={12}
@@ -91,7 +142,6 @@ export default function ProductReviews() {
           modules={[Pagination]}
           className="w-full !pb-4"
         >
-          {/* ۵ دیدگاه اول */}
           {MOCK_REVIEWS.slice(0, 5).map((review) => (
             <SwiperSlide key={review.id}>
               <ReviewCard
@@ -102,7 +152,6 @@ export default function ProductReviews() {
             </SwiperSlide>
           ))}
 
-          {/* اسلاید آخر: کارت مشاهده همه */}
           <SwiperSlide>
             <div
               onClick={() => setIsMobileModalOpen(true)}
@@ -122,30 +171,120 @@ export default function ProductReviews() {
         </Swiper>
       </div>
 
-      {/* ========================================== */}
-      {/* 📱 Bottom Sheet نمایش متن کامل دیدگاه       */}
-      {/* ========================================== */}
+      {/* ✍️ مودال ثبت دیدگاه جدید */}
+      {isAddReviewOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsAddReviewOpen(false)}
+          />
+
+          <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl z-10 overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <ChatBubbleLeftRightIcon className="w-5 h-5" />
+                </div>
+                <h3 className="text-sm font-bold text-gray-900">
+                  ثبت دیدگاه جدید
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddReviewOpen(false)}
+                className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-colors cursor-pointer"
+              >
+                <XMarkIcon className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitReview} className="p-6 space-y-5 overflow-y-auto">
+              {/* بخش امتیاز دهی */}
+              <div className="text-center space-y-2 bg-rose-50/50 p-4 rounded-2xl border border-rose-100/60">
+                <label className="block text-xs font-bold text-gray-700">
+                  امتیاز شما به این محصول
+                </label>
+                <div className="flex items-center justify-center gap-1.5 dir-ltr">
+                  {[1, 2, 3, 4, 5].map((star) => {
+                    const isSelected = (hoverRating || newRating) >= star;
+                    return (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setNewRating(star)}
+                        onMouseEnter={() => setHoverRating(star)}
+                        onMouseLeave={() => setHoverRating(0)}
+                        className="p-1 transition-all duration-150 hover:scale-125 active:scale-95 cursor-pointer outline-none"
+                      >
+                        <StarSolidIcon
+                          className={`w-7 h-7 transition-colors ${
+                            isSelected
+                              ? "text-amber-400 drop-shadow-xs"
+                              : "text-gray-200 hover:text-amber-200"
+                          }`}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* متن دیدگاه */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-gray-700">
+                  متن دیدگاه <span className="text-rose-500">*</span>
+                </label>
+                <textarea
+                  required
+                  rows={4}
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  placeholder="تجربه خود از خرید و استفاده این محصول را بنویسید..."
+                  className="w-full text-xs p-3.5 rounded-2xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/10 outline-none transition-all placeholder:text-gray-400 resize-none"
+                />
+              </div>
+
+              {/* دکمه‌های فرم */}
+              <div className="pt-2 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setIsAddReviewOpen(false)}
+                  className="px-5 py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  انصراف
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !commentText.trim()}
+                  className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/90 disabled:opacity-50 text-white text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-98"
+                >
+                  {isSubmitting ? "در حال ثبت..." : "ثبت و ارسال نظر"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* 📱 Bottom Sheet نمایش متن کامل دیدگاه */}
       {selectedReview && (
         <div className="lg:hidden fixed inset-0 z-50 flex items-end justify-center">
-          {/* بک‌دراپ */}
           <div
             className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
             onClick={() => setSelectedReview(null)}
           />
 
-          {/* محتوای باتن شیت همراه با mb-24 */}
-          <div className="relative w-full max-h-[80vh] pb-24 bg-white rounded-3xl  shadow-xl z-10 flex flex-col animate-in slide-in-from-bottom duration-300">
-            {/* دستگیره بالا */}
+          <div className="relative w-full max-h-[80vh] pb-24 bg-white rounded-3xl shadow-xl z-10 flex flex-col animate-in slide-in-from-bottom duration-300">
             <div className="w-full pt-3 pb-1 flex justify-center">
               <div className="w-12 h-1.5 bg-gray-300 rounded-full" />
             </div>
 
-            {/* هدر باتن شیت */}
             <div className="px-5 py-3 border-b border-gray-100 flex items-center justify-between">
               <span className="text-xs font-bold text-gray-500 font-faNum">
                 دیدگاه کاربر
               </span>
               <button
+                type="button"
                 onClick={() => setSelectedReview(null)}
                 className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 active:scale-90 transition-transform"
               >
@@ -153,9 +292,7 @@ export default function ProductReviews() {
               </button>
             </div>
 
-            {/* بدنه باتن شیت */}
             <div className="p-5 overflow-y-auto space-y-4 pb-6">
-              {/* هدر نظر: کاربر، خریدار، تاریخ */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-gray-800">
@@ -173,27 +310,30 @@ export default function ProductReviews() {
                 </span>
               </div>
 
-              {/* امتیاز ستاره‌ای */}
-              <div className="flex items-center gap-0.5">
-                {[...Array(5)].map((_, i) =>
-                  i < selectedReview.rating ? (
-                    <StarSolidIcon key={i} className="w-4 h-4 text-amber-400" />
-                  ) : (
-                    <StarIcon key={i} className="w-4 h-4 text-gray-200" />
-                  )
-                )}
+              <div className="flex items-center gap-0.5 dir-ltr">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <StarSolidIcon
+                    key={star}
+                    className={`w-4 h-4 ${
+                      star <= selectedReview.rating
+                        ? "text-amber-400"
+                        : "text-gray-200"
+                    }`}
+                  />
+                ))}
               </div>
 
-              {/* متن کامل دیدگاه */}
               <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100">
                 <p className="text-xs font-medium text-gray-800 leading-relaxed">
                   {selectedReview.comment}
                 </p>
               </div>
 
-              {/* دکمه لایک */}
               <div className="flex items-center justify-end pt-2">
-                <button className="flex items-center gap-1.5 text-gray-500 hover:text-emerald-600 transition-colors py-1.5 px-3 rounded-xl bg-gray-100/70 hover:bg-emerald-50 cursor-pointer">
+                <button
+                  type="button"
+                  className="flex items-center gap-1.5 text-gray-500 hover:text-emerald-600 transition-colors py-1.5 px-3 rounded-xl bg-gray-100/70 hover:bg-emerald-50 cursor-pointer"
+                >
                   <HandThumbUpIcon className="w-4 h-4" />
                   <span className="text-xs font-bold font-faNum">
                     مفید بود ({selectedReview.likes})
@@ -205,9 +345,7 @@ export default function ProductReviews() {
         </div>
       )}
 
-      {/* ========================================== */}
-      {/* 📱 مودال تمام‌صفحه موبایل (لیست اسکرولی)   */}
-      {/* ========================================== */}
+      {/* 📱 مودال تمام‌صفحه موبایل */}
       {isMobileModalOpen && (
         <div className="lg:hidden fixed inset-0 z-50 bg-white/95 backdrop-blur-md flex flex-col">
           <div className="sticky top-0 z-10 bg-white/90 backdrop-blur-md border-b border-rose-100 px-4 py-3.5 flex items-center justify-between shadow-2xs">
@@ -216,6 +354,7 @@ export default function ProductReviews() {
               همه دیدگاه‌ها
             </h3>
             <button
+              type="button"
               onClick={() => setIsMobileModalOpen(false)}
               className="w-10 h-10 rounded-2xl border flex items-center justify-center active:scale-90 transition-all duration-200 cursor-pointer pointer-events-auto shadow-xs border-gray-200 bg-gray-100/80 text-gray-800 hover:bg-gray-200"
             >
@@ -242,7 +381,6 @@ export default function ProductReviews() {
   );
 }
 
-// کامپوننت کارت دیدگاه
 function ReviewCard({ review, isMobile = false, onSelect }) {
   return (
     <div
@@ -252,7 +390,6 @@ function ReviewCard({ review, isMobile = false, onSelect }) {
       }`}
     >
       <div>
-        {/* هدر کارت: نام کاربر، بج خریدار و تاریخ */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-gray-800">{review.user}</span>
@@ -268,18 +405,17 @@ function ReviewCard({ review, isMobile = false, onSelect }) {
           </span>
         </div>
 
-        {/* امتیاز ستاره‌ای */}
-        <div className="flex items-center gap-0.5 mb-2.5">
-          {[...Array(5)].map((_, i) =>
-            i < review.rating ? (
-              <StarSolidIcon key={i} className="w-3.5 h-3.5 text-amber-400" />
-            ) : (
-              <StarIcon key={i} className="w-3.5 h-3.5 text-gray-200" />
-            )
-          )}
+        <div className="flex items-center gap-0.5 mb-2.5 dir-ltr">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <StarSolidIcon
+              key={star}
+              className={`w-3.5 h-3.5 ${
+                star <= review.rating ? "text-amber-400" : "text-gray-200"
+              }`}
+            />
+          ))}
         </div>
 
-        {/* متن نظر - در موبایل حداکثر ۲ خط برای یکنواخت ماندن باکس‌ها */}
         <p
           className={`text-xs font-medium text-gray-700 leading-relaxed ${
             isMobile ? "line-clamp-2" : "line-clamp-3"
@@ -289,7 +425,6 @@ function ReviewCard({ review, isMobile = false, onSelect }) {
         </p>
       </div>
 
-      {/* بخش پایین کارت */}
       <div className="mt-3 pt-2.5 border-t border-secondary/10 flex items-center justify-between text-gray-400 text-xs">
         {isMobile ? (
           <div className="w-full flex items-center justify-between">
@@ -304,7 +439,10 @@ function ReviewCard({ review, isMobile = false, onSelect }) {
           </div>
         ) : (
           <div className="w-full flex justify-end">
-            <button className="flex items-center gap-1.5 hover:text-emerald-600 transition-colors py-0.5 px-2 rounded-lg hover:bg-emerald-50/50 cursor-pointer">
+            <button
+              type="button"
+              className="flex items-center gap-1.5 hover:text-emerald-600 transition-colors py-0.5 px-2 rounded-lg hover:bg-emerald-50/50 cursor-pointer"
+            >
               <HandThumbUpIcon className="w-3.5 h-3.5" />
               <span className="text-[11px] font-bold font-faNum">
                 {review.likes}
